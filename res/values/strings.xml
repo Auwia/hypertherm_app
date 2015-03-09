@@ -22,7 +22,7 @@
     <string name="novanta">90</string>
     <string name="cento">100</string>
     <string name="percentage">%</string>
-    <string name="set_value">Set Value [J]</string>
+    <string name="freq">1</string>
     <string name="energy">Energy J</string>
 
 </resources>

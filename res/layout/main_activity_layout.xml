@@ -6,16 +6,16 @@
 
     <Button
         android:id="@+id/face"
-        android:layout_width="85dp"
+        android:layout_width="80dp"
         android:layout_height="30dp"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="85dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="70dp"
         android:background="@drawable/button_face" />
 
     <Button
         android:id="@+id/cap"
-        android:layout_width="85dp"
+        android:layout_width="80dp"
         android:layout_height="30dp"
         android:layout_alignBaseline="@+id/cap"
         android:layout_alignBottom="@+id/face"
@@ -25,7 +25,7 @@
 
     <Button
         android:id="@+id/res"
-        android:layout_width="85dp"
+        android:layout_width="80dp"
         android:layout_height="30dp"
         android:layout_alignLeft="@+id/cap"
         android:layout_below="@+id/cap"
@@ -34,7 +34,7 @@
 
     <Button
         android:id="@+id/body"
-        android:layout_width="85dp"
+        android:layout_width="80dp"
         android:layout_height="30dp"
         android:layout_alignBaseline="@+id/res"
         android:layout_alignBottom="@+id/res"
@@ -44,31 +44,31 @@
 
     <Button
         android:id="@+id/button_play"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:layout_alignTop="@+id/cap"
-        android:layout_marginLeft="25dp"
+        android:layout_marginLeft="35dp"
         android:layout_marginTop="-5dp"
         android:layout_toRightOf="@+id/cap"
         android:background="@drawable/button_play" />
 
     <Button
         android:id="@+id/button_stop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:layout_alignBaseline="@+id/button_play"
         android:layout_alignBottom="@+id/button_play"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="10dp"
         android:layout_toRightOf="@+id/button_pause"
         android:background="@drawable/button_stop" />
 
     <Button
         android:id="@+id/button_pause"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:layout_alignBaseline="@+id/button_stop"
         android:layout_alignBottom="@+id/button_stop"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="10dp"
         android:layout_toRightOf="@+id/button_play"
         android:background="@drawable/button_pause" />
 
@@ -82,20 +82,12 @@
         android:textSize="20sp" />
 
     <TextView
-        android:id="@+id/monitor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:textColor="@android:color/white"
-        android:textSize="20sp" />
-
-    <TextView
         android:id="@+id/label_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/button_play"
         android:layout_below="@+id/button_play"
-        android:layout_marginLeft="13dp"
+        android:layout_marginLeft="15dp"
         android:text="@string/start" />
 
     <TextView
@@ -105,7 +97,7 @@
         android:layout_alignBaseline="@+id/label_start"
         android:layout_alignBottom="@+id/label_start"
         android:layout_alignLeft="@+id/button_stop"
-        android:layout_marginLeft="13dp"
+        android:layout_marginLeft="15dp"
         android:text="@string/stop" />
 
     <TextView
@@ -127,7 +119,7 @@
         android:layout_marginTop="20dp"
         android:gravity="center"
         android:textColor="@android:color/white"
-        android:textSize="45sp" />
+        android:textSize="40sp" />
 
     <TextView
         android:id="@+id/duty"
@@ -151,13 +143,14 @@
         android:gravity="center"
         android:text="16&apos;45&apos;&apos;"
         android:textColor="@android:color/white"
-        android:textSize="45sp" />
+        android:textSize="40sp" />
 
     <SeekBar
         android:id="@+id/seek_bar_percentage"
-        android:layout_width="420dp"
+        android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/face"
+        android:layout_alignRight="@+id/button_stop"
         android:layout_below="@+id/percentage"
         android:layout_marginLeft="15dp"
         android:maxHeight="4dip"
@@ -190,7 +183,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/seek_bar_percentage"
         android:layout_toRightOf="@+id/zero"
-        android:paddingLeft="38dp"
+        android:paddingLeft="20dp"
         android:text="@string/dieci"
         android:textColor="@android:color/white" />
 
@@ -200,7 +193,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/seek_bar_percentage"
         android:layout_toRightOf="@+id/dieci"
-        android:paddingLeft="27dp"
+        android:paddingLeft="20dp"
         android:text="@string/venti"
         android:textColor="@android:color/white" />
 
@@ -210,7 +203,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/seek_bar_percentage"
         android:layout_toRightOf="@+id/venti"
-        android:paddingLeft="25dp"
+        android:paddingLeft="20dp"
         android:text="@string/trenta"
         android:textColor="@android:color/white" />
 
@@ -220,7 +213,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/seek_bar_percentage"
         android:layout_toRightOf="@+id/trenta"
-        android:paddingLeft="25dp"
+        android:paddingLeft="20dp"
         android:text="@string/quaranta"
         android:textColor="@android:color/white" />
 
@@ -230,7 +223,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/seek_bar_percentage"
         android:layout_toRightOf="@+id/quaranta"
-        android:paddingLeft="27dp"
+        android:paddingLeft="20dp"
         android:text="@string/cinquanta"
         android:textColor="@android:color/white" />
 
@@ -240,7 +233,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/seek_bar_percentage"
         android:layout_toRightOf="@+id/cinquanta"
-        android:paddingLeft="27dp"
+        android:paddingLeft="20dp"
         android:text="@string/sessanta"
         android:textColor="@android:color/white" />
 
@@ -250,7 +243,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/seek_bar_percentage"
         android:layout_toRightOf="@+id/sessanta"
-        android:paddingLeft="25dp"
+        android:paddingLeft="20dp"
         android:text="@string/settanta"
         android:textColor="@android:color/white" />
 
@@ -260,7 +253,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/seek_bar_percentage"
         android:layout_toRightOf="@+id/settanta"
-        android:paddingLeft="27dp"
+        android:paddingLeft="20dp"
         android:text="@string/ottanta"
         android:textColor="@android:color/white" />
 
@@ -270,7 +263,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/seek_bar_percentage"
         android:layout_toRightOf="@+id/ottanta"
-        android:paddingLeft="25dp"
+        android:paddingLeft="20dp"
         android:text="@string/novanta"
         android:textColor="@android:color/white" />
 
@@ -280,7 +273,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/seek_bar_percentage"
         android:layout_toRightOf="@+id/novanta"
-        android:paddingLeft="25dp"
+        android:paddingLeft="20dp"
         android:text="@string/cento"
         android:textColor="@android:color/white" />
 
@@ -292,89 +285,76 @@
         android:layout_toRightOf="@+id/percentage"
         android:text="@string/percentage"
         android:textColor="@android:color/white"
-        android:textSize="45sp" />
-
-    <Button
-        android:id="@+id/set_value"
-        style="@style/custom_button_set_value"
-        android:layout_width="150dp"
-        android:layout_height="35dp"
-        android:layout_alignLeft="@+id/seek_bar_percentage"
-        android:layout_alignTop="@+id/zero"
-        android:layout_marginTop="25dp"
-        android:background="@drawable/custom_button_set_value" />
+        android:textSize="40sp" />
 
     <Button
         android:id="@+id/energy"
         style="@style/custom_button_set_value"
         android:layout_width="150dp"
         android:layout_height="35dp"
-        android:layout_alignLeft="@+id/set_value"
-        android:layout_below="@+id/set_value"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/custom_button_set_value" />
+        android:layout_alignBaseline="@+id/button_continuos"
+        android:layout_alignBottom="@+id/button_continuos"
+        android:layout_toRightOf="@+id/zero"
+        android:background="@drawable/custom_button_set_value"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/label_energy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/energy"
-        android:layout_alignBottom="@+id/energy"
-        android:layout_marginLeft="5dp"
-        android:layout_toRightOf="@+id/energy"
+        android:layout_alignBaseline="@+id/button_continuos"
+        android:layout_alignBottom="@+id/button_continuos"
+        android:layout_alignLeft="@+id/button_play"
         android:text="@string/energy"
         android:textColor="@android:color/white" />
 
     <TextView
-        android:id="@+id/label_set_value"
+        android:id="@+id/TextView01"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/set_value"
-        android:layout_alignBottom="@+id/set_value"
-        android:layout_marginLeft="5dp"
-        android:layout_toRightOf="@+id/set_value"
-        android:text="@string/set_value"
+        android:layout_alignTop="@+id/button_continuos"
+        android:layout_toRightOf="@+id/button_pause"
+        android:text="@string/freq"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/frequency_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:paddingBottom="5dp"
+        android:paddingRight="5dp"
+        android:text="@string/frequency"
         android:textColor="@android:color/white" />
 
     <Button
         android:id="@+id/button_continuos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/set_value"
-        android:layout_marginLeft="60dp"
-        android:layout_marginTop="15dp"
-        android:layout_toRightOf="@+id/label_set_value"
+        android:layout_alignLeft="@+id/button_pause"
+        android:layout_below="@+id/settanta"
         android:background="@drawable/button_continuos" />
+
+    <Button
+        android:id="@+id/menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/label_stop"
+        android:layout_alignLeft="@+id/frequency"
+        android:background="@drawable/button_menu" />
 
     <ImageButton
         android:id="@+id/frequency"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/time"
-        android:layout_below="@+id/time"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="10dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
         android:background="@android:color/transparent"
         android:contentDescription="@string/frequency"
+        android:paddingBottom="20dp"
+        android:paddingRight="10dp"
         android:src="@drawable/button_457" />
-
-    <TextView
-        android:id="@+id/frequency_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/frequency"
-        android:layout_below="@+id/frequency"
-        android:text="@string/frequency"
-        android:textColor="@android:color/white" />
-
-    <Button
-        android:id="@+id/menu"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_above="@+id/label_stop"
-        android:layout_alignRight="@+id/frequency"
-        android:background="@drawable/button_menu"
-        android:paddingBottom="50dp"
-        android:paddingTop="50dp" />
 
 </RelativeLayout>

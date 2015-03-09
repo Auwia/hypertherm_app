@@ -213,7 +213,6 @@ public class FT311UARTInterface extends Activity {
 					}
 				}
 			}
-		} else {
 		}
 
 		return 0;
@@ -379,13 +378,6 @@ public class FT311UARTInterface extends Activity {
 											"COMANDO_RICEVUTO="
 													+ readSB.toString());
 									utility.esegui(readSB.toString().trim());
-									runOnUiThread(new Runnable() {
-										@Override
-										public void run() {
-											utility.scriviMonitor(readSB
-													.toString().trim());
-										}
-									});
 									readSB.delete(0, readSB.length());
 
 								} else {

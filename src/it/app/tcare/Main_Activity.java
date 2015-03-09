@@ -32,7 +32,7 @@ public class Main_Activity extends Activity {
 			percentage;
 
 	private Button play, stop, pause, cap, res, body, face, reset, energy,
-			set_value, menu, continuos;
+			menu, continuos;
 	private ImageButton frequency;
 
 	public FT311UARTInterface uartInterface;
@@ -87,23 +87,15 @@ public class Main_Activity extends Activity {
 
 				switch ((Integer) frequency.getTag()) {
 				case R.drawable.button_457:
-					frequency.setTag(R.drawable.button_571);
-					frequency.setImageResource(R.drawable.button_571);
 					writeData("s");
 					break;
 				case R.drawable.button_571:
-					frequency.setTag(R.drawable.button_714);
-					frequency.setImageResource(R.drawable.button_714);
 					writeData("m");
 					break;
 				case R.drawable.button_714:
-					frequency.setTag(R.drawable.button_145);
-					frequency.setImageResource(R.drawable.button_145);
 					writeData("q");
 					break;
 				case R.drawable.button_145:
-					frequency.setTag(R.drawable.button_457);
-					frequency.setImageResource(R.drawable.button_457);
 					writeData("c");
 					break;
 
@@ -118,8 +110,7 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					uartInterface.SetConfig(9600, (byte) 1, (byte) 8, (byte) 0,
-							(byte) 0);
+
 					return true;
 				}
 
@@ -145,21 +136,17 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-
+					if (continuos.isPressed())
+						writeData("0");
+					else
+						writeData("1");
 					return true;
 				}
 
-				// don't handle event unless its ACTION_UP so "doSomething()"
-				// only runs once.
 				if (event.getAction() != MotionEvent.ACTION_UP) {
 
 					return false;
 				}
-
-				if (continuos.isPressed())
-					continuos.setPressed(false);
-				else
-					continuos.setPressed(true);
 
 				return true;
 			}
@@ -175,43 +162,10 @@ public class Main_Activity extends Activity {
 					return true;
 				}
 
-				// don't handle event unless its ACTION_UP so "doSomething()"
-				// only runs once.
 				if (event.getAction() != MotionEvent.ACTION_UP) {
 
 					return false;
 				}
-
-				if (energy.isPressed())
-					energy.setPressed(false);
-				else
-					energy.setPressed(true);
-
-				return true;
-			}
-		});
-
-		set_value = (Button) findViewById(R.id.set_value);
-		set_value.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// show interest in events resulting from ACTION_DOWN
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-
-					return true;
-				}
-
-				// don't handle event unless its ACTION_UP so "doSomething()"
-				// only runs once.
-				if (event.getAction() != MotionEvent.ACTION_UP) {
-
-					return false;
-				}
-
-				if (set_value.isPressed())
-					set_value.setPressed(false);
-				else
-					set_value.setPressed(true);
 
 				return true;
 			}
@@ -306,9 +260,6 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					label_start.setTextColor(Color.parseColor("#015c5f"));
-					label_stop.setTextColor(Color.WHITE);
-					label_pause.setTextColor(Color.WHITE);
 					writeData("S");
 					return true;
 				}
@@ -319,23 +270,18 @@ public class Main_Activity extends Activity {
 					return false;
 				}
 
-				play.setPressed(true);
-				play.setTextColor(Color.parseColor("#015c5f"));
-				pause.setPressed(false);
-				stop.setPressed(false);
 				return true;
 			}
 		});
 
 		stop = (Button) findViewById(R.id.button_stop);
+		stop.setPressed(true);
+		label_stop.setTextColor(Color.parseColor("#78d0d2"));
 		stop.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					label_stop.setTextColor(Color.parseColor("#015c5f"));
-					label_start.setTextColor(Color.WHITE);
-					label_pause.setTextColor(Color.WHITE);
 					writeData("T");
 					return true;
 				}
@@ -345,10 +291,6 @@ public class Main_Activity extends Activity {
 					return false;
 				}
 
-				stop.setPressed(true);
-				stop.setTextColor(Color.parseColor("#015c5f"));
-				play.setPressed(false);
-				pause.setPressed(false);
 				return true;
 			}
 		});
@@ -359,9 +301,6 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					label_pause.setTextColor(Color.parseColor("#015c5f"));
-					label_start.setTextColor(Color.WHITE);
-					label_stop.setTextColor(Color.WHITE);
 					writeData("P");
 					return true;
 				}
@@ -370,9 +309,7 @@ public class Main_Activity extends Activity {
 				if (event.getAction() != MotionEvent.ACTION_UP) {
 					return false;
 				}
-				pause.setPressed(true);
-				play.setPressed(false);
-				stop.setPressed(false);
+
 				return true;
 			}
 		});
@@ -390,11 +327,7 @@ public class Main_Activity extends Activity {
 				// only runs once.
 				if (event.getAction() != MotionEvent.ACTION_UP)
 					return false;
-				;
-				cap.setPressed(true);
-				res.setPressed(false);
-				body.setPressed(false);
-				face.setPressed(false);
+
 				return true;
 			}
 		});
@@ -412,11 +345,7 @@ public class Main_Activity extends Activity {
 				// only runs once.
 				if (event.getAction() != MotionEvent.ACTION_UP)
 					return false;
-				;
-				res.setPressed(true);
-				cap.setPressed(false);
-				body.setPressed(false);
-				face.setPressed(false);
+
 				return true;
 			}
 		});
@@ -434,11 +363,7 @@ public class Main_Activity extends Activity {
 				// only runs once.
 				if (event.getAction() != MotionEvent.ACTION_UP)
 					return false;
-				;
-				body.setPressed(true);
-				cap.setPressed(false);
-				res.setPressed(false);
-				face.setPressed(false);
+
 				return true;
 			}
 		});
@@ -456,11 +381,7 @@ public class Main_Activity extends Activity {
 				// only runs once.
 				if (event.getAction() != MotionEvent.ACTION_UP)
 					return false;
-				;
-				face.setPressed(true);
-				cap.setPressed(false);
-				res.setPressed(false);
-				body.setPressed(false);
+
 				return true;
 			}
 		});
