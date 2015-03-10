@@ -23,7 +23,7 @@ import android.widget.Toast;
 public class FT311UARTInterface extends Activity {
 
 	private static final int BaudRate = 9600;
-	
+
 	private static final String ACTION_USB_PERMISSION = "it.app.tcare.USB_PERMISSION";
 	public UsbManager usbmanager;
 	public UsbAccessory usbaccessory;
@@ -228,11 +228,11 @@ public class FT311UARTInterface extends Activity {
 			SendPacket(1);
 		} else {
 			SetConfig(BaudRate, (byte) 1, (byte) 8, (byte) 0, (byte) 0); // send
-																		// default
-																		// setting
-																		// data
-																		// for
-																		// config
+																			// default
+																			// setting
+																			// data
+																			// for
+																			// config
 			try {
 				Thread.sleep(10);
 			} catch (Exception e) {

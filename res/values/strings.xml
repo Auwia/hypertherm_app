@@ -26,5 +26,6 @@
     <string name="percentage">%</string>
     <string name="freq">1 Hz</string>
     <string name="energy">Energy J</string>
+    <string name="linea">Barre decorative</string>
 
 </resources>

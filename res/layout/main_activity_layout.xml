@@ -59,6 +59,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
+                android:contentDescription="@string/linea"
                 android:src="@drawable/linea" />
         </TableRow>
 
@@ -128,6 +129,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:background="@android:color/transparent"
+                    android:contentDescription="@string/linea"
                     android:src="@drawable/linea_verticale" />
             </LinearLayout>
 
@@ -208,6 +210,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:background="@android:color/transparent"
+                    android:contentDescription="@string/linea"
                     android:src="@drawable/linea_verticale" />
             </LinearLayout>
 
@@ -250,7 +253,6 @@
                     android:layout_height="fill_parent"
                     android:layout_weight="20"
                     android:gravity="right|center_vertical"
-                    android:text="100"
                     android:textColor="@android:color/white"
                     android:textStyle="bold" />
 
@@ -404,13 +406,11 @@
                     android:textColor="@android:color/white" />
             </RelativeLayout>
 
-            <RelativeLayout>
-            </RelativeLayout>
-
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="50" >
+                android:layout_weight="50"
+                android:baselineAligned="false" >
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -426,7 +426,8 @@
                         android:layout_height="35dp"
                         android:layout_gravity="center_vertical"
                         android:background="@drawable/custom_button_set_value"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp" />
 
                     <TextView
                         android:id="@+id/label_energy"
@@ -435,7 +436,8 @@
                         android:layout_gravity="center_vertical"
                         android:paddingLeft="10dp"
                         android:text="@string/energy"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -450,15 +452,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:background="@drawable/button_continuos" />
+                        android:background="@drawable/button_continuos"
+                        android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/TextView01"
+                        android:id="@+id/label_continuos"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:text="@string/freq"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp" />
                 </LinearLayout>
             </LinearLayout>
         </TableLayout>
@@ -482,7 +486,6 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="16&apos;45&apos;&apos;"
                     android:textColor="@android:color/white"
                     android:textStyle="bold" />
             </TableRow>
@@ -514,7 +517,8 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/frequency"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp" />
             </TableRow>
         </TableLayout>
         <!-- ************************FINE COLONNA DI DESTRA ******************************* -->

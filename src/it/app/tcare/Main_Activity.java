@@ -437,6 +437,7 @@ public class Main_Activity extends Activity {
 		param.width = width * 70 / 100;
 
 		// int padding = (int) (width * 70 / 100 / (14 + density));
+
 		//
 		// dieci.setPadding(padding, 0, 0, 0);
 		// venti.setPadding(padding, 0, 0, 0);
