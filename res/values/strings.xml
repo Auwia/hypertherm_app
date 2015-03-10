@@ -2,6 +2,8 @@
 <resources>
 
     <string name="app_name">TCaRe</string>
+    <string name="title">Thermal Therapy</string>
+    <string name="title2">Physio</string>
     <string name="button_play">bottone circolare play centrale</string>
     <string name="action_settings">Settings</string>
     <string name="start">Start</string>
@@ -22,7 +24,7 @@
     <string name="novanta">90</string>
     <string name="cento">100</string>
     <string name="percentage">%</string>
-    <string name="freq">1</string>
+    <string name="freq">1 Hz</string>
     <string name="energy">Energy J</string>
 
 </resources>

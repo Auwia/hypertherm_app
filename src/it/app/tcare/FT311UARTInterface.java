@@ -22,6 +22,8 @@ import android.widget.Toast;
 /****************************** FT311 GPIO interface class ******************************************/
 public class FT311UARTInterface extends Activity {
 
+	private static final int BaudRate = 9600;
+	
 	private static final String ACTION_USB_PERMISSION = "it.app.tcare.USB_PERMISSION";
 	public UsbManager usbmanager;
 	public UsbAccessory usbaccessory;
@@ -200,7 +202,7 @@ public class FT311UARTInterface extends Activity {
 
 			if (usbmanager.hasPermission(accessory)) {
 				OpenAccessory(accessory);
-				SetConfig(9600, (byte) 1, (byte) 8, (byte) 0, (byte) 0);
+				SetConfig(BaudRate, (byte) 1, (byte) 8, (byte) 0, (byte) 0);
 			} else {
 				synchronized (mUsbReceiver) {
 					if (!mPermissionRequestPending) {
@@ -225,7 +227,7 @@ public class FT311UARTInterface extends Activity {
 			writeusbdata[0] = 0; // send dummy data for instream.read going
 			SendPacket(1);
 		} else {
-			SetConfig(9600, (byte) 1, (byte) 8, (byte) 0, (byte) 0); // send
+			SetConfig(BaudRate, (byte) 1, (byte) 8, (byte) 0, (byte) 0); // send
 																		// default
 																		// setting
 																		// data

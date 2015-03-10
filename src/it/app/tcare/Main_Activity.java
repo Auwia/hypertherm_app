@@ -4,13 +4,13 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -27,13 +26,13 @@ public class Main_Activity extends Activity {
 
 	private static final int BaudRate = 9600;
 
+	private TextView label_start, label_pause, label_stop, title, title2,
+			percentage, percentuale_simbolo, duty, time, zero, dieci, venti,
+			trenta, quaranta, cinquanta, sessanta, settanta, ottanta, novanta,
+			cento, frequency_label, revision;
+	private Button play, stop, pause, cap, res, body, face, menu, button1,
+			energy, frequency, continuos;
 	private SeekBar seek_bar_percentage;
-	private TextView time, revision, label_start, label_pause, label_stop,
-			percentage;
-
-	private Button play, stop, pause, cap, res, body, face, reset, energy,
-			menu, continuos;
-	private ImageButton frequency;
 
 	public FT311UARTInterface uartInterface;
 
@@ -46,9 +45,6 @@ public class Main_Activity extends Activity {
 	private boolean active = false;
 
 	private Utility utility;
-
-	ProgressDialog barProgressDialog;
-	Handler updateBarHandler;
 
 	@Override
 	protected void onResume() {
@@ -78,7 +74,15 @@ public class Main_Activity extends Activity {
 
 		utility = new Utility(this);
 
-		frequency = (ImageButton) findViewById(R.id.frequency);
+		title = (TextView) findViewById(R.id.title);
+		title2 = (TextView) findViewById(R.id.title2);
+
+		percentuale_simbolo = (TextView) findViewById(R.id.percentuale_simbolo);
+
+		duty = (TextView) findViewById(R.id.duty);
+		time = (TextView) findViewById(R.id.time);
+
+		frequency = (Button) findViewById(R.id.frequency);
 		frequency.setTag(R.drawable.button_457);
 		frequency.setOnClickListener(new OnClickListener() {
 
@@ -102,32 +106,6 @@ public class Main_Activity extends Activity {
 				}
 			}
 
-		});
-
-		menu = (Button) findViewById(R.id.menu);
-		menu.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// show interest in events resulting from ACTION_DOWN
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-
-					return true;
-				}
-
-				// don't handle event unless its ACTION_UP so "doSomething()"
-				// only runs once.
-				if (event.getAction() != MotionEvent.ACTION_UP) {
-
-					return false;
-				}
-
-				if (menu.isPressed())
-					menu.setPressed(false);
-				else
-					menu.setPressed(true);
-
-				return true;
-			}
 		});
 
 		continuos = (Button) findViewById(R.id.button_continuos);
@@ -208,8 +186,6 @@ public class Main_Activity extends Activity {
 					}
 				});
 
-		updateBarHandler = new Handler();
-
 		writeBuffer = new byte[64];
 		readBuffer = new byte[4096];
 		readBufferToChar = new char[4096];
@@ -228,31 +204,6 @@ public class Main_Activity extends Activity {
 
 		cap = (Button) findViewById(R.id.cap);
 		cap.setPressed(true);
-
-		reset = (Button) findViewById(R.id.button_reset);
-		reset.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// show interest in events resulting from ACTION_DOWN
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					for (int i = 0; i < 20000; i += 100) {
-						uartInterface.SetConfig(i, (byte) 8, (byte) 1,
-								(byte) 0, (byte) 0);
-						Log.d("TCARE", "SetConfig: " + i);
-						writeData("S");
-					}
-					return true;
-				}
-
-				// don't handle event unless its ACTION_UP so "doSomething()"
-				// only runs once.
-				if (event.getAction() != MotionEvent.ACTION_UP)
-					return false;
-				;
-
-				return true;
-			}
-		});
 
 		play = (Button) findViewById(R.id.button_play);
 		play.setOnTouchListener(new OnTouchListener() {
@@ -386,6 +337,130 @@ public class Main_Activity extends Activity {
 			}
 		});
 
+		zero = (TextView) findViewById(R.id.zero);
+		dieci = (TextView) findViewById(R.id.dieci);
+		venti = (TextView) findViewById(R.id.venti);
+		trenta = (TextView) findViewById(R.id.trenta);
+		quaranta = (TextView) findViewById(R.id.quaranta);
+		cinquanta = (TextView) findViewById(R.id.cinquanta);
+		sessanta = (TextView) findViewById(R.id.sessanta);
+		settanta = (TextView) findViewById(R.id.settanta);
+		ottanta = (TextView) findViewById(R.id.ottanta);
+		novanta = (TextView) findViewById(R.id.novanta);
+		cento = (TextView) findViewById(R.id.cento);
+
+		Display display = getWindowManager().getDefaultDisplay();
+
+		int width, height;
+
+		width = display.getWidth();
+		height = display.getHeight();
+
+		DisplayMetrics outMetrics = new DisplayMetrics();
+		display.getMetrics(outMetrics);
+
+		float density = getResources().getDisplayMetrics().density;
+
+		int moltiplicativo = 0;
+		if (density == 1)
+			moltiplicativo = 5;
+
+		if (density == 3)
+			moltiplicativo = 2;
+
+		if (density == 1.5)
+			moltiplicativo = 4;
+
+		title.setTextSize(width * moltiplicativo / 100);
+		title2.setTextSize(width * moltiplicativo / 100);
+
+		int blocco1_dim = (int) (width * 30 / 100 / 2.2);
+		face.setWidth(blocco1_dim);
+		body.setWidth(blocco1_dim);
+		res.setWidth(blocco1_dim);
+		cap.setWidth(blocco1_dim);
+		// per mantenere le proporzioni: altezza = 35% larghezza
+		face.setHeight(blocco1_dim * 35 / 100);
+		body.setHeight(blocco1_dim * 35 / 100);
+		res.setHeight(blocco1_dim * 35 / 100);
+		cap.setHeight(blocco1_dim * 35 / 100);
+
+		int blocco2_dim = (int) (width * 50 / 100 / 5);
+		play.setWidth(blocco2_dim);
+		stop.setWidth(blocco2_dim);
+		pause.setWidth(blocco2_dim);
+		play.setHeight(blocco2_dim);
+		stop.setHeight(blocco2_dim);
+		pause.setHeight(blocco2_dim);
+		label_start.setWidth(blocco2_dim);
+		label_stop.setWidth(blocco2_dim);
+		label_pause.setWidth(blocco2_dim);
+		label_start.setTextSize(width * moltiplicativo / 100 / 2);
+		label_stop.setTextSize(width * moltiplicativo / 100 / 2);
+		label_pause.setTextSize(width * moltiplicativo / 100 / 2);
+
+		menu = (Button) findViewById(R.id.menu);
+		menu.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				// show interest in events resulting from ACTION_DOWN
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+					Log.d("TCARE",
+							"Dimensioni pulsantone: " + frequency.getHeight()
+									+ " - " + frequency.getWidth());
+					return true;
+				}
+
+				// don't handle event unless its ACTION_UP so "doSomething()"
+				// only runs once.
+				if (event.getAction() != MotionEvent.ACTION_UP) {
+
+					return false;
+				}
+
+				return true;
+			}
+		});
+
+		menu.setWidth(blocco2_dim);
+		menu.setHeight(blocco2_dim);
+
+		Log.d("TCARE", "Dimensioni blocco2_dim: " + blocco2_dim);
+
+		percentage.setTextSize(height / 2 * 20 / 100 / density);
+		percentuale_simbolo.setTextSize(height / 2 * 20 / 100 / density);
+		duty.setTextSize(height / 2 * 20 / 100 / density / 2);
+		time.setTextSize(height / 2 * 20 / 100 / density);
+
+		android.view.ViewGroup.LayoutParams param = seek_bar_percentage
+				.getLayoutParams();
+		param.width = width * 70 / 100;
+
+		// int padding = (int) (width * 70 / 100 / (14 + density));
+		//
+		// dieci.setPadding(padding, 0, 0, 0);
+		// venti.setPadding(padding, 0, 0, 0);
+		// trenta.setPadding(padding, 0, 0, 0);
+		// quaranta.setPadding(padding, 0, 0, 0);
+		// cinquanta.setPadding(padding, 0, 0, 0);
+		// sessanta.setPadding(padding, 0, 0, 0);
+		// settanta.setPadding(padding, 0, 0, 0);
+		// ottanta.setPadding(padding, 0, 0, 0);
+		// novanta.setPadding(padding, 0, 0, 0);
+		// cento.setPadding(padding, 0, 0, 0);
+
+		energy.setWidth((int) (blocco2_dim * moltiplicativo));
+		energy.setHeight((int) (blocco2_dim * moltiplicativo / 0.40));
+
+		frequency.setHeight((int) (blocco2_dim + 50 * density));
+		frequency.setWidth((int) (blocco2_dim + 50 * density));
+
+		continuos.setHeight(blocco2_dim-10);
+		continuos.setWidth(blocco2_dim-10);
+
+		Log.d("TCARE", "Dimensioni pulsantone: " + frequency.getHeight()
+				+ " - " + frequency.getWidth());
+
 		try {
 			uartInterface = new FT311UARTInterface(this, null);
 		} catch (InterruptedException e) {
@@ -437,61 +512,10 @@ public class Main_Activity extends Activity {
 
 	}
 
-	public void launchBarDialog(View view) {
-
-		barProgressDialog = new ProgressDialog(Main_Activity.this);
-		barProgressDialog.setTitle("Loading driver...");
-		barProgressDialog.setMessage("work in progress ...");
-		barProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		barProgressDialog.setProgress(0);
-		barProgressDialog.setMax(20);
-		barProgressDialog.show();
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					while (barProgressDialog.getProgress() <= barProgressDialog
-							.getMax()) {
-						Thread.sleep(200);
-						updateBarHandler.post(new Runnable() {
-							public void run() {
-								barProgressDialog.incrementProgressBy(2);
-							}
-						});
-						if (barProgressDialog.getProgress() == barProgressDialog
-								.getMax()) {
-							barProgressDialog.dismiss();
-						}
-					}
-				} catch (Exception e) {
-					System.out.println("ERRORE STRANO QUI!");
-					e.printStackTrace();
-				}
-			}
-		}).start();
-	}
-
 	@Override
 	public void onStart() {
 		super.onStart();
 		active = true;
 
-	}
-
-	private void avvia_driver() {
-		try {
-			uartInterface = new FT311UARTInterface(this, null);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			Log.e("TCARE", e.getMessage());
-		}
-		Log.d("TCARE", "Pre-Progress...");
-		launchBarDialog(null);
-		Log.d("TCARE", "Preparo la configurazione...");
-		uartInterface.ResumeAccessory();
-		uartInterface.SetConfig(BaudRate, (byte) 8, (byte) 1, (byte) 0,
-				(byte) 0);
-
-		Log.d("TCARE", "Fine configurazione...");
 	}
 }

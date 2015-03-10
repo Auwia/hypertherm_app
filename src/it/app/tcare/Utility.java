@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -14,8 +13,7 @@ public class Utility {
 	private SeekBar seek_bar_percentage;
 	private TextView time, label_start, label_pause, label_stop, percentage;
 	private Button play, stop, pause, cap, res, body, face, reset, energy,
-			set_value, menu, continuos;
-	private ImageButton frequency;
+			set_value, menu, continuos, frequency;
 
 	public Utility(Activity activity) {
 		this.activity = activity;
@@ -39,7 +37,7 @@ public class Utility {
 
 		continuos = (Button) activity.findViewById(R.id.button_continuos);
 
-		frequency = (ImageButton) activity.findViewById(R.id.frequency);
+		frequency = (Button) activity.findViewById(R.id.frequency);
 		energy = (Button) activity.findViewById(R.id.energy);
 
 	}
@@ -124,22 +122,22 @@ public class Utility {
 							if (comandi[0].equals("00")) {
 								frequency.setTag(R.drawable.button_145);
 								frequency
-										.setImageResource(R.drawable.button_145);
+										.setBackgroundResource(R.drawable.button_145);
 							}
 							if (comandi[0].equals("01")) {
 								frequency.setTag(R.drawable.button_457);
 								frequency
-										.setImageResource(R.drawable.button_457);
+										.setBackgroundResource(R.drawable.button_457);
 							}
 							if (comandi[0].equals("02")) {
 								frequency.setTag(R.drawable.button_571);
 								frequency
-										.setImageResource(R.drawable.button_571);
+										.setBackgroundResource(R.drawable.button_571);
 							}
 							if (comandi[0].equals("03")) {
 								frequency.setTag(R.drawable.button_714);
 								frequency
-										.setImageResource(R.drawable.button_714);
+										.setBackgroundResource(R.drawable.button_714);
 							}
 						}
 
