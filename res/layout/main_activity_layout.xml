@@ -13,39 +13,38 @@
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:layout_gravity="center|center_vertical"
-            android:layout_weight="45"
-            android:gravity="center|center_vertical" >
+            android:layout_weight="45" >
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="60"
-                android:gravity="right"
-                android:text="@string/title"
-                android:textColor="#86d9b5"
-                android:textSize="38sp"
-                android:textStyle="bold" />
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center_horizontal" >
 
-            <TextView
-                android:id="@+id/title2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="40"
-                android:gravity="left"
-                android:paddingLeft="5dp"
-                android:text="@string/title2"
-                android:textColor="#86d9b5"
-                android:textSize="38sp" />
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/title"
+                    android:textColor="#86d9b5"
+                    android:textSize="38sp"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/revision"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:textColor="@android:color/white"
-                android:textSize="20sp" />
+                <TextView
+                    android:id="@+id/title2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/title2"
+                    android:textColor="#86d9b5"
+                    android:textSize="38sp" />
+
+                <TextView
+                    android:id="@+id/revision"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp" />
+            </LinearLayout>
         </TableRow>
 
         <TableRow
@@ -282,7 +281,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_weight="40"
-                android:gravity="center_vertical" >
+                android:gravity="center_vertical|center_horizontal" >
 
                 <SeekBar
                     android:id="@+id/seek_bar_percentage"
@@ -290,7 +289,6 @@
                     android:layout_height="wrap_content"
                     android:maxHeight="4dip"
                     android:minHeight="4dip"
-                    android:paddingLeft="20dp"
                     android:progressDrawable="@drawable/progress"
                     android:thumb="@drawable/thumb"
                     android:thumbOffset="0dip" />
@@ -301,7 +299,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignLeft="@+id/seek_bar_percentage"
                     android:layout_below="@+id/seek_bar_percentage"
-                    android:paddingLeft="30dp"
+                    android:gravity="left"
                     android:text="@string/zero"
                     android:textColor="@android:color/white" />
 
@@ -311,7 +309,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/seek_bar_percentage"
                     android:layout_toRightOf="@+id/zero"
-                    android:paddingLeft="27dp"
+                    android:gravity="center"
                     android:text="@string/dieci"
                     android:textColor="@android:color/white" />
 
@@ -321,7 +319,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/seek_bar_percentage"
                     android:layout_toRightOf="@+id/dieci"
-                    android:paddingLeft="25dp"
+                    android:gravity="center"
                     android:text="@string/venti"
                     android:textColor="@android:color/white" />
 
@@ -331,7 +329,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/seek_bar_percentage"
                     android:layout_toRightOf="@+id/venti"
-                    android:paddingLeft="23dp"
+                    android:gravity="center"
                     android:text="@string/trenta"
                     android:textColor="@android:color/white" />
 
@@ -341,7 +339,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/seek_bar_percentage"
                     android:layout_toRightOf="@+id/trenta"
-                    android:paddingLeft="23dp"
+                    android:gravity="center"
                     android:text="@string/quaranta"
                     android:textColor="@android:color/white" />
 
@@ -351,7 +349,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/seek_bar_percentage"
                     android:layout_toRightOf="@+id/quaranta"
-                    android:paddingLeft="25dp"
+                    android:gravity="center"
                     android:text="@string/cinquanta"
                     android:textColor="@android:color/white" />
 
@@ -361,7 +359,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/seek_bar_percentage"
                     android:layout_toRightOf="@+id/cinquanta"
-                    android:paddingLeft="25dp"
+                    android:gravity="center"
                     android:text="@string/sessanta"
                     android:textColor="@android:color/white" />
 
@@ -371,7 +369,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/seek_bar_percentage"
                     android:layout_toRightOf="@+id/sessanta"
-                    android:paddingLeft="24dp"
+                    android:gravity="center"
                     android:text="@string/settanta"
                     android:textColor="@android:color/white" />
 
@@ -381,7 +379,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/seek_bar_percentage"
                     android:layout_toRightOf="@+id/settanta"
-                    android:paddingLeft="23dp"
+                    android:gravity="center"
                     android:text="@string/ottanta"
                     android:textColor="@android:color/white" />
 
@@ -391,7 +389,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/seek_bar_percentage"
                     android:layout_toRightOf="@+id/ottanta"
-                    android:paddingLeft="25dp"
+                    android:gravity="center"
                     android:text="@string/novanta"
                     android:textColor="@android:color/white" />
 
@@ -401,7 +399,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/seek_bar_percentage"
                     android:layout_toRightOf="@+id/novanta"
-                    android:paddingLeft="23dp"
+                    android:gravity="right"
                     android:text="@string/cento"
                     android:textColor="@android:color/white" />
             </RelativeLayout>
@@ -496,12 +494,18 @@
                 android:layout_weight="60"
                 android:gravity="center" >
 
-                <Button
-                    android:id="@+id/frequency"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_457"
-                    android:contentDescription="@string/frequency" />
+                    android:gravity="center_vertical|center_horizontal" >
+
+                    <Button
+                        android:id="@+id/frequency"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_457"
+                        android:contentDescription="@string/frequency" />
+                </LinearLayout>
             </TableRow>
 
             <TableRow

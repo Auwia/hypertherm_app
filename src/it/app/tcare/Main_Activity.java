@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
@@ -11,8 +12,6 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -385,13 +384,7 @@ public class Main_Activity extends Activity {
 		res.setHeight(blocco1_dim * 35 / 100);
 		cap.setHeight(blocco1_dim * 35 / 100);
 
-		int blocco2_dim = (int) (width * 50 / 100 / 5);
-		play.setWidth(blocco2_dim);
-		stop.setWidth(blocco2_dim);
-		pause.setWidth(blocco2_dim);
-		play.setHeight(blocco2_dim);
-		stop.setHeight(blocco2_dim);
-		pause.setHeight(blocco2_dim);
+		final int blocco2_dim = (int) (width * 50 / 100 / 5);
 		label_start.setWidth(blocco2_dim);
 		label_stop.setWidth(blocco2_dim);
 		label_pause.setWidth(blocco2_dim);
@@ -406,8 +399,10 @@ public class Main_Activity extends Activity {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					Log.d("TCARE",
-							"Dimensioni pulsantone: " + frequency.getHeight()
-									+ " - " + frequency.getWidth());
+							"Dimensioni continuos: " + continuos.getHeight()
+									+ " - " + continuos.getWidth());
+					Intent intent = new Intent(Main_Activity.this, Menu.class);
+					startActivity(intent);
 					return true;
 				}
 
@@ -436,31 +431,22 @@ public class Main_Activity extends Activity {
 				.getLayoutParams();
 		param.width = width * 70 / 100;
 
-		// int padding = (int) (width * 70 / 100 / (14 + density));
+		int padding = (int) (width * 70 / 100 / (11));
 
-		//
-		// dieci.setPadding(padding, 0, 0, 0);
-		// venti.setPadding(padding, 0, 0, 0);
-		// trenta.setPadding(padding, 0, 0, 0);
-		// quaranta.setPadding(padding, 0, 0, 0);
-		// cinquanta.setPadding(padding, 0, 0, 0);
-		// sessanta.setPadding(padding, 0, 0, 0);
-		// settanta.setPadding(padding, 0, 0, 0);
-		// ottanta.setPadding(padding, 0, 0, 0);
-		// novanta.setPadding(padding, 0, 0, 0);
-		// cento.setPadding(padding, 0, 0, 0);
+		zero.setWidth(padding);
+		dieci.setWidth(padding);
+		venti.setWidth(padding);
+		trenta.setWidth(padding);
+		quaranta.setWidth(padding);
+		cinquanta.setWidth(padding);
+		sessanta.setWidth(padding);
+		settanta.setWidth(padding);
+		ottanta.setWidth(padding);
+		novanta.setWidth(padding);
+		cento.setWidth(padding);
 
 		energy.setWidth((int) (blocco2_dim * moltiplicativo));
 		energy.setHeight((int) (blocco2_dim * moltiplicativo / 0.40));
-
-		frequency.setHeight((int) (blocco2_dim + 50 * density));
-		frequency.setWidth((int) (blocco2_dim + 50 * density));
-
-		continuos.setHeight(blocco2_dim-10);
-		continuos.setWidth(blocco2_dim-10);
-
-		Log.d("TCARE", "Dimensioni pulsantone: " + frequency.getHeight()
-				+ " - " + frequency.getWidth());
 
 		try {
 			uartInterface = new FT311UARTInterface(this, null);
@@ -468,26 +454,6 @@ public class Main_Activity extends Activity {
 			// TODO Auto-generated catch block
 			Log.e("TCARE", e.getMessage());
 		}
-
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main_, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	public void writeData(String commandString) {

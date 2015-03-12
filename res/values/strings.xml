@@ -27,5 +27,12 @@
     <string name="freq">1 Hz</string>
     <string name="energy">Energy J</string>
     <string name="linea">Barre decorative</string>
+    <string name="title_activity_menu">Menu</string>
+    <string name="menu">MENU</string>
+    <string name="uno">1</string>
+    <string name="due">2</string>
+    <string name="tre">3</string>
+    <string name="quattro">4</string>
+    <string name="cinque">5</string>
 
 </resources>
