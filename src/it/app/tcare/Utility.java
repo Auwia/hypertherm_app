@@ -3,6 +3,7 @@ package it.app.tcare;
 import android.app.Activity;
 import android.graphics.Color;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -11,7 +12,8 @@ public class Utility {
 
 	private Activity activity;
 	private SeekBar seek_bar_percentage;
-	private TextView time, label_start, label_pause, label_stop, percentage;
+	private TextView time, label_start, label_pause, label_stop,
+			label_continuos;
 	private Button play, stop, pause, cap, res, body, face, reset, energy,
 			set_value, menu, continuos, frequency;
 
@@ -25,6 +27,8 @@ public class Utility {
 		label_stop = (TextView) activity.findViewById(R.id.label_stop);
 		label_pause = (TextView) activity.findViewById(R.id.label_pause);
 		time = (TextView) activity.findViewById(R.id.time);
+		label_continuos = (TextView) activity
+				.findViewById(R.id.label_continuos);
 
 		play = (Button) activity.findViewById(R.id.button_play);
 		stop = (Button) activity.findViewById(R.id.button_stop);
@@ -57,7 +61,7 @@ public class Utility {
 									comandi[0], 16)));
 						}
 
-						if (comandi[1].equals("(")) {
+						if (comandi[1].equals("(") || comandi[1].equals(")")) {
 
 							String minuti, secondi;
 
@@ -111,7 +115,14 @@ public class Utility {
 								continuos.setPressed(true);
 							}
 							if (comandi[0].equals("00")) {
-								continuos.setPressed(false);
+								continuos
+										.setBackgroundResource(R.drawable.continuos_normal);
+								label_continuos.setVisibility(View.INVISIBLE);
+							} else {
+								continuos
+										.setBackgroundResource(R.drawable.pulsed_normal);
+								label_continuos.setText(" " + comandi[0]
+										+ " Hz");
 							}
 
 						}

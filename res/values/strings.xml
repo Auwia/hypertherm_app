@@ -24,8 +24,10 @@
     <string name="novanta">90</string>
     <string name="cento">100</string>
     <string name="percentage">%</string>
-    <string name="freq">1 Hz</string>
+    <string name="freq">Hz</string>
     <string name="energy">Energy J</string>
+    <string name="setValue">Set Value [J]</string>
+    <string name="jaule_value">123456</string>
     <string name="linea">Barre decorative</string>
     <string name="title_activity_menu">Menu</string>
     <string name="menu">MENU</string>
@@ -34,5 +36,14 @@
     <string name="tre">3</string>
     <string name="quattro">4</string>
     <string name="cinque">5</string>
+    <string name="min">min</string>
+    <string name="max">max</string>
+    <string name="service">Service</string>
+    <string name="continuos">Continuos</string>
+    <string name="pulsed">Pulsed</string>
+    <string name="time">01\':00\'\'</string>
+    <string name="label_time">Time (min, sec)</string>
+    <string name="title_activity_service">Service</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

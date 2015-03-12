@@ -5,10 +5,10 @@ import java.util.Calendar;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -19,6 +19,7 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 public class Main_Activity extends Activity {
@@ -28,9 +29,9 @@ public class Main_Activity extends Activity {
 	private TextView label_start, label_pause, label_stop, title, title2,
 			percentage, percentuale_simbolo, duty, time, zero, dieci, venti,
 			trenta, quaranta, cinquanta, sessanta, settanta, ottanta, novanta,
-			cento, frequency_label, revision;
-	private Button play, stop, pause, cap, res, body, face, menu, button1,
-			energy, frequency, continuos;
+			cento, label_continuos, revision;
+	private Button play, stop, pause, cap, res, body, face, menu, energy,
+			frequency, continuos, jaule;
 	private SeekBar seek_bar_percentage;
 
 	public FT311UARTInterface uartInterface;
@@ -45,12 +46,50 @@ public class Main_Activity extends Activity {
 
 	private Utility utility;
 
+	private TableRow pannello_energia;
+
+	private SharedPreferences sharedpreferences;
+
 	@Override
 	protected void onResume() {
 		// Ideally should implement onResume() and onPause()
 		// to take appropriate action when the activity looses focus
 		super.onResume();
 		uartInterface.ResumeAccessory();
+
+		SharedPreferences preferences = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		if (preferences.getBoolean("isEnergy", false)) {
+			pannello_energia.setVisibility(View.VISIBLE);
+			if (jaule != null) {
+				jaule.setPressed(true);
+				jaule.setText(String.valueOf(preferences.getInt("energy", 10)));
+				writeData("j");
+			}
+		}
+
+		if (preferences.getBoolean("isTime", false)) {
+			pannello_energia.setVisibility(View.GONE);
+			time.setText(preferences.getString("timer", getResources()
+					.getString(R.string.time)));
+			writeData("t");
+
+		}
+
+		if (preferences.getBoolean("isPulsed", false)) {
+			continuos.setBackgroundResource(R.drawable.pulsed_normal);
+			label_continuos.setVisibility(View.VISIBLE);
+			label_continuos.setText(" "
+					+ String.valueOf(preferences.getInt("hz", 1)) + " hz");
+			writeData(String.valueOf(preferences.getInt("hz", 1)));
+		}
+
+		if (preferences.getBoolean("isContinuos", false)) {
+			continuos.setBackgroundResource(R.drawable.continuos_normal);
+			label_continuos.setVisibility(View.GONE);
+			writeData("0");
+		}
+
 	}
 
 	@Override
@@ -69,7 +108,11 @@ public class Main_Activity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main_activity_layout);
+		setContentView(R.layout.main_activity_layout_energy);
+
+		pannello_energia = (TableRow) findViewById(R.id.pannello_energia);
+
+		label_continuos = (TextView) findViewById(R.id.label_continuos);
 
 		utility = new Utility(this);
 
@@ -80,6 +123,22 @@ public class Main_Activity extends Activity {
 
 		duty = (TextView) findViewById(R.id.duty);
 		time = (TextView) findViewById(R.id.time);
+
+		continuos = (Button) findViewById(R.id.button_continuos);
+		continuos.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				if (label_continuos.getVisibility() == View.VISIBLE) {
+					Log.d("TCARE", "La label è visibile mando 0");
+					writeData("0");
+				} else {
+					writeData(label_continuos.getText().subSequence(0, 1)
+							.toString());
+					Log.d("TCARE", "frequenza: "
+							+ label_continuos.getText().subSequence(0, 1)
+									.toString());
+				}
+			}
+		});
 
 		frequency = (Button) findViewById(R.id.frequency);
 		frequency.setTag(R.drawable.button_457);
@@ -150,16 +209,6 @@ public class Main_Activity extends Activity {
 
 		percentage = (TextView) findViewById(R.id.percentage);
 		percentage.setText("0");
-
-		PackageInfo pInfo = null;
-		try {
-			pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-		} catch (NameNotFoundException e) {
-			System.out.println("ERRORE STRANO QUI!");
-			e.printStackTrace();
-		}
-		revision = (TextView) findViewById(R.id.revision);
-		revision.setText(pInfo.versionName);
 
 		seek_bar_percentage = (SeekBar) findViewById(R.id.seek_bar_percentage);
 		seek_bar_percentage.setMax(100);
@@ -448,8 +497,12 @@ public class Main_Activity extends Activity {
 		energy.setWidth((int) (blocco2_dim * moltiplicativo));
 		energy.setHeight((int) (blocco2_dim * moltiplicativo / 0.40));
 
+		jaule = (Button) findViewById(R.id.jaule);
+		jaule.setPressed(true);
+
 		try {
 			uartInterface = new FT311UARTInterface(this, null);
+			writeData("@^");
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			Log.e("TCARE", e.getMessage());
