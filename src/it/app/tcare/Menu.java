@@ -35,35 +35,45 @@ public class Menu extends Activity {
 		SharedPreferences preferences = PreferenceManager
 				.getDefaultSharedPreferences(this);
 
-		button_energy.setPressed(preferences.getBoolean("isEnergy", false));
-		button_time.setPressed(preferences.getBoolean("isTime", false));
-		pulsed.setPressed(preferences.getBoolean("isPulsed", false));
-		continuos.setPressed(preferences.getBoolean("isContinuos", false));
-		if (preferences.getBoolean("isEnergy", false)) {
-			seek_bar_energy.setMax(200000);
-			seek_bar_energy.setProgress(preferences.getInt("energy", 10));
-			label_energy.setText(getResources().getString(R.string.setValue));
-			energy.setText(String.valueOf(preferences.getInt("energy", 10)));
-		}
+		if (preferences.contains("isEnergy")) {
 
-		if (!preferences.getBoolean("isEnergy", false)) {
-			seek_bar_energy.setMax(198);
-			seek_bar_energy
-					.setProgress(preferences.getInt("timer_progress", 2));
-			label_energy.setText(getResources().getString(R.string.label_time));
-			energy.setText(preferences.getString("timer", getResources()
-					.getString(R.string.time)));
-		}
+			button_energy.setPressed(preferences.getBoolean("isEnergy", false));
+			button_time.setPressed(preferences.getBoolean("isTime", false));
+			pulsed.setPressed(preferences.getBoolean("isPulsed", false));
+			continuos.setPressed(preferences.getBoolean("isContinuos", false));
 
-		if (preferences.getBoolean("isPulsed", false)) {
-			barra_orizzontale.setVisibility(View.VISIBLE);
-			seek_bar_frequency.setProgress(preferences.getInt("hz", 1));
-			simbolo_frequenza.setVisibility(View.VISIBLE);
-		}
+			if (preferences.getBoolean("isEnergy", false)) {
+				seek_bar_energy.setMax(40);
+				seek_bar_energy.setProgress(preferences.getInt("energy", 10));
+				label_energy.setText(getResources()
+						.getString(R.string.setValue));
+				energy.setText(String.valueOf(preferences.getInt("energy", 10) * 5000));
+			}
 
-		if (preferences.getBoolean("isContinuos", false)) {
-			barra_orizzontale.setVisibility(View.INVISIBLE);
-			simbolo_frequenza.setVisibility(View.INVISIBLE);
+			if (!preferences.getBoolean("isEnergy", false)) {
+				seek_bar_energy.setMax(100);
+				seek_bar_energy.setProgress(preferences.getInt(
+						"timer_progress", 2));
+				label_energy.setText(getResources().getString(
+						R.string.label_time));
+				energy.setText(preferences.getString("timer", getResources()
+						.getString(R.string.time)));
+			}
+
+			if (preferences.getBoolean("isPulsed", false)) {
+				barra_orizzontale.setVisibility(View.VISIBLE);
+				seek_bar_frequency.setProgress(preferences.getInt("hz", 1) - 1);
+				simbolo_frequenza.setVisibility(View.VISIBLE);
+			}
+
+			if (preferences.getBoolean("isContinuos", false)) {
+				barra_orizzontale.setVisibility(View.INVISIBLE);
+				simbolo_frequenza.setVisibility(View.INVISIBLE);
+			}
+
+		} else {
+			button_time.setPressed(preferences.getBoolean("isTime", true));
+			continuos.setPressed(preferences.getBoolean("isContinuos", true));
 		}
 
 	}
@@ -121,10 +131,9 @@ public class Menu extends Activity {
 				editor.putBoolean("isPulsed", pulsed.isPressed());
 				editor.putBoolean("isTime", button_time.isPressed());
 				editor.putBoolean("isEnergy", button_energy.isPressed());
-				editor.putInt("hz", seek_bar_frequency.getProgress() + 1);
+				editor.putInt("hz", (seek_bar_frequency.getProgress() + 1));
 				if (button_energy.isPressed())
-					editor.putInt("energy",
-							Integer.parseInt(energy.getText().toString()));
+					editor.putInt("energy", seek_bar_energy.getProgress());
 				else {
 					editor.putString("timer", energy.getText().toString());
 					editor.putInt("timer_progress",
@@ -132,6 +141,7 @@ public class Menu extends Activity {
 				}
 
 				editor.apply();
+
 			}
 		});
 
@@ -142,11 +152,7 @@ public class Menu extends Activity {
 							int progress, boolean fromUser) {
 
 						if (button_energy.isPressed()) {
-							if (progress > 10)
-								energy.setText(Integer.toString(progress));
-							else
-								energy.setText(getResources().getString(
-										R.string.dieci));
+							energy.setText(Integer.toString(progress * 5000));
 
 						}
 
@@ -174,9 +180,10 @@ public class Menu extends Activity {
 									energy.setText(Integer
 											.toString((progress - 1) / 2)
 											+ "'30''");
+
+							} else {
+								seek_bar_energy.setProgress(1);
 							}
-						} else {
-							seek_bar_energy.setProgress(1);
 						}
 
 					}
@@ -252,7 +259,7 @@ public class Menu extends Activity {
 		});
 
 		button_time.setPressed(true);
-		seek_bar_energy.setMax(198);
+		seek_bar_energy.setMax(100);
 		seek_bar_energy.setProgress(2);
 		button_time.setOnTouchListener(new OnTouchListener() {
 			@Override
@@ -260,7 +267,7 @@ public class Menu extends Activity {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					seek_bar_energy.setProgress(2);
-					seek_bar_energy.setMax(198);
+					seek_bar_energy.setMax(100);
 					button_energy.setPressed(false);
 					button_time.setPressed(true);
 					label_energy.setText(getResources().getString(
@@ -278,15 +285,13 @@ public class Menu extends Activity {
 			}
 		});
 
-		final int step = 30;
-
 		button_energy.setPressed(false);
 		button_energy.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					seek_bar_energy.setMax(200000);
+					seek_bar_energy.setMax(40);
 					seek_bar_energy.setProgress(10);
 					button_energy.setPressed(true);
 					button_time.setPressed(false);

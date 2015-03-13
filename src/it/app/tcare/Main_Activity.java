@@ -1,8 +1,5 @@
 package it.app.tcare;
 
-import java.sql.Timestamp;
-import java.util.Calendar;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,7 +7,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,71 +20,72 @@ import android.widget.TextView;
 
 public class Main_Activity extends Activity {
 
-	private static final int BaudRate = 9600;
-
 	private TextView label_start, label_pause, label_stop, title, title2,
 			percentage, percentuale_simbolo, duty, time, zero, dieci, venti,
 			trenta, quaranta, cinquanta, sessanta, settanta, ottanta, novanta,
-			cento, label_continuos, revision;
+			cento, label_continuos;
 	private Button play, stop, pause, cap, res, body, face, menu, energy,
 			frequency, continuos, jaule;
 	private SeekBar seek_bar_percentage;
-
-	public FT311UARTInterface uartInterface;
-
-	private int[] actualNumBytes;
-	private char[] readBufferToChar;
-	private byte[] writeBuffer, readBuffer;
-
-	private StringBuffer readSB = new StringBuffer();
-
-	private boolean active = false;
 
 	private Utility utility;
 
 	private TableRow pannello_energia;
 
-	private SharedPreferences sharedpreferences;
+	private SharedPreferences preferences;
+
+	public static Activity activity;
 
 	@Override
 	protected void onResume() {
 		// Ideally should implement onResume() and onPause()
 		// to take appropriate action when the activity looses focus
 		super.onResume();
-		uartInterface.ResumeAccessory();
 
-		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(this);
-		if (preferences.getBoolean("isEnergy", false)) {
-			pannello_energia.setVisibility(View.VISIBLE);
-			if (jaule != null) {
-				jaule.setPressed(true);
-				jaule.setText(String.valueOf(preferences.getInt("energy", 10)));
-				writeData("j");
+		utility.ResumeAccessory();
+
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+		if (preferences.contains("isEnergy")) {
+
+			if (preferences.getBoolean("isEnergy", false)) {
+				pannello_energia.setVisibility(View.VISIBLE);
+				if (jaule != null) {
+					jaule.setPressed(true);
+					jaule.setText(String.valueOf(preferences.getInt("energy",
+							10) * 5000));
+					utility.writeData("M");
+					utility.writeData("j");
+					utility.MandaDati(preferences.getInt("energy", 1) + 150);
+				}
 			}
+
+			if (preferences.getBoolean("isTime", false)) {
+				pannello_energia.setVisibility(View.GONE);
+				time.setText(preferences.getString("timer", getResources()
+						.getString(R.string.time)));
+				utility.writeData("M");
+				utility.writeData("t");
+				utility.MandaDati(preferences.getInt("timer_progress", 1) + 150);
+
+			}
+
+			if (preferences.getBoolean("isPulsed", false)) {
+				continuos.setBackgroundResource(R.drawable.pulsed_normal);
+				label_continuos.setVisibility(View.VISIBLE);
+				label_continuos.setText(" "
+						+ String.valueOf(preferences.getInt("hz", 1)) + " hz");
+			}
+
+			if (preferences.getBoolean("isContinuos", false)) {
+				continuos.setBackgroundResource(R.drawable.continuos_normal);
+				label_continuos.setVisibility(View.GONE);
+			}
+
+			stop.setPressed(true);
 		}
 
-		if (preferences.getBoolean("isTime", false)) {
-			pannello_energia.setVisibility(View.GONE);
-			time.setText(preferences.getString("timer", getResources()
-					.getString(R.string.time)));
-			writeData("t");
-
-		}
-
-		if (preferences.getBoolean("isPulsed", false)) {
-			continuos.setBackgroundResource(R.drawable.pulsed_normal);
-			label_continuos.setVisibility(View.VISIBLE);
-			label_continuos.setText(" "
-					+ String.valueOf(preferences.getInt("hz", 1)) + " hz");
-			writeData(String.valueOf(preferences.getInt("hz", 1)));
-		}
-
-		if (preferences.getBoolean("isContinuos", false)) {
-			continuos.setBackgroundResource(R.drawable.continuos_normal);
-			label_continuos.setVisibility(View.GONE);
-			writeData("0");
-		}
+		utility.writeData("L");
 
 	}
 
@@ -99,8 +96,23 @@ public class Main_Activity extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		uartInterface.DestroyAccessory(true);
-		android.os.Process.killProcess(android.os.Process.myPid());
+
+		SharedPreferences preferences = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.clear();
+		editor.commit();
+		utility.DestroyAccessory(true);
+
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			android.os.Process.killProcess(android.os.Process.myPid());
+		}
+
 		super.onDestroy();
 
 	}
@@ -108,7 +120,9 @@ public class Main_Activity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main_activity_layout_energy);
+		setContentView(R.layout.main_activity_layout);
+
+		activity = this;
 
 		pannello_energia = (TableRow) findViewById(R.id.pannello_energia);
 
@@ -127,15 +141,12 @@ public class Main_Activity extends Activity {
 		continuos = (Button) findViewById(R.id.button_continuos);
 		continuos.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+
 				if (label_continuos.getVisibility() == View.VISIBLE) {
-					Log.d("TCARE", "La label è visibile mando 0");
-					writeData("0");
+					utility.writeData("0");
 				} else {
-					writeData(label_continuos.getText().subSequence(0, 1)
-							.toString());
-					Log.d("TCARE", "frequenza: "
-							+ label_continuos.getText().subSequence(0, 1)
-									.toString());
+					utility.writeData(label_continuos.getText()
+							.subSequence(1, 2).toString());
 				}
 			}
 		});
@@ -149,43 +160,21 @@ public class Main_Activity extends Activity {
 
 				switch ((Integer) frequency.getTag()) {
 				case R.drawable.button_457:
-					writeData("s");
+					utility.writeData("s");
 					break;
 				case R.drawable.button_571:
-					writeData("m");
+					utility.writeData("m");
 					break;
 				case R.drawable.button_714:
-					writeData("q");
+					utility.writeData("q");
 					break;
 				case R.drawable.button_145:
-					writeData("c");
+					utility.writeData("c");
 					break;
 
 				}
 			}
 
-		});
-
-		continuos = (Button) findViewById(R.id.button_continuos);
-		continuos.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// show interest in events resulting from ACTION_DOWN
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					if (continuos.isPressed())
-						writeData("0");
-					else
-						writeData("1");
-					return true;
-				}
-
-				if (event.getAction() != MotionEvent.ACTION_UP) {
-
-					return false;
-				}
-
-				return true;
-			}
 		});
 
 		energy = (Button) findViewById(R.id.energy);
@@ -228,16 +217,11 @@ public class Main_Activity extends Activity {
 
 					public void onStopTrackingTouch(SeekBar seekBar) {
 
-						uartInterface.MandaDati(Integer.parseInt(percentage
-								.getText().toString()) + 150);
+						utility.MandaDati(Integer.parseInt(percentage.getText()
+								.toString()) + 150);
 
 					}
 				});
-
-		writeBuffer = new byte[64];
-		readBuffer = new byte[4096];
-		readBufferToChar = new char[4096];
-		actualNumBytes = new int[1];
 
 		label_start = (TextView) findViewById(R.id.label_start);
 		label_start.setTextSize(18);
@@ -259,7 +243,7 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					writeData("S");
+					utility.writeData("S");
 					return true;
 				}
 
@@ -281,7 +265,7 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					writeData("T");
+					utility.writeData("T");
 					return true;
 				}
 				// don't handle event unless its ACTION_UP so "doSomething()"
@@ -300,7 +284,7 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					writeData("P");
+					utility.writeData("P");
 					return true;
 				}
 				// don't handle event unless its ACTION_UP so "doSomething()"
@@ -319,7 +303,7 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					writeData("C");
+					utility.writeData("C");
 					return true;
 				}
 				// don't handle event unless its ACTION_UP so "doSomething()"
@@ -337,7 +321,7 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					writeData("R");
+					utility.writeData("R");
 					return true;
 				}
 				// don't handle event unless its ACTION_UP so "doSomething()"
@@ -355,7 +339,7 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					writeData("B");
+					utility.writeData("B");
 					return true;
 				}
 				// don't handle event unless its ACTION_UP so "doSomething()"
@@ -373,7 +357,7 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					writeData("F");
+					utility.writeData("F");
 					return true;
 				}
 				// don't handle event unless its ACTION_UP so "doSomething()"
@@ -447,9 +431,7 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					Log.d("TCARE",
-							"Dimensioni continuos: " + continuos.getHeight()
-									+ " - " + continuos.getWidth());
+					utility.DestroyAccessory(true);
 					Intent intent = new Intent(Main_Activity.this, Menu.class);
 					startActivity(intent);
 					return true;
@@ -468,8 +450,6 @@ public class Main_Activity extends Activity {
 
 		menu.setWidth(blocco2_dim);
 		menu.setHeight(blocco2_dim);
-
-		Log.d("TCARE", "Dimensioni blocco2_dim: " + blocco2_dim);
 
 		percentage.setTextSize(height / 2 * 20 / 100 / density);
 		percentuale_simbolo.setTextSize(height / 2 * 20 / 100 / density);
@@ -500,42 +480,13 @@ public class Main_Activity extends Activity {
 		jaule = (Button) findViewById(R.id.jaule);
 		jaule.setPressed(true);
 
-		try {
-			uartInterface = new FT311UARTInterface(this, null);
-			writeData("@^");
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			Log.e("TCARE", e.getMessage());
-		}
-	}
-
-	public void writeData(String commandString) {
-
-		int numBytes = commandString.length();
-		writeBuffer = new byte[64];
-
-		for (int i = 0; i < numBytes; i++) {
-			writeBuffer[i] = (byte) commandString.charAt(i);
-			Log.d("TCARE", "writeData: scrivo: " + commandString.charAt(i)
-					+ " tradotto: " + (byte) commandString.charAt(i));
-		}
-
-		if (uartInterface != null)
-			uartInterface.SendData(numBytes, writeBuffer);
-		else
-			Log.e("TCARE", "Interfaccia non avviata!!!");
-		Calendar calendar = Calendar.getInstance();
-		Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime()
-				.getTime());
-		Log.d("TCARE", currentTimestamp + ": writeData: scritto(" + numBytes
-				+ "): " + writeBuffer.toString());
-
+		utility.config(this);
+		utility.writeData("@^");
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-		active = true;
 
 	}
 }

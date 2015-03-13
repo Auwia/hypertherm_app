@@ -18,7 +18,7 @@
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_gravity="center_horizontal" >
+                android:gravity="center_horizontal|center_vertical" >
 
                 <TextView
                     android:id="@+id/title"
@@ -36,14 +36,6 @@
                     android:text="@string/title2"
                     android:textColor="#86d9b5"
                     android:textSize="38sp" />
-
-                <TextView
-                    android:id="@+id/revision"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp" />
             </LinearLayout>
         </TableRow>
 
@@ -244,7 +236,7 @@
                 android:id="@+id/prima_riga"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="10" >
+                android:layout_weight="5" >
 
                 <TextView
                     android:id="@+id/percentage"
@@ -280,7 +272,7 @@
                 android:id="@+id/seconda_riga"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="40"
+                android:layout_weight="35"
                 android:gravity="center_vertical|center_horizontal" >
 
                 <SeekBar
@@ -407,36 +399,70 @@
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="50"
+                android:layout_weight="60"
                 android:baselineAligned="false" >
 
-                <LinearLayout
+                <TableLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_weight="50"
-                    android:gravity="center" >
+                    android:layout_weight="50" >
 
-                    <Button
-                        android:id="@+id/energy"
-                        style="@style/custom_button_set_value"
-                        android:layout_width="130dp"
-                        android:layout_height="35dp"
-                        android:layout_gravity="center_vertical"
-                        android:background="@drawable/custom_button_set_value"
-                        android:textColor="@android:color/white"
-                        android:textSize="18sp" />
+                    <TableRow
+                        android:id="@+id/pannello_energia"
+                        android:layout_width="fill_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="50"
+                        android:gravity="center|center_horizontal"
+                        android:visibility="gone" >
 
-                    <TextView
-                        android:id="@+id/label_energy"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:paddingLeft="10dp"
-                        android:text="@string/energy"
-                        android:textColor="@android:color/white"
-                        android:textSize="16sp" />
-                </LinearLayout>
+                        <Button
+                            android:id="@+id/jaule"
+                            android:layout_width="130dp"
+                            android:layout_height="35dp"
+                            android:background="@drawable/custom_button_set_value"
+                            android:enabled="false"
+                            android:textColor="@android:color/white" />
+
+                        <TextView
+                            android:id="@+id/jaule_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="10dp"
+                            android:text="@string/setValue"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="fill_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="50"
+                        android:gravity="center|center_horizontal"
+                        android:paddingTop="5dp" >
+
+                        <Button
+                            android:id="@+id/energy"
+                            style="@style/custom_button_set_value"
+                            android:layout_width="130dp"
+                            android:layout_height="35dp"
+                            android:layout_gravity="center_vertical"
+                            android:background="@drawable/custom_button_set_value"
+                            android:enabled="false"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/label_energy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:paddingLeft="10dp"
+                            android:text="@string/energy"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+                    </TableRow>
+                </TableLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -460,7 +486,8 @@
                         android:layout_gravity="center_vertical"
                         android:text="@string/freq"
                         android:textColor="@android:color/white"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:visibility="invisible" />
                 </LinearLayout>
             </LinearLayout>
         </TableLayout>
@@ -522,7 +549,7 @@
                     android:gravity="center"
                     android:text="@string/frequency"
                     android:textColor="@android:color/white"
-                    android:textSize="16sp" />
+                    android:textSize="14sp" />
             </TableRow>
         </TableLayout>
         <!-- ************************FINE COLONNA DI DESTRA ******************************* -->

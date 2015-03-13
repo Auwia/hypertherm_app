@@ -27,7 +27,6 @@
     <string name="freq">Hz</string>
     <string name="energy">Energy J</string>
     <string name="setValue">Set Value [J]</string>
-    <string name="jaule_value">123456</string>
     <string name="linea">Barre decorative</string>
     <string name="title_activity_menu">Menu</string>
     <string name="menu">MENU</string>
@@ -44,6 +43,5 @@
     <string name="time">01\':00\'\'</string>
     <string name="label_time">Time (min, sec)</string>
     <string name="title_activity_service">Service</string>
-    <string name="hello_world">Hello world!</string>
 
 </resources>

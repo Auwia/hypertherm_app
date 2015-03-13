@@ -122,8 +122,6 @@ public class FT311UARTInterface extends Activity {
 		/* prepare the packet to be sent */
 		for (int count = 0; count < numBytes; count++) {
 			writeusbdata[count] = buffer[count];
-			Log.d("TCARE", "SendData: preparo array con(" + numBytes + "): "
-					+ buffer[count]);
 
 		}
 
@@ -320,7 +318,6 @@ public class FT311UARTInterface extends Activity {
 		inputstream = null;
 		outputstream = null;
 
-		System.exit(0);
 	}
 
 	/*********** USB broadcast receiver *******************************************/
@@ -392,6 +389,7 @@ public class FT311UARTInterface extends Activity {
 					Log.e("TCARE", "read_thread I/O exception: errore generico");
 					DestroyAccessory(true);
 					CloseAccessory();
+					break;
 				}
 			}
 		}
@@ -418,4 +416,5 @@ public class FT311UARTInterface extends Activity {
 			e.printStackTrace();
 		}
 	}
+
 }

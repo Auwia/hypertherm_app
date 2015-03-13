@@ -14,8 +14,51 @@ public class Utility {
 	private SeekBar seek_bar_percentage;
 	private TextView time, label_start, label_pause, label_stop,
 			label_continuos;
-	private Button play, stop, pause, cap, res, body, face, reset, energy,
-			set_value, menu, continuos, frequency;
+	private Button play, stop, pause, cap, res, body, face, energy, menu,
+			continuos, frequency;
+
+	private FT311UARTInterface uartInterface;
+
+	private byte[] writeBuffer;
+
+	public void ResumeAccessory() {
+		uartInterface.ResumeAccessory();
+	}
+
+	public void DestroyAccessory(boolean x) {
+		uartInterface.DestroyAccessory(x);
+	}
+
+	public void MandaDati(int x) {
+		uartInterface.MandaDati(x);
+	}
+
+	public void config(Activity x) {
+		try {
+			uartInterface = new FT311UARTInterface(x, null);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			Log.e("TCARE", e.getMessage());
+		}
+	}
+
+	public void writeData(String commandString) {
+
+		int numBytes = commandString.length();
+		writeBuffer = new byte[64];
+
+		for (int i = 0; i < numBytes; i++) {
+			writeBuffer[i] = (byte) commandString.charAt(i);
+			Log.d("TCARE", "writeData: scrivo: " + commandString.charAt(i)
+					+ " tradotto: " + (byte) commandString.charAt(i));
+		}
+
+		if (uartInterface != null)
+			uartInterface.SendData(numBytes, writeBuffer);
+		else
+			Log.e("TCARE", "Interfaccia non avviata!!!");
+
+	}
 
 	public Utility(Activity activity) {
 		this.activity = activity;
@@ -43,6 +86,8 @@ public class Utility {
 
 		frequency = (Button) activity.findViewById(R.id.frequency);
 		energy = (Button) activity.findViewById(R.id.energy);
+
+		menu = (Button) activity.findViewById(R.id.menu);
 
 	}
 
@@ -121,8 +166,11 @@ public class Utility {
 							} else {
 								continuos
 										.setBackgroundResource(R.drawable.pulsed_normal);
-								label_continuos.setText(" " + comandi[0]
-										+ " Hz");
+								Log.d("TCARE",
+										"Ricevo: "
+												+ Integer.parseInt(comandi[0]));
+								label_continuos.setText(" "
+										+ Integer.parseInt(comandi[0]) + " Hz");
 							}
 
 						}
@@ -192,6 +240,7 @@ public class Utility {
 										.parseColor("#78d0d2"));
 								label_start.setTextColor(Color.WHITE);
 								label_pause.setTextColor(Color.WHITE);
+								menu.setEnabled(true);
 							}
 							if (comandi[0].equals("01")) {
 								play.setPressed(true);
@@ -202,6 +251,7 @@ public class Utility {
 										.parseColor("#78d0d2"));
 								label_stop.setTextColor(Color.WHITE);
 								label_pause.setTextColor(Color.WHITE);
+								menu.setEnabled(false);
 							}
 							if (comandi[0].equals("02")) {
 								pause.setPressed(true);
@@ -212,6 +262,7 @@ public class Utility {
 										.parseColor("#78d0d2"));
 								label_start.setTextColor(Color.WHITE);
 								label_stop.setTextColor(Color.WHITE);
+								menu.setEnabled(false);
 							}
 						}
 					}
@@ -229,4 +280,5 @@ public class Utility {
 		}
 		return false;
 	}
+
 }
