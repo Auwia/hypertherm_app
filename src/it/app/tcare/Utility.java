@@ -1,11 +1,14 @@
 package it.app.tcare;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 public class Utility {
@@ -15,14 +18,21 @@ public class Utility {
 	private TextView time, label_start, label_pause, label_stop,
 			label_continuos;
 	private Button play, stop, pause, cap, res, body, face, energy, menu,
-			continuos, frequency;
+			continuos, frequency, jaule;
+	private TableRow pannello_energia;
 
 	private FT311UARTInterface uartInterface;
 
+	private SharedPreferences preferences;
+
 	private byte[] writeBuffer;
 
-	public void ResumeAccessory() {
-		uartInterface.ResumeAccessory();
+	public void SetConfig() {
+		uartInterface.SetConfig();
+	}
+
+	public int ResumeAccessory(boolean bConfiged) {
+		return uartInterface.ResumeAccessory(bConfiged);
 	}
 
 	public void DestroyAccessory(boolean x) {
@@ -35,9 +45,8 @@ public class Utility {
 
 	public void config(Activity x) {
 		try {
-			uartInterface = new FT311UARTInterface(x, null);
+			uartInterface = new FT311UARTInterface(x, preferences);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			Log.e("TCARE", e.getMessage());
 		}
 	}
@@ -55,12 +64,14 @@ public class Utility {
 
 		if (uartInterface != null)
 			uartInterface.SendData(numBytes, writeBuffer);
-		else
+		else {
 			Log.e("TCARE", "Interfaccia non avviata!!!");
+		}
 
 	}
 
 	public Utility(Activity activity) {
+
 		this.activity = activity;
 
 		seek_bar_percentage = (SeekBar) activity
@@ -89,6 +100,13 @@ public class Utility {
 
 		menu = (Button) activity.findViewById(R.id.menu);
 
+		pannello_energia = (TableRow) activity
+				.findViewById(R.id.pannello_energia);
+
+		jaule = (Button) activity.findViewById(R.id.jaule);
+
+		preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+
 	}
 
 	public void esegui(final String command) {
@@ -99,6 +117,179 @@ public class Utility {
 
 				if (command != null) {
 					String[] comandi = command.split(" ");
+
+					if (comandi != null && comandi.length == 2) {
+
+						if (comandi[1].equals("W")) {
+
+						}
+					}
+
+					if (comandi != null && comandi.length == 10) {
+
+						if (comandi[9].equals("a")) {
+
+							SharedPreferences preferences = PreferenceManager
+									.getDefaultSharedPreferences(activity);
+							SharedPreferences.Editor editor = preferences
+									.edit();
+
+							String minuti, secondi;
+
+							// TODO: Aggiungere il caso in cui i secondi sono 30
+							editor.putInt("timer_progress", Integer.parseInt(
+									comandi[0].substring(0, 2), 16) * 2);
+
+							if (Integer.parseInt(comandi[0].substring(0, 2), 16) < 10)
+								minuti = "0"
+										+ Integer.parseInt(
+												comandi[0].substring(0, 2), 16);
+							else
+								minuti = ""
+										+ Integer.parseInt(
+												comandi[0].substring(0, 2), 16);
+
+							if (Integer.parseInt(comandi[0].substring(2, 4), 16) < 10)
+								secondi = "0"
+										+ Integer.parseInt(
+												comandi[0].substring(2, 4), 16);
+							else
+								secondi = ""
+										+ Integer.parseInt(
+												comandi[0].substring(2, 4), 16);
+
+							time.setText(minuti + "'" + secondi + "''");
+
+							editor.putString("timer", minuti + "'" + secondi
+									+ "''");
+
+							jaule.setText(String.valueOf(Integer.parseInt(
+									comandi[1], 16) * 1000));
+
+							editor.putInt("energy",
+									Integer.parseInt(comandi[1], 16) * 1000);
+
+							if (comandi[3].equals("00")) {
+								frequency.setTag(R.drawable.button_145);
+								frequency
+										.setBackgroundResource(R.drawable.button_145);
+							}
+							if (comandi[3].equals("01")) {
+								frequency.setTag(R.drawable.button_457);
+								frequency
+										.setBackgroundResource(R.drawable.button_457);
+							}
+							if (comandi[3].equals("02")) {
+								frequency.setTag(R.drawable.button_571);
+								frequency
+										.setBackgroundResource(R.drawable.button_571);
+							}
+							if (comandi[3].equals("03")) {
+								frequency.setTag(R.drawable.button_714);
+								frequency
+										.setBackgroundResource(R.drawable.button_714);
+							}
+
+							if (comandi[4].equals("00")) {
+								res.setPressed(true);
+								cap.setPressed(false);
+								body.setPressed(false);
+								face.setPressed(false);
+							}
+							if (comandi[4].equals("01")) {
+								cap.setPressed(true);
+								res.setPressed(false);
+								body.setPressed(false);
+								face.setPressed(false);
+							}
+							if (comandi[4].equals("02")) {
+								face.setPressed(true);
+								cap.setPressed(false);
+								res.setPressed(false);
+								body.setPressed(false);
+							}
+							if (comandi[4].equals("03")) {
+								body.setPressed(true);
+								cap.setPressed(false);
+								res.setPressed(false);
+								face.setPressed(false);
+							}
+
+							if (comandi[5].equals("01")
+									|| comandi[5].equals("02")
+									|| comandi[5].equals("03")
+									|| comandi[5].equals("04")
+									|| comandi[5].equals("05")) {
+								continuos
+										.setBackgroundResource(R.drawable.pulsed_normal);
+								label_continuos.setText(" "
+										+ Integer.parseInt(comandi[5]) + " Hz");
+								label_continuos.setVisibility(View.VISIBLE);
+								editor.putBoolean("isPulsed", true);
+								editor.putBoolean("isContinuos", false);
+								editor.putInt("hz",
+										Integer.parseInt(comandi[5]));
+							}
+
+							if (comandi[5].equals("00")) {
+								continuos
+										.setBackgroundResource(R.drawable.continuos_normal);
+								label_continuos.setVisibility(View.INVISIBLE);
+								editor.putBoolean("isContinuos", true);
+								editor.putBoolean("isPulsed", false);
+							}
+
+							if (comandi[6].equals("00")) {
+								pannello_energia.setVisibility(View.GONE);
+								editor.putBoolean("isTime", true);
+								editor.putBoolean("isEnergy", false);
+							}
+
+							if (comandi[6].equals("01")) {
+								pannello_energia.setVisibility(View.VISIBLE);
+								editor.putBoolean("isEnergy", true);
+								editor.putBoolean("isTime", false);
+							}
+
+							if (comandi[7].equals("00")) {
+								stop.setPressed(true);
+								stop.setTextColor(Color.parseColor("#015c5f"));
+								play.setPressed(false);
+								pause.setPressed(false);
+								label_stop.setTextColor(Color
+										.parseColor("#78d0d2"));
+								label_start.setTextColor(Color.WHITE);
+								label_pause.setTextColor(Color.WHITE);
+								menu.setEnabled(true);
+							}
+							if (comandi[7].equals("01")) {
+								play.setPressed(true);
+								play.setTextColor(Color.parseColor("#015c5f"));
+								pause.setPressed(false);
+								stop.setPressed(false);
+								label_start.setTextColor(Color
+										.parseColor("#78d0d2"));
+								label_stop.setTextColor(Color.WHITE);
+								label_pause.setTextColor(Color.WHITE);
+								menu.setEnabled(false);
+							}
+							if (comandi[7].equals("02")) {
+								pause.setPressed(true);
+								pause.setTextColor(Color.parseColor("#015c5f"));
+								play.setPressed(false);
+								stop.setPressed(false);
+								label_pause.setTextColor(Color
+										.parseColor("#78d0d2"));
+								label_start.setTextColor(Color.WHITE);
+								label_stop.setTextColor(Color.WHITE);
+								menu.setEnabled(false);
+							}
+
+							editor.commit();
+						}
+
+					}
+
 					if (comandi != null && comandi.length == 2) {
 
 						if (comandi[1].equals("J")) {
@@ -166,11 +357,9 @@ public class Utility {
 							} else {
 								continuos
 										.setBackgroundResource(R.drawable.pulsed_normal);
-								Log.d("TCARE",
-										"Ricevo: "
-												+ Integer.parseInt(comandi[0]));
 								label_continuos.setText(" "
 										+ Integer.parseInt(comandi[0]) + " Hz");
+								label_continuos.setVisibility(View.VISIBLE);
 							}
 
 						}
@@ -252,6 +441,7 @@ public class Utility {
 								label_stop.setTextColor(Color.WHITE);
 								label_pause.setTextColor(Color.WHITE);
 								menu.setEnabled(false);
+
 							}
 							if (comandi[0].equals("02")) {
 								pause.setPressed(true);

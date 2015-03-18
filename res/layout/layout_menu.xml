@@ -48,92 +48,110 @@
             android:layout_weight="30" >
 
             <LinearLayout
+                android:id="@+id/padding"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
-                android:layout_weight="25"
+                android:layout_weight="10"
+                android:gravity="center|right"
+                android:orientation="vertical"
+                android:visibility="invisible" >
+            </LinearLayout>
+
+            <TableLayout
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="15"
                 android:gravity="center_vertical|center_horizontal" >
 
-                <TableLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:paddingRight="5dp" >
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|center_horizontal" >
 
-                    <TableRow
+                    <LinearLayout
                         android:layout_width="fill_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="95"
-                        android:gravity="right|center_vertical|center_horizontal" >
+                        android:layout_height="fill_parent"
+                        android:gravity="center_vertical|center_horizontal" >
 
                         <Button
                             android:id="@+id/button_continuos"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@drawable/button_continuos" />
-                    </TableRow>
+                    </LinearLayout>
+                </TableRow>
 
-                    <TableRow
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|center_horizontal" >
+
+                    <LinearLayout
                         android:layout_width="fill_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="5"
-                        android:gravity="right|center_vertical|center_horizontal" >
+                        android:layout_height="fill_parent"
+                        android:gravity="center_vertical|center_horizontal" >
 
                         <TextView
                             android:id="@+id/label_continuos"
-                            android:layout_width="fill_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:text="@string/continuos"
                             android:textColor="@android:color/black" />
-                    </TableRow>
-                </TableLayout>
-            </LinearLayout>
+                    </LinearLayout>
+                </TableRow>
+            </TableLayout>
 
-            <LinearLayout
+            <TableLayout
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
-                android:layout_weight="25"
+                android:layout_weight="15"
                 android:gravity="center_vertical|center_horizontal" >
 
-                <TableLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:paddingLeft="5dp" >
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|center_horizontal" >
 
-                    <TableRow
+                    <LinearLayout
                         android:layout_width="fill_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="95"
-                        android:gravity="left|center_vertical|center_horizontal" >
+                        android:layout_height="fill_parent"
+                        android:gravity="center_vertical|center_horizontal" >
 
                         <Button
                             android:id="@+id/button_pulsed"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@drawable/button_pulsed" />
-                    </TableRow>
+                    </LinearLayout>
+                </TableRow>
 
-                    <TableRow
+                <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|center_horizontal" >
+
+                    <LinearLayout
                         android:layout_width="fill_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="5"
-                        android:gravity="left|center_vertical|center_horizontal" >
+                        android:layout_height="fill_parent"
+                        android:gravity="center_vertical|center_horizontal" >
 
                         <TextView
                             android:id="@+id/label_pulsed"
-                            android:layout_width="fill_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:text="@string/pulsed"
                             android:textColor="@android:color/black" />
-                    </TableRow>
-                </TableLayout>
-            </LinearLayout>
+                    </LinearLayout>
+                </TableRow>
+            </TableLayout>
 
             <LinearLayout
                 android:id="@+id/simbolo_frequenza"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
-                android:layout_weight="10"
+                android:layout_weight="20"
                 android:gravity="center|right"
                 android:visibility="invisible" >
 
@@ -345,25 +363,46 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="70"
+                android:layout_weight="17"
                 android:gravity="center" >
+
+                <Button
+                    android:id="@+id/exit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/exit_normal" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="25"
+                android:gravity="right" >
 
                 <Button
                     android:id="@+id/energy"
                     style="@style/custom_button_set_value"
                     android:layout_width="130dp"
                     android:layout_height="35dp"
-                    android:layout_gravity="center_vertical"
                     android:background="@drawable/custom_button_set_value"
+                    android:gravity="center_horizontal|center_vertical"
                     android:text="@string/time"
-                    android:textColor="@android:color/white"
-                    android:textSize="16sp" />
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="28"
+                android:gravity="left" >
 
                 <TextView
                     android:id="@+id/label_energy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
+                    android:gravity="left|center_vertical"
                     android:paddingLeft="10dp"
                     android:text="@string/label_time"
                     android:textColor="@android:color/white"
@@ -381,13 +420,19 @@
                     style="@style/custom_button_set_value"
                     android:layout_width="130dp"
                     android:layout_height="35dp"
-                    android:layout_gravity="center_vertical"
+                    android:layout_gravity="center_horizontal|center_vertical"
                     android:background="@drawable/custom_button_set_value"
+                    android:gravity="center_horizontal|center_vertical"
                     android:text="@string/service"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp" />
+                    android:textColor="@android:color/black" />
             </LinearLayout>
         </TableRow>
+    </LinearLayout>
+
+    <TableRow>
+    </TableRow>
+
+    <LinearLayout>
     </LinearLayout>
 
 </TableLayout>

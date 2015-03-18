@@ -15,7 +15,6 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 public class Main_Activity extends Activity {
@@ -25,68 +24,50 @@ public class Main_Activity extends Activity {
 			trenta, quaranta, cinquanta, sessanta, settanta, ottanta, novanta,
 			cento, label_continuos;
 	private Button play, stop, pause, cap, res, body, face, menu, energy,
-			frequency, continuos, jaule;
+			frequency, continuos;
 	private SeekBar seek_bar_percentage;
 
-	private Utility utility;
-
-	private TableRow pannello_energia;
+	public Utility utility;
 
 	private SharedPreferences preferences;
+	private SharedPreferences.Editor editor;
 
 	public static Activity activity;
 
+	private static final int REQUEST_CODE_TEST = 0;
+
+	private boolean start_in_progress = false, bConfiged = false;
+
+	public String act_string;
+
 	@Override
-	protected void onResume() {
-		// Ideally should implement onResume() and onPause()
-		// to take appropriate action when the activity looses focus
-		super.onResume();
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
 
-		utility.ResumeAccessory();
+		if (preferences.getBoolean("exit", false))
+			finish();
 
-		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		utility.ResumeAccessory(bConfiged);
 
-		if (preferences.contains("isEnergy")) {
+		if (requestCode == REQUEST_CODE_TEST) {
+			if (resultCode == Activity.RESULT_OK) {
+				if (data.hasExtra("comandi_da_eseguire")) {
 
-			if (preferences.getBoolean("isEnergy", false)) {
-				pannello_energia.setVisibility(View.VISIBLE);
-				if (jaule != null) {
-					jaule.setPressed(true);
-					jaule.setText(String.valueOf(preferences.getInt("energy",
-							10) * 5000));
-					utility.writeData("M");
-					utility.writeData("j");
-					utility.MandaDati(preferences.getInt("energy", 1) + 150);
+					Bundle b = data.getExtras();
+					String[] array = b.getStringArray("comandi_da_eseguire");
+
+					for (int i = 0; i < array.length; i++) {
+						if (array[i].length() > 1) {
+							utility.MandaDati(Integer.valueOf(array[i]));
+						} else {
+							utility.writeData(array[i]);
+						}
+					}
 				}
 			}
-
-			if (preferences.getBoolean("isTime", false)) {
-				pannello_energia.setVisibility(View.GONE);
-				time.setText(preferences.getString("timer", getResources()
-						.getString(R.string.time)));
-				utility.writeData("M");
-				utility.writeData("t");
-				utility.MandaDati(preferences.getInt("timer_progress", 1) + 150);
-
-			}
-
-			if (preferences.getBoolean("isPulsed", false)) {
-				continuos.setBackgroundResource(R.drawable.pulsed_normal);
-				label_continuos.setVisibility(View.VISIBLE);
-				label_continuos.setText(" "
-						+ String.valueOf(preferences.getInt("hz", 1)) + " hz");
-			}
-
-			if (preferences.getBoolean("isContinuos", false)) {
-				continuos.setBackgroundResource(R.drawable.continuos_normal);
-				label_continuos.setVisibility(View.GONE);
-			}
-
-			stop.setPressed(true);
 		}
 
-		utility.writeData("L");
-
+		utility.writeData("a");
 	}
 
 	@Override
@@ -97,22 +78,18 @@ public class Main_Activity extends Activity {
 	@Override
 	protected void onDestroy() {
 
-		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(getApplicationContext());
-		SharedPreferences.Editor editor = preferences.edit();
+		editor = preferences.edit();
 		editor.clear();
 		editor.commit();
 		utility.DestroyAccessory(true);
 
 		try {
-			Thread.sleep(200);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally {
-			android.os.Process.killProcess(android.os.Process.myPid());
 		}
 
+		System.exit(0);
 		super.onDestroy();
 
 	}
@@ -122,9 +99,12 @@ public class Main_Activity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity_layout);
 
-		activity = this;
+		preferences = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
 
-		pannello_energia = (TableRow) findViewById(R.id.pannello_energia);
+		preferences.edit().putBoolean("isMenu", false).commit();
+
+		activity = this;
 
 		label_continuos = (TextView) findViewById(R.id.label_continuos);
 
@@ -145,8 +125,14 @@ public class Main_Activity extends Activity {
 				if (label_continuos.getVisibility() == View.VISIBLE) {
 					utility.writeData("0");
 				} else {
-					utility.writeData(label_continuos.getText()
-							.subSequence(1, 2).toString());
+					if (label_continuos.getText().subSequence(1, 2).toString()
+							.equals("z")) {
+						utility.writeData("1");
+					} else {
+
+						utility.writeData(label_continuos.getText()
+								.subSequence(1, 2).toString());
+					}
 				}
 			}
 		});
@@ -224,13 +210,13 @@ public class Main_Activity extends Activity {
 				});
 
 		label_start = (TextView) findViewById(R.id.label_start);
-		label_start.setTextSize(18);
+		label_start.setTextSize(16);
 
 		label_stop = (TextView) findViewById(R.id.label_stop);
-		label_stop.setTextSize(18);
+		label_stop.setTextSize(16);
 
 		label_pause = (TextView) findViewById(R.id.label_pause);
-		label_pause.setTextSize(18);
+		label_pause.setTextSize(16);
 
 		time = (TextView) findViewById(R.id.time);
 
@@ -243,7 +229,28 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
 					utility.writeData("S");
+					start_in_progress = true;
+					Thread thread = new Thread() {
+						@Override
+						public void run() {
+
+							while (start_in_progress) {
+								try {
+									Thread.sleep(500);
+								} catch (InterruptedException e) {
+									start_in_progress = false;
+								}
+
+								utility.writeData("W");
+
+							}
+
+						}
+					};
+
+					thread.start();
 					return true;
 				}
 
@@ -266,6 +273,7 @@ public class Main_Activity extends Activity {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					utility.writeData("T");
+					start_in_progress = false;
 					return true;
 				}
 				// don't handle event unless its ACTION_UP so "doSomething()"
@@ -284,6 +292,7 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+					start_in_progress = false;
 					utility.writeData("P");
 					return true;
 				}
@@ -421,9 +430,9 @@ public class Main_Activity extends Activity {
 		label_start.setWidth(blocco2_dim);
 		label_stop.setWidth(blocco2_dim);
 		label_pause.setWidth(blocco2_dim);
-		label_start.setTextSize(width * moltiplicativo / 100 / 2);
-		label_stop.setTextSize(width * moltiplicativo / 100 / 2);
-		label_pause.setTextSize(width * moltiplicativo / 100 / 2);
+		// label_start.setTextSize(width * moltiplicativo / 100 / 2);
+		// label_stop.setTextSize(width * moltiplicativo / 100 / 2);
+		// label_pause.setTextSize(width * moltiplicativo / 100 / 2);
 
 		menu = (Button) findViewById(R.id.menu);
 		menu.setOnTouchListener(new OnTouchListener() {
@@ -431,14 +440,24 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					utility.DestroyAccessory(true);
-					Intent intent = new Intent(Main_Activity.this, Menu.class);
-					startActivity(intent);
+
+					if (!preferences.getBoolean("isMenu", false)) {
+
+						utility.writeData("a");
+
+						try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {
+						}
+
+						preferences.edit().putBoolean("isMenu", true).commit();
+						Intent intent = new Intent(Main_Activity.this,
+								Menu.class);
+						startActivityForResult(intent, REQUEST_CODE_TEST);
+					}
 					return true;
 				}
 
-				// don't handle event unless its ACTION_UP so "doSomething()"
-				// only runs once.
 				if (event.getAction() != MotionEvent.ACTION_UP) {
 
 					return false;
@@ -474,14 +493,57 @@ public class Main_Activity extends Activity {
 		novanta.setWidth(padding);
 		cento.setWidth(padding);
 
-		energy.setWidth((int) (blocco2_dim * moltiplicativo));
-		energy.setHeight((int) (blocco2_dim * moltiplicativo / 0.40));
-
-		jaule = (Button) findViewById(R.id.jaule);
-		jaule.setPressed(true);
+		// energy.setWidth((int) (blocco2_dim * moltiplicativo));
+		// energy.setHeight((int) (blocco2_dim * moltiplicativo / 0.40));
 
 		utility.config(this);
-		utility.writeData("@^");
+
+		act_string = getIntent().getAction();
+		if (-1 != act_string.indexOf("android.intent.action.MAIN")) {
+			restorePreference();
+		} else if (-1 != act_string
+				.indexOf("android.hardware.usb.action.USB_ACCESSORY_ATTACHED")) {
+			cleanPreference();
+		}
+
+		if (false == bConfiged) {
+			bConfiged = true;
+			utility.SetConfig();
+			savePreference();
+		}
+
+		utility.ResumeAccessory(bConfiged);
+		// utility.SetConfig();
+
+		utility.writeData("@");
+		utility.writeData("^");
+		utility.writeData("a");
+	}
+
+	protected void cleanPreference() {
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.remove("configed");
+		editor.commit();
+	}
+
+	protected void savePreference() {
+		if (true == bConfiged) {
+			preferences.edit().putString("configed", "TRUE").commit();
+		} else {
+			preferences.edit().putString("configed", "FALSE").commit();
+		}
+
+		preferences.edit().putBoolean("exit", false).commit();
+
+	}
+
+	protected void restorePreference() {
+		String key_name = preferences.getString("configed", "");
+		if (true == key_name.contains("TRUE")) {
+			bConfiged = true;
+		} else {
+			bConfiged = false;
+		}
 	}
 
 	@Override
@@ -489,4 +551,32 @@ public class Main_Activity extends Activity {
 		super.onStart();
 
 	}
+
+	// @Override
+	public void onHomePressed() {
+		onBackPressed();
+	}
+
+	public void onBackPressed() {
+		super.onBackPressed();
+	}
+
+	@Override
+	protected void onResume() {
+		// Ideally should implement onResume() and onPause()
+		// to take appropriate action when the activity looses focus
+		super.onResume();
+		if (2 == utility.ResumeAccessory(bConfiged)) {
+			cleanPreference();
+			restorePreference();
+		}
+	}
+
+	@Override
+	protected void onStop() {
+		// Ideally should implement onResume() and onPause()
+		// to take appropriate action when the activity looses focus
+		super.onStop();
+	}
+
 }

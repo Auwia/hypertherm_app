@@ -23,6 +23,10 @@ import android.widget.Toast;
 public class FT311UARTInterface extends Activity {
 
 	private static final int BaudRate = 9600;
+	private static final byte dataBits = 1;
+	private static final byte stopBits = 8;
+	private static final byte parity = 0;
+	private static final byte flowControl = 0;
 
 	private static final String ACTION_USB_PERMISSION = "it.app.tcare.USB_PERMISSION";
 	public UsbManager usbmanager;
@@ -39,7 +43,8 @@ public class FT311UARTInterface extends Activity {
 
 	private int readcount;
 
-	public boolean datareceived = false, accessory_attached = false;
+	public boolean datareceived = false, accessory_attached = false,
+			READ_ENABLE = false;
 
 	public Activity global_context;
 
@@ -48,17 +53,18 @@ public class FT311UARTInterface extends Activity {
 	public static String ModelString2 = "mModel=Android Accessory FT312D";
 	public static String VersionString = "mVersion=1.0";
 
-	private UsbAccessory[] accessories;
-	private UsbAccessory accessory;
-
 	private Utility utility;
 	private StringBuffer readSB = new StringBuffer();
+
+	public SharedPreferences intsharePrefSettings;
 
 	/* constructor */
 	public FT311UARTInterface(Activity context,
 			SharedPreferences sharePrefSettings) throws InterruptedException {
 		super();
 		global_context = context;
+
+		intsharePrefSettings = sharePrefSettings;
 
 		utility = new Utility(global_context);
 
@@ -79,14 +85,13 @@ public class FT311UARTInterface extends Activity {
 
 	}
 
-	public void SetConfig(int baud, byte dataBits, byte stopBits, byte parity,
-			byte flowControl) {
+	public void SetConfig() {
 
 		/* prepare the baud rate buffer */
-		writeusbdata[0] = (byte) baud;
-		writeusbdata[1] = (byte) (baud >> 8);
-		writeusbdata[2] = (byte) (baud >> 16);
-		writeusbdata[3] = (byte) (baud >> 24);
+		writeusbdata[0] = (byte) BaudRate;
+		writeusbdata[1] = (byte) (BaudRate >> 8);
+		writeusbdata[2] = (byte) (BaudRate >> 16);
+		writeusbdata[3] = (byte) (BaudRate >> 24);
 
 		/* data bits */
 		writeusbdata[4] = dataBits;
@@ -139,15 +144,16 @@ public class FT311UARTInterface extends Activity {
 
 	/* method to send on USB */
 	private void SendPacket(int numBytes) {
+
 		try {
 			if (outputstream != null) {
 				outputstream.write(writeusbdata, 0, numBytes);
-
 			} else {
 				Log.i("TCARE", "SendPacket: stream di scrittura chiuso");
+				ResumeAccessory(false);
 			}
 		} catch (IOException e) {
-			Log.e("TCARE", "SendPacket: errore generico");
+			e.printStackTrace();
 			DestroyAccessory(true);
 			CloseAccessory();
 			e.printStackTrace();
@@ -155,7 +161,7 @@ public class FT311UARTInterface extends Activity {
 	}
 
 	/* resume accessory */
-	public int ResumeAccessory() {
+	public int ResumeAccessory(boolean bConfiged) {
 		// Intent intent = getIntent();
 		if (inputstream != null && outputstream != null) {
 			return 1;
@@ -163,8 +169,8 @@ public class FT311UARTInterface extends Activity {
 
 		UsbAccessory[] accessories = usbmanager.getAccessoryList();
 		if (accessories != null) {
-			Toast.makeText(global_context, "Accessory Attached",
-					Toast.LENGTH_SHORT).show();
+			// Toast.makeText(global_context, "Accessory Attached",
+			// Toast.LENGTH_SHORT).show();
 		} else {
 			// return 2 for accessory detached case
 			// Log.e(">>@@","ResumeAccessory RETURN 2 (accessories == null)");
@@ -193,14 +199,15 @@ public class FT311UARTInterface extends Activity {
 				return 1;
 			}
 
-			Toast.makeText(global_context,
-					"Manufacturer, Model & Version are matched!",
-					Toast.LENGTH_SHORT).show();
+			// Toast.makeText(global_context,
+			// "Manufacturer, Model & Version are matched!",
+			// Toast.LENGTH_SHORT).show();
 			accessory_attached = true;
 
 			if (usbmanager.hasPermission(accessory)) {
 				OpenAccessory(accessory);
-				SetConfig(BaudRate, (byte) 1, (byte) 8, (byte) 0, (byte) 0);
+				if (!bConfiged)
+					SetConfig();
 			} else {
 				synchronized (mUsbReceiver) {
 					if (!mPermissionRequestPending) {
@@ -222,35 +229,33 @@ public class FT311UARTInterface extends Activity {
 	public void DestroyAccessory(boolean bConfiged) {
 
 		if (true == bConfiged) {
+			READ_ENABLE = false;
 			writeusbdata[0] = 0; // send dummy data for instream.read going
 			SendPacket(1);
 		} else {
-			SetConfig(BaudRate, (byte) 1, (byte) 8, (byte) 0, (byte) 0); // send
-																			// default
-																			// setting
-																			// data
-																			// for
-																			// config
+			SetConfig();
+
 			try {
 				Thread.sleep(10);
 			} catch (Exception e) {
-				Log.e("TCARE", "DestroyAccessory: sleep (else) errore generico");
 				CloseAccessory();
-				e.printStackTrace();
 			}
 
+			READ_ENABLE = false;
 			writeusbdata[0] = 0; // send dummy data for instream.read going
 			SendPacket(1);
+			if (true == accessory_attached) {
+				saveDefaultPreference();
+			}
 
 		}
 
 		try {
 			Thread.sleep(10);
 		} catch (Exception e) {
-			Log.e("TCARE", "DestroyAccessory: sleep (finale): errore generico");
 			CloseAccessory();
-			e.printStackTrace();
 		}
+
 		CloseAccessory();
 	}
 
@@ -271,11 +276,15 @@ public class FT311UARTInterface extends Activity {
 				return;
 			}
 
-			readThread = new read_thread(inputstream);
-			readThread.start();
-			Log.d("TCARE", "OpenAccessory: stream di lettura avviato");
+			if (READ_ENABLE == false) {
+				READ_ENABLE = true;
+				readThread = new read_thread(inputstream);
+				readThread.start();
+			}
 
+			Log.d("TCARE", "OpenAccessory: stream di lettura avviato");
 			Log.d("TCARE", "OpenAccessory: accessorio aperto");
+
 		} else {
 			Log.e("TCARE", "OpenAccessory: nessun accessorio trovato");
 		}
@@ -287,8 +296,6 @@ public class FT311UARTInterface extends Activity {
 				filedescriptor.close();
 
 		} catch (IOException e) {
-			Log.e("TCARE", "CloseAccessory: I/O exception: errore generico");
-			CloseAccessory();
 			e.printStackTrace();
 		}
 
@@ -296,28 +303,33 @@ public class FT311UARTInterface extends Activity {
 			if (inputstream != null)
 				inputstream.close();
 		} catch (IOException e) {
-			Log.e("TCARE", "CloseAccessory: input stream: errore generico");
-			CloseAccessory();
 			e.printStackTrace();
 		}
 
 		try {
-			if (outputstream != null) {
-				outputstream.flush();
+			if (outputstream != null)
 				outputstream.close();
-			}
 
 		} catch (IOException e) {
-			Log.e("TCARE", "CloseAccessory: output stream: errore generico");
-			CloseAccessory();
 			e.printStackTrace();
 		}
-		/* FIXME, add the notfication also to close the application */
 
 		filedescriptor = null;
 		inputstream = null;
 		outputstream = null;
 
+	}
+
+	protected void saveDetachPreference() {
+		if (intsharePrefSettings != null) {
+			intsharePrefSettings.edit().putString("configed", "FALSE").commit();
+		}
+	}
+
+	protected void saveDefaultPreference() {
+		if (intsharePrefSettings != null) {
+			intsharePrefSettings.edit().putString("configed", "TRUE").commit();
+		}
 	}
 
 	/*********** USB broadcast receiver *******************************************/
@@ -337,19 +349,20 @@ public class FT311UARTInterface extends Activity {
 					} else {
 						Toast.makeText(global_context, "Deny USB Permission",
 								Toast.LENGTH_SHORT).show();
-						Log.d("LED", "permission denied for accessory "
+						Log.d("TCARE", "permission denied for accessory "
 								+ accessory);
 
 					}
 					mPermissionRequestPending = false;
 				}
 			} else if (UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
+				saveDetachPreference();
 				DestroyAccessory(true);
-				// CloseAccessory();
 			} else {
-				Log.d("LED", "....");
+				Log.d("TCARE", "....");
 			}
 		}
+
 	};
 
 	/* usb input data handler */
@@ -362,7 +375,7 @@ public class FT311UARTInterface extends Activity {
 		}
 
 		public void run() {
-			while (true) {
+			while (READ_ENABLE == true) {
 
 				try {
 					if (instream != null) {
@@ -386,10 +399,10 @@ public class FT311UARTInterface extends Activity {
 						}
 					}
 				} catch (IOException e) {
-					Log.e("TCARE", "read_thread I/O exception: errore generico");
+					READ_ENABLE = false;
+					e.printStackTrace();
 					DestroyAccessory(true);
-					CloseAccessory();
-					break;
+					CloseAccessory(); 
 				}
 			}
 		}
@@ -410,10 +423,9 @@ public class FT311UARTInterface extends Activity {
 				Log.i("TCARE", "SendPacket: stream di scrittura chiuso");
 			}
 		} catch (IOException e) {
-			Log.e("TCARE", "SendPacket: errore generico");
+			e.printStackTrace();
 			DestroyAccessory(true);
 			CloseAccessory();
-			e.printStackTrace();
 		}
 	}
 

@@ -164,6 +164,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignLeft="@+id/button_play"
+                    android:layout_alignRight="@+id/button_play"
                     android:layout_below="@+id/button_play"
                     android:gravity="center"
                     android:text="@string/start" />
@@ -175,6 +176,7 @@
                     android:layout_alignBaseline="@+id/label_start"
                     android:layout_alignBottom="@+id/label_start"
                     android:layout_alignLeft="@+id/button_stop"
+                    android:layout_alignRight="@+id/button_stop"
                     android:gravity="center"
                     android:text="@string/stop" />
 
@@ -185,6 +187,7 @@
                     android:layout_alignBaseline="@+id/label_stop"
                     android:layout_alignBottom="@+id/label_stop"
                     android:layout_alignLeft="@+id/button_pause"
+                    android:layout_alignRight="@+id/button_pause"
                     android:gravity="center"
                     android:text="@string/pause" />
             </RelativeLayout>
@@ -236,7 +239,8 @@
                 android:id="@+id/prima_riga"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="5" >
+                android:layout_weight="10"
+                android:gravity="top" >
 
                 <TextView
                     android:id="@+id/percentage"
@@ -272,8 +276,8 @@
                 android:id="@+id/seconda_riga"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="35"
-                android:gravity="center_vertical|center_horizontal" >
+                android:layout_weight="40"
+                android:gravity="top|center_vertical|center_horizontal" >
 
                 <SeekBar
                     android:id="@+id/seek_bar_percentage"
@@ -399,10 +403,11 @@
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="60"
+                android:layout_weight="50"
                 android:baselineAligned="false" >
 
                 <TableLayout
+                    android:id="@+id/pannello_energia_valore"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -413,15 +418,14 @@
                         android:layout_width="fill_parent"
                         android:layout_height="0dp"
                         android:layout_weight="50"
-                        android:gravity="center|center_horizontal"
-                        android:visibility="gone" >
+                        android:gravity="center|center_horizontal" >
 
                         <Button
                             android:id="@+id/jaule"
                             android:layout_width="130dp"
-                            android:layout_height="35dp"
+                            android:layout_height="28dp"
                             android:background="@drawable/custom_button_set_value"
-                            android:enabled="false"
+                            android:gravity="center_horizontal|center_vertical"
                             android:textColor="@android:color/white" />
 
                         <TextView
@@ -438,19 +442,15 @@
                         android:layout_width="fill_parent"
                         android:layout_height="0dp"
                         android:layout_weight="50"
-                        android:gravity="center|center_horizontal"
-                        android:paddingTop="5dp" >
+                        android:gravity="center|center_horizontal" >
 
                         <Button
                             android:id="@+id/energy"
-                            style="@style/custom_button_set_value"
                             android:layout_width="130dp"
-                            android:layout_height="35dp"
-                            android:layout_gravity="center_vertical"
-                            android:background="@drawable/custom_button_set_value"
-                            android:enabled="false"
-                            android:textColor="@android:color/white"
-                            android:textSize="16sp" />
+                            android:layout_height="28dp"
+                            android:background="@drawable/custom_button_energy"
+                            android:gravity="center_horizontal|center_vertical"
+                            android:textColor="@android:color/white" />
 
                         <TextView
                             android:id="@+id/label_energy"
@@ -468,7 +468,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_weight="50"
+                    android:layout_weight="30"
                     android:gravity="center" >
 
                     <Button

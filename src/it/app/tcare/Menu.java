@@ -1,11 +1,16 @@
 package it.app.tcare;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,11 +25,32 @@ import android.widget.TextView;
 public class Menu extends Activity {
 
 	private Button energy, button_energy, continuos, button_time, pulsed,
-			confirm, back;
+			confirm, back, exit;
 	private SeekBar seek_bar_frequency, seek_bar_energy;
 	private TextView uno, due, tre, quattro, cinque, label_energy, revision;
 	private LinearLayout simbolo_frequenza;
 	private RelativeLayout barra_orizzontale;
+
+	private String[] comando_da_inviare;
+
+	private SharedPreferences preferences;
+	private SharedPreferences.Editor editor;
+
+	@Override
+	public void finish() {
+
+		if (comando_da_inviare != null) {
+			Bundle b = new Bundle();
+			b.putStringArray("comandi_da_eseguire", comando_da_inviare);
+			Intent i = new Intent();
+			i.putExtras(b);
+			setResult(RESULT_OK, i);
+		}
+
+		preferences.edit().putBoolean("isMenu", false).commit();
+
+		super.finish();
+	}
 
 	@Override
 	protected void onResume() {
@@ -44,13 +70,14 @@ public class Menu extends Activity {
 
 			if (preferences.getBoolean("isEnergy", false)) {
 				seek_bar_energy.setMax(40);
-				seek_bar_energy.setProgress(preferences.getInt("energy", 10));
+				seek_bar_energy
+						.setProgress(preferences.getInt("energy", 10) / 5000);
 				label_energy.setText(getResources()
 						.getString(R.string.setValue));
-				energy.setText(String.valueOf(preferences.getInt("energy", 10) * 5000));
+				energy.setText(String.valueOf(preferences.getInt("energy", 10)));
 			}
 
-			if (!preferences.getBoolean("isEnergy", false)) {
+			if (preferences.getBoolean("isTime", false)) {
 				seek_bar_energy.setMax(100);
 				seek_bar_energy.setProgress(preferences.getInt(
 						"timer_progress", 2));
@@ -83,12 +110,15 @@ public class Menu extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.layout_menu);
 
+		preferences = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+		preferences.edit().putBoolean("exit", false).commit();
+
 		PackageInfo pInfo = null;
 		try {
 			pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
 		} catch (NameNotFoundException e) {
-			System.out.println("ERRORE STRANO QUI!");
-			e.printStackTrace();
+			Log.e("TCARE", "ERRORE STRANO QUI! " + e.getMessage());
 		}
 		revision = (TextView) findViewById(R.id.revision);
 		revision.setText(pInfo.versionName);
@@ -100,6 +130,7 @@ public class Menu extends Activity {
 		energy = (Button) findViewById(R.id.energy);
 		confirm = (Button) findViewById(R.id.button_confirm);
 		back = (Button) findViewById(R.id.button_back);
+		exit = (Button) findViewById(R.id.exit);
 
 		simbolo_frequenza = (LinearLayout) findViewById(R.id.simbolo_frequenza);
 		barra_orizzontale = (RelativeLayout) findViewById(R.id.barra_orizzontale);
@@ -116,6 +147,13 @@ public class Menu extends Activity {
 
 		seek_bar_frequency.setMax(4);
 
+		exit.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				preferences.edit().putBoolean("exit", true).commit();
+				finish();
+			}
+		});
+
 		back.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				finish();
@@ -124,24 +162,37 @@ public class Menu extends Activity {
 
 		confirm.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				SharedPreferences preferences = PreferenceManager
-						.getDefaultSharedPreferences(getApplicationContext());
-				SharedPreferences.Editor editor = preferences.edit();
-				editor.putBoolean("isContinuos", continuos.isPressed());
-				editor.putBoolean("isPulsed", pulsed.isPressed());
-				editor.putBoolean("isTime", button_time.isPressed());
-				editor.putBoolean("isEnergy", button_energy.isPressed());
-				editor.putInt("hz", (seek_bar_frequency.getProgress() + 1));
-				if (button_energy.isPressed())
-					editor.putInt("energy", seek_bar_energy.getProgress());
-				else {
-					editor.putString("timer", energy.getText().toString());
-					editor.putInt("timer_progress",
-							seek_bar_energy.getProgress());
+				List<String> list = new ArrayList<String>();
+
+				if (button_energy.isPressed()) {
+					list.add("M");
+					list.add("j");
+					list.add(String.valueOf(seek_bar_energy.getProgress() + 150));
 				}
 
-				editor.apply();
+				if (button_time.isPressed()) {
+					list.add("M");
+					list.add("t");
+					list.add(String.valueOf(seek_bar_energy.getProgress() + 150));
+				}
 
+				if (pulsed.isPressed()) {
+					list.add("L");
+					list.add(String.valueOf(seek_bar_frequency.getProgress() + 1));
+				}
+
+				if (continuos.isPressed()) {
+					list.add("L");
+					list.add("0");
+				}
+
+				comando_da_inviare = new String[list.size()];
+
+				for (int i = 0; i < list.size(); i++) {
+					comando_da_inviare[i] = list.get(i);
+				}
+
+				finish();
 			}
 		});
 
@@ -292,12 +343,12 @@ public class Menu extends Activity {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					seek_bar_energy.setMax(40);
-					seek_bar_energy.setProgress(10);
+					seek_bar_energy.setProgress(1);
 					button_energy.setPressed(true);
 					button_time.setPressed(false);
 					label_energy.setText(getResources().getString(
 							R.string.setValue));
-					energy.setText(getResources().getString(R.string.dieci));
+					energy.setText(String.valueOf(seek_bar_energy.getProgress() * 5000));
 					return true;
 				}
 

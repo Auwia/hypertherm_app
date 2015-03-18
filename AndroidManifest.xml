@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="it.app.tcare"
-    android:versionCode="121"
-    android:versionName="1.21" >
+    android:versionCode="1228"
+    android:versionName="1.22.8" >
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="21" />
+        android:targetSdkVersion="22" />
 
     <uses-feature android:name="android.hardware.usb.accessory" />
 
