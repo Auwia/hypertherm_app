@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TCaRe</string>
+    <string name="title">Thermal Therapy</string>
+    <string name="title2">Physio</string>
+    <string name="button_play">Боттоне circolare игра Центральный</string>
+    <string name="action_settings">настройки</string>
+    <string name="start">начало</string>
+    <string name="stop">стоп</string>
+    <string name="pause">пауза</string>
+    <string name="duty">долг</string>
+    <string name="reset">сброс</string>
+    <string name="frequency">частота (кГц)</string>
+    <string name="zero">0</string>
+    <string name="dieci">10</string>
+    <string name="venti">20</string>
+    <string name="trenta">30</string>
+    <string name="quaranta">40</string>
+    <string name="cinquanta">50</string>
+    <string name="sessanta">60</string>
+    <string name="settanta">70</string>
+    <string name="ottanta">80</string>
+    <string name="novanta">90</string>
+    <string name="cento">100</string>
+    <string name="percentage">%</string>
+    <string name="freq">Гц</string>
+    <string name="energy">Энергия Дж</string>
+    <string name="setValue">Установленное значение [Дж]</string>
+    <string name="linea">Декоративные бар</string>
+    <string name="title_activity_menu">меню</string>
+    <string name="menu">МЕНЮ</string>
+    <string name="uno">1</string>
+    <string name="due">2</string>
+    <string name="tre">3</string>
+    <string name="quattro">4</string>
+    <string name="cinque">5</string>
+    <string name="min">мой</string>
+    <string name="max">макс</string>
+    <string name="service">Cлужба</string>
+    <string name="continuos">Hепрерывный</string>
+    <string name="pulsed">Импульсный</string>
+    <string name="time">01\':00\'\'</string>
+    <string name="label_time">Время (мин, сек)</string>
+    <string name="title_activity_service">Cлужба</string>
+    <string name="serial_number">Серийный Номер:</string>
+    <string name="software_version">Версия программного обеспечения:</string>
+    <string name="work_time">Pабочее время:</string>
+    <string name="model">Модель:</string>
+    <string name="language">ЯЗЫК</string>
+    <string name="insert_password">Вставьте Пароль</string>
+
+</resources>

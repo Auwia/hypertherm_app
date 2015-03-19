@@ -13,7 +13,7 @@
     <TableRow
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="4"
+        android:layout_weight="9"
         android:background="#404048"
         android:gravity="center_horizontal|center_vertical" >
 
@@ -300,7 +300,7 @@
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:layout_weight="25" >
+            android:layout_weight="20" >
 
             <RelativeLayout
                 android:layout_width="0dp"

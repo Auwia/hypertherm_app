@@ -25,7 +25,7 @@ import android.widget.TextView;
 public class Menu extends Activity {
 
 	private Button energy, button_energy, continuos, button_time, pulsed,
-			confirm, back, exit;
+			confirm, back, exit, service;
 	private SeekBar seek_bar_frequency, seek_bar_energy;
 	private TextView uno, due, tre, quattro, cinque, label_energy, revision;
 	private LinearLayout simbolo_frequenza;
@@ -34,7 +34,8 @@ public class Menu extends Activity {
 	private String[] comando_da_inviare;
 
 	private SharedPreferences preferences;
-	private SharedPreferences.Editor editor;
+
+	private static final int REQUEST_CODE_TEST = 0;
 
 	@Override
 	public void finish() {
@@ -131,6 +132,7 @@ public class Menu extends Activity {
 		confirm = (Button) findViewById(R.id.button_confirm);
 		back = (Button) findViewById(R.id.button_back);
 		exit = (Button) findViewById(R.id.exit);
+		service = (Button) findViewById(R.id.service);
 
 		simbolo_frequenza = (LinearLayout) findViewById(R.id.simbolo_frequenza);
 		barra_orizzontale = (RelativeLayout) findViewById(R.id.barra_orizzontale);
@@ -146,6 +148,14 @@ public class Menu extends Activity {
 		cinque = (TextView) findViewById(R.id.cinque);
 
 		seek_bar_frequency.setMax(4);
+
+		service.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				preferences.edit().putBoolean("isService", true).commit();
+				Intent intent = new Intent(Menu.this, Service.class);
+				startActivityForResult(intent, REQUEST_CODE_TEST);
+			}
+		});
 
 		exit.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
