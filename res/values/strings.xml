@@ -49,5 +49,6 @@
     <string name="model">Modello:</string>
     <string name="language">LINGUA</string>
     <string name="insert_password">Inserisci Password</string>
+    <string name="esc">ESC</string>
 
 </resources>

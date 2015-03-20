@@ -27,18 +27,36 @@ public class Main_Activity extends Activity {
 			frequency, continuos;
 	private SeekBar seek_bar_percentage;
 
-	public Utility utility;
+	public static Utility utility;
 
 	private SharedPreferences preferences;
-	private SharedPreferences.Editor editor;
 
 	public static Activity activity;
 
 	private static final int REQUEST_CODE_TEST = 0;
 
-	private boolean start_in_progress = false, bConfiged = false;
+	public static boolean start_in_progress = false;
+	private boolean bConfiged = false;
 
 	public String act_string;
+
+	public static Thread thread = new Thread() {
+		@Override
+		public void run() {
+			while (true) {
+				while (start_in_progress) {
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						start_in_progress = false;
+					}
+
+					utility.writeData("W");
+
+				}
+			}
+		}
+	};
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -78,9 +96,6 @@ public class Main_Activity extends Activity {
 	@Override
 	protected void onDestroy() {
 
-		editor = preferences.edit();
-		editor.clear();
-		editor.commit();
 		utility.DestroyAccessory(true);
 
 		try {
@@ -231,26 +246,7 @@ public class Main_Activity extends Activity {
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
 					utility.writeData("S");
-					start_in_progress = true;
-					Thread thread = new Thread() {
-						@Override
-						public void run() {
 
-							while (start_in_progress) {
-								try {
-									Thread.sleep(500);
-								} catch (InterruptedException e) {
-									start_in_progress = false;
-								}
-
-								utility.writeData("W");
-
-							}
-
-						}
-					};
-
-					thread.start();
 					return true;
 				}
 
@@ -273,7 +269,7 @@ public class Main_Activity extends Activity {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					utility.writeData("T");
-					start_in_progress = false;
+
 					return true;
 				}
 				// don't handle event unless its ACTION_UP so "doSomething()"
@@ -292,8 +288,8 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					start_in_progress = false;
 					utility.writeData("P");
+
 					return true;
 				}
 				// don't handle event unless its ACTION_UP so "doSomething()"
@@ -515,9 +511,12 @@ public class Main_Activity extends Activity {
 		utility.ResumeAccessory(bConfiged);
 		// utility.SetConfig();
 
+		thread.start();
+
 		utility.writeData("@");
 		utility.writeData("^");
 		utility.writeData("a");
+
 	}
 
 	protected void cleanPreference() {
@@ -558,6 +557,18 @@ public class Main_Activity extends Activity {
 	}
 
 	public void onBackPressed() {
+		thread.interrupt();
+
+		utility.DestroyAccessory(true);
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		System.exit(0);
+
 		super.onBackPressed();
 	}
 

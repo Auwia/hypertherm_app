@@ -38,7 +38,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="95"
+        android:layout_weight="90"
         android:background="@drawable/sfondo_verde"
         android:orientation="vertical" >
 
@@ -417,22 +417,14 @@
 
                 <Button
                     android:id="@+id/service"
-                    style="@style/custom_button_set_value"
-                    android:layout_width="130dp"
+                    android:layout_width="100dp"
                     android:layout_height="35dp"
-                    android:layout_gravity="center_horizontal|center_vertical"
                     android:background="@drawable/custom_button_set_value"
                     android:gravity="center_horizontal|center_vertical"
                     android:text="@string/service"
                     android:textColor="@android:color/black" />
             </LinearLayout>
         </TableRow>
-    </LinearLayout>
-
-    <TableRow>
-    </TableRow>
-
-    <LinearLayout>
     </LinearLayout>
 
 </TableLayout>

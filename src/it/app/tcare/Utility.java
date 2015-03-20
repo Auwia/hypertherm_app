@@ -261,6 +261,8 @@ public class Utility {
 								label_start.setTextColor(Color.WHITE);
 								label_pause.setTextColor(Color.WHITE);
 								menu.setEnabled(true);
+
+								Main_Activity.start_in_progress = false;
 							}
 							if (comandi[7].equals("01")) {
 								play.setPressed(true);
@@ -272,6 +274,8 @@ public class Utility {
 								label_stop.setTextColor(Color.WHITE);
 								label_pause.setTextColor(Color.WHITE);
 								menu.setEnabled(false);
+
+								Main_Activity.start_in_progress = true;
 							}
 							if (comandi[7].equals("02")) {
 								pause.setPressed(true);
@@ -283,6 +287,8 @@ public class Utility {
 								label_start.setTextColor(Color.WHITE);
 								label_stop.setTextColor(Color.WHITE);
 								menu.setEnabled(false);
+
+								Main_Activity.start_in_progress = false;
 							}
 
 							editor.commit();
@@ -349,12 +355,6 @@ public class Utility {
 									|| comandi[0].equals("04")
 									|| comandi[0].equals("05")) {
 								continuos.setPressed(true);
-							}
-							if (comandi[0].equals("00")) {
-								continuos
-										.setBackgroundResource(R.drawable.continuos_normal);
-								label_continuos.setVisibility(View.INVISIBLE);
-							} else {
 								continuos
 										.setBackgroundResource(R.drawable.pulsed_normal);
 								label_continuos.setText(" "
@@ -362,26 +362,36 @@ public class Utility {
 								label_continuos.setVisibility(View.VISIBLE);
 							}
 
+							if (comandi[0].equals("00")) {
+								continuos
+										.setBackgroundResource(R.drawable.continuos_normal);
+								label_continuos.setVisibility(View.INVISIBLE);
+								continuos.setPressed(false);
+							}
 						}
 
 						if (comandi[1].equals("q") || comandi[1].equals("c")
 								|| comandi[1].equals("s")
 								|| comandi[1].equals("m")) {
+
 							if (comandi[0].equals("00")) {
 								frequency.setTag(R.drawable.button_145);
 								frequency
 										.setBackgroundResource(R.drawable.button_145);
 							}
+
 							if (comandi[0].equals("01")) {
 								frequency.setTag(R.drawable.button_457);
 								frequency
 										.setBackgroundResource(R.drawable.button_457);
 							}
+
 							if (comandi[0].equals("02")) {
 								frequency.setTag(R.drawable.button_571);
 								frequency
 										.setBackgroundResource(R.drawable.button_571);
 							}
+
 							if (comandi[0].equals("03")) {
 								frequency.setTag(R.drawable.button_714);
 								frequency
@@ -392,24 +402,28 @@ public class Utility {
 						if (comandi[1].equals("F") || comandi[1].equals("B")
 								|| comandi[1].equals("R")
 								|| comandi[1].equals("C")) {
+
 							if (comandi[0].equals("00")) {
 								res.setPressed(true);
 								cap.setPressed(false);
 								body.setPressed(false);
 								face.setPressed(false);
 							}
+
 							if (comandi[0].equals("01")) {
 								cap.setPressed(true);
 								res.setPressed(false);
 								body.setPressed(false);
 								face.setPressed(false);
 							}
+
 							if (comandi[0].equals("02")) {
 								face.setPressed(true);
 								cap.setPressed(false);
 								res.setPressed(false);
 								body.setPressed(false);
 							}
+
 							if (comandi[0].equals("03")) {
 								body.setPressed(true);
 								cap.setPressed(false);
@@ -420,6 +434,7 @@ public class Utility {
 
 						if (comandi[1].equals("S") || comandi[1].equals("T")
 								|| comandi[1].equals("P")) {
+
 							if (comandi[0].equals("00")) {
 								stop.setPressed(true);
 								stop.setTextColor(Color.parseColor("#015c5f"));
@@ -430,7 +445,11 @@ public class Utility {
 								label_start.setTextColor(Color.WHITE);
 								label_pause.setTextColor(Color.WHITE);
 								menu.setEnabled(true);
+
+								Main_Activity.start_in_progress = false;
+
 							}
+
 							if (comandi[0].equals("01")) {
 								play.setPressed(true);
 								play.setTextColor(Color.parseColor("#015c5f"));
@@ -442,7 +461,10 @@ public class Utility {
 								label_pause.setTextColor(Color.WHITE);
 								menu.setEnabled(false);
 
+								Main_Activity.start_in_progress = true;
+
 							}
+
 							if (comandi[0].equals("02")) {
 								pause.setPressed(true);
 								pause.setTextColor(Color.parseColor("#015c5f"));
@@ -453,6 +475,8 @@ public class Utility {
 								label_start.setTextColor(Color.WHITE);
 								label_stop.setTextColor(Color.WHITE);
 								menu.setEnabled(false);
+
+								Main_Activity.start_in_progress = false;
 							}
 						}
 					}

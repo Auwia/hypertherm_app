@@ -13,7 +13,7 @@
     <TableRow
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="9"
+        android:layout_weight="4"
         android:background="#404048"
         android:gravity="center_horizontal|center_vertical" >
 
@@ -30,7 +30,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="90"
+        android:layout_weight="95"
         android:background="@drawable/sfondo_verde"
         android:baselineAligned="false" >
 
@@ -124,21 +124,36 @@
                 android:gravity="center_horizontal|center_vertical" >
 
                 <LinearLayout
-                    android:layout_width="fill_parent"
+                    android:layout_width="0dp"
                     android:layout_height="fill_parent"
-                    android:gravity="top|center_horizontal" >
+                    android:layout_weight="33"
+                    android:gravity="right|center_vertical" >
 
                     <Button
                         android:id="@+id/english"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/button_english" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="33"
+                    android:gravity="center_horizontal|center_vertical" >
 
                     <Button
                         android:id="@+id/russian"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/button_russian" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="34"
+                    android:gravity="left|center_vertical" >
 
                     <Button
                         android:id="@+id/chinese"
@@ -157,7 +172,7 @@
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="12"
+                android:layout_weight="20"
                 android:gravity="center_horizontal|center_vertical" >
 
                 <TextView
@@ -165,67 +180,275 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/insert_password"
-                    android:textColor="@android:color/black" />
+                    android:textColor="@android:color/black"
+                    android:textSize="12sp" />
+
             </LinearLayout>
 
             <TableRow
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="12"
+                android:layout_weight="15"
                 android:gravity="center_horizontal|center_vertical" >
 
                 <Button
                     android:id="@+id/energy"
-                    android:layout_width="180dp"
-                    android:layout_height="30dp"
+                    android:layout_width="150dp"
+                    android:layout_height="fill_parent"
                     android:background="@drawable/custom_button_energy"
-                    android:gravity="center_horizontal|center_vertical"
+                    android:gravity="center_horizontal|bottom"
                     android:textColor="@android:color/white" />
             </TableRow>
 
             <TableRow
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="12"
+                android:layout_weight="10"
                 android:gravity="center_horizontal|center_vertical" >
-                
-                
-                
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="33"
+                    android:gravity="right|center_vertical" >
+
+                    <Button
+                        android:id="@+id/uno"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_uno" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="33"
+                    android:gravity="center_horizontal|center_vertical" >
+
+                    <Button
+                        android:id="@+id/due"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_due" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="34"
+                    android:gravity="left|center_vertical" >
+
+                    <Button
+                        android:id="@+id/tre"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_tre" />
+                </LinearLayout>
             </TableRow>
 
             <TableRow
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="12"
+                android:layout_weight="10"
                 android:gravity="center_horizontal|center_vertical" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="33"
+                    android:gravity="right|center_vertical" >
+
+                    <Button
+                        android:id="@+id/quattro"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_quattro" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="33"
+                    android:gravity="center_horizontal|center_vertical" >
+
+                    <Button
+                        android:id="@+id/cinque"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_cinque" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="34"
+                    android:gravity="left|center_vertical" >
+
+                    <Button
+                        android:id="@+id/sei"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_sei" />
+                </LinearLayout>
             </TableRow>
 
             <TableRow
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="12"
+                android:layout_weight="10"
                 android:gravity="center_horizontal|center_vertical" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="33"
+                    android:gravity="right|center_vertical" >
+
+                    <Button
+                        android:id="@+id/sette"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_sette" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="33"
+                    android:gravity="center_horizontal|center_vertical" >
+
+                    <Button
+                        android:id="@+id/otto"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_otto" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="34"
+                    android:gravity="left|center_vertical" >
+
+                    <Button
+                        android:id="@+id/nove"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_nove" />
+                </LinearLayout>
             </TableRow>
 
             <TableRow
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="12"
+                android:layout_weight="10"
                 android:gravity="center_horizontal|center_vertical" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="33"
+                    android:gravity="right|center_vertical" >
+
+                    <Button
+                        android:id="@+id/empty_left"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/empty_pressed" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="33"
+                    android:gravity="center_horizontal|center_vertical" >
+
+                    <Button
+                        android:id="@+id/zero"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_zero" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="34"
+                    android:gravity="left|center_vertical" >
+
+                    <Button
+                        android:id="@+id/empty_right"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/empty_pressed" />
+                </LinearLayout>
             </TableRow>
 
             <TableRow
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="12"
+                android:layout_weight="10"
                 android:gravity="center_horizontal|center_vertical" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="33"
+                    android:gravity="right|center_vertical" >
+
+                    <Button
+                        android:id="@+id/del"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_del" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="33"
+                    android:gravity="center_horizontal|center_vertical" >
+
+                    <Button
+                        android:id="@+id/empty_central"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/empty_pressed" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="34"
+                    android:gravity="left|center_vertical" >
+
+                    <Button
+                        android:id="@+id/ok"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_ok" />
+                </LinearLayout>
             </TableRow>
 
             <TableRow
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="13"
+                android:layout_weight="15"
                 android:gravity="center_horizontal|center_vertical" >
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:gravity="center_horizontal|center_vertical" >
+
+                    <Button
+                        android:id="@+id/esc"
+                        android:layout_width="90dp"
+                        android:layout_height="fill_parent"
+                        android:background="@drawable/custom_button_energy"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:textColor="@android:color/white" />
+                </LinearLayout>
             </TableRow>
         </TableLayout>
     </LinearLayout>
