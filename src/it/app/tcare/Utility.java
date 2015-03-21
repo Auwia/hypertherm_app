@@ -24,6 +24,7 @@ public class Utility {
 	private FT311UARTInterface uartInterface;
 
 	private SharedPreferences preferences;
+	private SharedPreferences.Editor editor;
 
 	private byte[] writeBuffer;
 
@@ -58,8 +59,9 @@ public class Utility {
 
 		for (int i = 0; i < numBytes; i++) {
 			writeBuffer[i] = (byte) commandString.charAt(i);
-			Log.d("TCARE", "writeData: scrivo: " + commandString.charAt(i)
-					+ " tradotto: " + (byte) commandString.charAt(i));
+			if (!String.valueOf(commandString.charAt(i)).equals("W"))
+				Log.d("TCARE", "writeData: scrivo: " + commandString.charAt(i)
+						+ " tradotto: " + (byte) commandString.charAt(i));
 		}
 
 		if (uartInterface != null)
@@ -106,6 +108,7 @@ public class Utility {
 		jaule = (Button) activity.findViewById(R.id.jaule);
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+		editor = preferences.edit();
 
 	}
 
@@ -118,6 +121,37 @@ public class Utility {
 				if (command != null) {
 					String[] comandi = command.split(" ");
 
+					if (comandi != null && comandi.length == 3) {
+
+						if (comandi[2].equals("?")) {
+
+							if (comandi[0].equals("01")) {
+								editor.putString("modello_firmware", "Base")
+										.commit();
+							}
+
+							if (comandi[0].equals("02")) {
+								editor.putString("modello_firmware", "Power")
+										.commit();
+							}
+
+							if (comandi[0].equals("03")) {
+								editor.putString("modello_firmware", "Estetica")
+										.commit();
+							}
+
+							if (comandi[0].equals("04")) {
+								editor.putString("modello_firmware",
+										"Multielettrodo").commit();
+							}
+
+							editor.putString(
+									"versione_firmware",
+									String.valueOf(Integer.parseInt(comandi[1],
+											16))).commit();
+						}
+					}
+
 					if (comandi != null && comandi.length == 2) {
 
 						if (comandi[1].equals("W")) {
@@ -129,16 +163,14 @@ public class Utility {
 
 						if (comandi[9].equals("a")) {
 
-							SharedPreferences preferences = PreferenceManager
-									.getDefaultSharedPreferences(activity);
-							SharedPreferences.Editor editor = preferences
-									.edit();
-
 							String minuti, secondi;
 
 							// TODO: Aggiungere il caso in cui i secondi sono 30
-							editor.putInt("timer_progress", Integer.parseInt(
-									comandi[0].substring(0, 2), 16) * 2);
+							editor.putInt(
+									"timer_progress",
+									Integer.parseInt(
+											comandi[0].substring(0, 2), 16) * 2)
+									.commit();
 
 							if (Integer.parseInt(comandi[0].substring(0, 2), 16) < 10)
 								minuti = "0"
@@ -160,14 +192,15 @@ public class Utility {
 
 							time.setText(minuti + "'" + secondi + "''");
 
-							editor.putString("timer", minuti + "'" + secondi
-									+ "''");
+							editor.putString("timer",
+									minuti + "'" + secondi + "''").commit();
 
 							jaule.setText(String.valueOf(Integer.parseInt(
 									comandi[1], 16) * 1000));
 
 							editor.putInt("energy",
-									Integer.parseInt(comandi[1], 16) * 1000);
+									Integer.parseInt(comandi[1], 16) * 1000)
+									.commit();
 
 							if (comandi[3].equals("00")) {
 								frequency.setTag(R.drawable.button_145);
@@ -225,33 +258,37 @@ public class Utility {
 								label_continuos.setText(" "
 										+ Integer.parseInt(comandi[5]) + " Hz");
 								label_continuos.setVisibility(View.VISIBLE);
-								editor.putBoolean("isPulsed", true);
-								editor.putBoolean("isContinuos", false);
+								editor.putBoolean("isPulsed", true).commit();
+								editor.putBoolean("isContinuos", false)
+										.commit();
 								editor.putInt("hz",
-										Integer.parseInt(comandi[5]));
+										Integer.parseInt(comandi[5])).commit();
 							}
 
 							if (comandi[5].equals("00")) {
 								continuos
 										.setBackgroundResource(R.drawable.continuos_normal);
 								label_continuos.setVisibility(View.INVISIBLE);
-								editor.putBoolean("isContinuos", true);
-								editor.putBoolean("isPulsed", false);
+								editor.putBoolean("isContinuos", true).commit();
+								editor.putBoolean("isPulsed", false).commit();
 							}
 
 							if (comandi[6].equals("00")) {
 								pannello_energia.setVisibility(View.GONE);
-								editor.putBoolean("isTime", true);
-								editor.putBoolean("isEnergy", false);
+								editor.putBoolean("isTime", true).commit();
+								editor.putBoolean("isEnergy", false).commit();
 							}
 
 							if (comandi[6].equals("01")) {
 								pannello_energia.setVisibility(View.VISIBLE);
-								editor.putBoolean("isEnergy", true);
-								editor.putBoolean("isTime", false);
+								editor.putBoolean("isEnergy", true).commit();
+								editor.putBoolean("isTime", false).commit();
 							}
 
 							if (comandi[7].equals("00")) {
+
+								editor.putBoolean("isPlaying", false).commit();
+
 								stop.setPressed(true);
 								stop.setTextColor(Color.parseColor("#015c5f"));
 								play.setPressed(false);
@@ -260,11 +297,16 @@ public class Utility {
 										.parseColor("#78d0d2"));
 								label_start.setTextColor(Color.WHITE);
 								label_pause.setTextColor(Color.WHITE);
+
 								menu.setEnabled(true);
 
 								Main_Activity.start_in_progress = false;
 							}
+
 							if (comandi[7].equals("01")) {
+
+								editor.putBoolean("isPlaying", true).commit();
+
 								play.setPressed(true);
 								play.setTextColor(Color.parseColor("#015c5f"));
 								pause.setPressed(false);
@@ -273,11 +315,16 @@ public class Utility {
 										.parseColor("#78d0d2"));
 								label_stop.setTextColor(Color.WHITE);
 								label_pause.setTextColor(Color.WHITE);
+
 								menu.setEnabled(false);
 
 								Main_Activity.start_in_progress = true;
 							}
+
 							if (comandi[7].equals("02")) {
+
+								editor.putBoolean("isPlaying", false).commit();
+
 								pause.setPressed(true);
 								pause.setTextColor(Color.parseColor("#015c5f"));
 								play.setPressed(false);
@@ -286,12 +333,12 @@ public class Utility {
 										.parseColor("#78d0d2"));
 								label_start.setTextColor(Color.WHITE);
 								label_stop.setTextColor(Color.WHITE);
+
 								menu.setEnabled(false);
 
 								Main_Activity.start_in_progress = false;
 							}
 
-							editor.commit();
 						}
 
 					}
@@ -332,16 +379,6 @@ public class Utility {
 						if (comandi[1].equals("<") || comandi[1].equals(">")) {
 							seek_bar_percentage.setProgress(Integer.parseInt(
 									comandi[0], 16));
-						}
-
-						if (comandi[1].equals("0")) {
-							if (comandi[0].equals("00")) {
-								continuos.setPressed(true);
-							} else {
-								continuos.setPressed(false);
-								Log.e("TCARE",
-										"Not permitted, operation failed");
-							}
 						}
 
 						if (comandi[1].equals("0") || comandi[1].equals("1")
@@ -432,10 +469,12 @@ public class Utility {
 							}
 						}
 
-						if (comandi[1].equals("S") || comandi[1].equals("T")
-								|| comandi[1].equals("P")) {
+						if (comandi[1].equals("T")) {
 
 							if (comandi[0].equals("00")) {
+
+								editor.putBoolean("isPlaying", false).commit();
+
 								stop.setPressed(true);
 								stop.setTextColor(Color.parseColor("#015c5f"));
 								play.setPressed(false);
@@ -444,13 +483,20 @@ public class Utility {
 										.parseColor("#78d0d2"));
 								label_start.setTextColor(Color.WHITE);
 								label_pause.setTextColor(Color.WHITE);
+
 								menu.setEnabled(true);
 
 								Main_Activity.start_in_progress = false;
 
 							}
+						}
+
+						if (comandi[1].equals("S")) {
 
 							if (comandi[0].equals("01")) {
+
+								editor.putBoolean("isPlaying", true).commit();
+
 								play.setPressed(true);
 								play.setTextColor(Color.parseColor("#015c5f"));
 								pause.setPressed(false);
@@ -459,13 +505,19 @@ public class Utility {
 										.parseColor("#78d0d2"));
 								label_stop.setTextColor(Color.WHITE);
 								label_pause.setTextColor(Color.WHITE);
+
 								menu.setEnabled(false);
 
 								Main_Activity.start_in_progress = true;
 
 							}
+						}
 
+						if (comandi[1].equals("P")) {
 							if (comandi[0].equals("02")) {
+
+								editor.putBoolean("isPlaying", false).commit();
+
 								pause.setPressed(true);
 								pause.setTextColor(Color.parseColor("#015c5f"));
 								play.setPressed(false);
@@ -474,6 +526,7 @@ public class Utility {
 										.parseColor("#78d0d2"));
 								label_start.setTextColor(Color.WHITE);
 								label_stop.setTextColor(Color.WHITE);
+
 								menu.setEnabled(false);
 
 								Main_Activity.start_in_progress = false;

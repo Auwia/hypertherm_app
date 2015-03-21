@@ -50,5 +50,7 @@
     <string name="language">LINGUA</string>
     <string name="insert_password">Inserisci Password</string>
     <string name="esc">ESC</string>
+    <string name="modello_firmware">Modello Firmware:</string>
+    <string name="versione_firmware">Versione Firmware:</string>
 
 </resources>

@@ -386,9 +386,10 @@ public class FT311UARTInterface extends Activity {
 							for (int count = 0; count < readcount; count++) {
 
 								if (usbdata[count] == (byte) '\r') {
-									Log.d("TCARE",
-											"COMANDO_RICEVUTO="
-													+ readSB.toString());
+									if (!readSB.toString().contains("W")) {
+										Log.d("TCARE", "COMANDO_RICEVUTO="
+												+ readSB.toString());
+									}
 									utility.esegui(readSB.toString().trim());
 									readSB.delete(0, readSB.length());
 
@@ -402,7 +403,7 @@ public class FT311UARTInterface extends Activity {
 					READ_ENABLE = false;
 					e.printStackTrace();
 					DestroyAccessory(true);
-					CloseAccessory(); 
+					CloseAccessory();
 				}
 			}
 		}

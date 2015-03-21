@@ -6,11 +6,8 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,7 +24,7 @@ public class Menu extends Activity {
 	private Button energy, button_energy, continuos, button_time, pulsed,
 			confirm, back, exit, service;
 	private SeekBar seek_bar_frequency, seek_bar_energy;
-	private TextView uno, due, tre, quattro, cinque, label_energy, revision;
+	private TextView uno, due, tre, quattro, cinque, label_energy;
 	private LinearLayout simbolo_frequenza;
 	private RelativeLayout barra_orizzontale;
 
@@ -114,15 +111,6 @@ public class Menu extends Activity {
 		preferences = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
 		preferences.edit().putBoolean("exit", false).commit();
-
-		PackageInfo pInfo = null;
-		try {
-			pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-		} catch (NameNotFoundException e) {
-			Log.e("TCARE", "ERRORE STRANO QUI! " + e.getMessage());
-		}
-		revision = (TextView) findViewById(R.id.revision);
-		revision.setText(pInfo.versionName);
 
 		button_energy = (Button) findViewById(R.id.button_energy);
 		continuos = (Button) findViewById(R.id.button_continuos);

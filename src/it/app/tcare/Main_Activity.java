@@ -137,6 +137,9 @@ public class Main_Activity extends Activity {
 		continuos.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 
+				if (preferences.getBoolean("isPlaying", false))
+					utility.writeData("P");
+
 				if (label_continuos.getVisibility() == View.VISIBLE) {
 					utility.writeData("0");
 				} else {
@@ -158,6 +161,9 @@ public class Main_Activity extends Activity {
 
 			@Override
 			public void onClick(View arg0) {
+
+				if (preferences.getBoolean("isPlaying", false))
+					utility.writeData("P");
 
 				switch ((Integer) frequency.getTag()) {
 				case R.drawable.button_457:
@@ -288,6 +294,7 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
 					utility.writeData("P");
 
 					return true;
@@ -308,6 +315,10 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (preferences.getBoolean("isPlaying", false))
+						utility.writeData("P");
+
 					utility.writeData("C");
 					return true;
 				}
@@ -326,6 +337,10 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (preferences.getBoolean("isPlaying", false))
+						utility.writeData("P");
+
 					utility.writeData("R");
 					return true;
 				}
@@ -344,6 +359,10 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (preferences.getBoolean("isPlaying", false))
+						utility.writeData("P");
+
 					utility.writeData("B");
 					return true;
 				}
@@ -362,6 +381,10 @@ public class Main_Activity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (preferences.getBoolean("isPlaying", false))
+						utility.writeData("P");
+
 					utility.writeData("F");
 					return true;
 				}
@@ -516,6 +539,7 @@ public class Main_Activity extends Activity {
 		utility.writeData("@");
 		utility.writeData("^");
 		utility.writeData("a");
+		utility.writeData("?");
 
 	}
 

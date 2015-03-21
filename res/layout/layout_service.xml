@@ -39,68 +39,227 @@
             android:layout_height="fill_parent"
             android:layout_weight="50" >
 
-            <TableRow
+            <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_weight="10"
-                android:gravity="center_horizontal|center_vertical" >
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20" >
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/serial_number"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="40"
+                    android:gravity="left"
                     android:text="@string/serial_number"
                     android:textColor="@android:color/black" />
-            </TableRow>
 
-            <TableRow
+                <TextView
+                    android:id="@+id/serial_number_value"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20"
+                    android:gravity="right"
+                    android:textColor="@android:color/black" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20" >
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_weight="10"
-                android:gravity="center_horizontal|center_vertical" >
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20" >
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/software_version"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="40"
+                    android:gravity="left"
                     android:text="@string/software_version"
                     android:textColor="@android:color/black" />
-            </TableRow>
 
-            <TableRow
+                <TextView
+                    android:id="@+id/revision"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20"
+                    android:gravity="right"
+                    android:textColor="@android:color/black" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20" >
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_weight="10"
-                android:gravity="center_horizontal|center_vertical" >
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20" >
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/work_time"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="40"
+                    android:gravity="left"
                     android:text="@string/work_time"
                     android:textColor="@android:color/black" />
-            </TableRow>
 
-            <TableRow
+                <TextView
+                    android:id="@+id/work_time_value"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20"
+                    android:gravity="right"
+                    android:textColor="@android:color/black" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20" >
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_weight="10"
-                android:gravity="center_horizontal|center_vertical" >
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20" >
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/model"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="40"
+                    android:gravity="left"
                     android:text="@string/model"
                     android:textColor="@android:color/black" />
-            </TableRow>
 
-            <TableRow
+                <TextView
+                    android:id="@+id/model_value"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20"
+                    android:gravity="right"
+                    android:textColor="@android:color/black" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20" >
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="20"
-                android:gravity="center_horizontal|center_vertical" >
-            </TableRow>
+                android:layout_weight="10"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20" >
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/modello_firmware"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="40"
+                    android:gravity="left"
+                    android:text="@string/modello_firmware"
+                    android:textColor="@android:color/black" />
+
+                <TextView
+                    android:id="@+id/modello_firmware_value"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20"
+                    android:gravity="right"
+                    android:textColor="@android:color/black" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20" >
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="10"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20" >
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/versione_firmware"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="40"
+                    android:gravity="left"
+                    android:text="@string/versione_firmware"
+                    android:textColor="@android:color/black" />
+
+                <TextView
+                    android:id="@+id/versione_firmware_value"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20"
+                    android:gravity="right"
+                    android:textColor="@android:color/black" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20" >
+                </LinearLayout>
+            </LinearLayout>
 
             <TableRow
                 android:layout_width="fill_parent"
@@ -182,7 +341,6 @@
                     android:text="@string/insert_password"
                     android:textColor="@android:color/black"
                     android:textSize="12sp" />
-
             </LinearLayout>
 
             <TableRow
