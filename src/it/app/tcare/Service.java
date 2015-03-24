@@ -28,7 +28,6 @@ public class Service extends Activity {
 			work_time_value;
 
 	private SharedPreferences preferences;
-	private SharedPreferences.Editor editor;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +35,6 @@ public class Service extends Activity {
 		setContentView(R.layout.layout_service);
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		editor = preferences.edit();
 
 		esc = (Button) findViewById(R.id.esc);
 		esc.setText(getResources().getString(R.string.esc));
@@ -75,8 +73,10 @@ public class Service extends Activity {
 
 			@Override
 			public void onClick(View view) {
-				String text = password.getText().toString();
-				password.setText(text.substring(0, text.length() - 1));
+				if (password.length() > 0) {
+					String text = password.getText().toString();
+					password.setText(text.substring(0, text.length() - 1));
+				}
 			}
 		});
 
@@ -85,22 +85,7 @@ public class Service extends Activity {
 
 			@Override
 			public void onClick(View view) {
-				byte[] salt = new byte[16];
-				KeySpec spec = new PBEKeySpec(password.getText().toString()
-						.toCharArray(), salt, 65536, 128);
-				SecretKeyFactory f;
-				byte[] hash = null;
-
-				try {
-					f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-					hash = f.generateSecret(spec).getEncoded();
-				} catch (NoSuchAlgorithmException e) {
-					e.printStackTrace();
-				} catch (InvalidKeySpecException e) {
-					e.printStackTrace();
-				}
-
-				if (new BigInteger(1, hash).toString(16).equals(
+				if (cifra(password.getText().toString()).equals(
 						preferences.getString("password", ""))) {
 					Toast.makeText(getApplicationContext(), "OK",
 							Toast.LENGTH_LONG).show();
@@ -109,6 +94,7 @@ public class Service extends Activity {
 							Toast.LENGTH_LONG).show();
 				}
 			}
+
 		});
 
 		zero = (Button) findViewById(R.id.zero);
@@ -203,6 +189,25 @@ public class Service extends Activity {
 				password.append("9");
 			}
 		});
+
+	}
+
+	private String cifra(String string) {
+		byte[] salt = new byte[16];
+		KeySpec spec = new PBEKeySpec(string.toCharArray(), salt, 65536, 128);
+		SecretKeyFactory f;
+		byte[] hash = null;
+
+		try {
+			f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+			hash = f.generateSecret(spec).getEncoded();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (InvalidKeySpecException e) {
+			e.printStackTrace();
+		}
+
+		return new BigInteger(1, hash).toString(16);
 
 	}
 }

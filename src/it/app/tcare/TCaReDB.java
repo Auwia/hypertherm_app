@@ -1,5 +1,13 @@
 package it.app.tcare;
 
+import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -36,7 +44,22 @@ public class TCaReDB extends SQLiteOpenHelper {
 		database.beginTransaction();
 		database.insert(TABLE_WORK_TIME, null, row);
 		row.clear();
-		row.put("PWD", "29eac7c860aeaaf89a77364cd1a05f24");
+
+		byte[] salt = new byte[16];
+		KeySpec spec = new PBEKeySpec("240776".toCharArray(), salt, 65536, 128);
+		SecretKeyFactory f;
+		byte[] hash = null;
+
+		try {
+			f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+			hash = f.generateSecret(spec).getEncoded();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (InvalidKeySpecException e) {
+			e.printStackTrace();
+		}
+
+		row.put("PWD", new BigInteger(1, hash).toString(16));
 		database.insert(TABLE_PASSWORD, null, row);
 		database.setTransactionSuccessful();
 		database.endTransaction();

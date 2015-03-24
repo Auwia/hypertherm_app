@@ -3,6 +3,8 @@ package it.app.tcare;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Bundle;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -509,6 +511,14 @@ public class Utility {
 								menu.setEnabled(false);
 
 								Main_Activity.start_in_progress = true;
+
+								Message msgObj = Main_Activity.handler_send_w_work_time
+										.obtainMessage();
+								Bundle b = new Bundle();
+								b.putString("message", "Vai, go");
+								msgObj.setData(b);
+								Main_Activity.handler_send_w_work_time
+										.sendMessage(msgObj);
 
 							}
 						}

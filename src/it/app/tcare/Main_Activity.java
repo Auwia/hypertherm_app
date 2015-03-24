@@ -7,6 +7,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -48,39 +50,39 @@ public class Main_Activity extends Activity {
 	private TCaReDataSource datasource;
 	private Cursor cur;
 
-	public static Thread thread = new Thread() {
-		@Override
-		public void run() {
-			while (true) {
-				while (start_in_progress) {
-					try {
-						Thread.sleep(500);
-					} catch (InterruptedException e) {
-						start_in_progress = false;
+	public static final Handler handler_send_w_work_time = new Handler() {
+
+		public void handleMessage(Message msg) {
+
+			String aResponse = msg.getData().getString("message");
+
+			if ((null != aResponse)) {
+
+				Thread thread = new Thread() {
+					@Override
+					public void run() {
+						while (start_in_progress) {
+							try {
+								Thread.sleep(500);
+							} catch (InterruptedException e) {
+								start_in_progress = false;
+							}
+							utility.writeData("W");
+							try {
+								Thread.sleep(500);
+							} catch (InterruptedException e) {
+								start_in_progress = false;
+							}
+							database.execSQL("update WORK_TIME set WORK_FROM=WORK_FROM+1;");
+						}
+
 					}
+				};
 
-					utility.writeData("W");
+				thread.start();
 
-				}
 			}
-		}
-	};
 
-	public static Thread thread_work_time = new Thread() {
-		@Override
-		public void run() {
-			while (true) {
-				while (start_in_progress) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						start_in_progress = false;
-					}
-
-					database.execSQL("update WORK_TIME set WORK_FROM=WORK_FROM+1;");
-
-				}
-			}
 		}
 	};
 
@@ -601,9 +603,6 @@ public class Main_Activity extends Activity {
 		utility.ResumeAccessory(bConfiged);
 		// utility.SetConfig();
 
-		thread.start();
-		thread_work_time.start();
-
 		utility.writeData("@");
 		utility.writeData("^");
 		utility.writeData("a");
@@ -649,8 +648,6 @@ public class Main_Activity extends Activity {
 	}
 
 	public void onBackPressed() {
-		thread.interrupt();
-		thread_work_time.interrupt();
 
 		utility.DestroyAccessory(true);
 
