@@ -3,6 +3,8 @@ package it.app.tcare;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -40,6 +42,12 @@ public class Main_Activity extends Activity {
 
 	public String act_string;
 
+	// VARIABILI DATA BASE
+	private static final String DATABASE_NAME = "TCaReDB.db";
+	private static SQLiteDatabase database;
+	private TCaReDataSource datasource;
+	private Cursor cur;
+
 	public static Thread thread = new Thread() {
 		@Override
 		public void run() {
@@ -52,6 +60,24 @@ public class Main_Activity extends Activity {
 					}
 
 					utility.writeData("W");
+
+				}
+			}
+		}
+	};
+
+	public static Thread thread_work_time = new Thread() {
+		@Override
+		public void run() {
+			while (true) {
+				while (start_in_progress) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						start_in_progress = false;
+					}
+
+					database.execSQL("update WORK_TIME set WORK_FROM=WORK_FROM+1;");
 
 				}
 			}
@@ -90,6 +116,7 @@ public class Main_Activity extends Activity {
 
 	@Override
 	protected void onPause() {
+		datasource.close();
 		super.onPause();
 	}
 
@@ -118,6 +145,11 @@ public class Main_Activity extends Activity {
 				.getDefaultSharedPreferences(getApplicationContext());
 
 		preferences.edit().putBoolean("isMenu", false).commit();
+
+		datasource = new TCaReDataSource(getApplicationContext());
+		datasource.open();
+		database = openOrCreateDatabase(DATABASE_NAME,
+				SQLiteDatabase.CREATE_IF_NECESSARY, null);
 
 		activity = this;
 
@@ -473,6 +505,41 @@ public class Main_Activity extends Activity {
 						Intent intent = new Intent(Main_Activity.this,
 								Menu.class);
 						startActivityForResult(intent, REQUEST_CODE_TEST);
+
+						cur = database.query("WORK_TIME",
+								new String[] { "WORK_FROM" }, null, null, null,
+								null, null);
+
+						cur.moveToFirst();
+
+						int work_from = 0;
+
+						while (cur.getCount() > 0 && !cur.isAfterLast()) {
+							work_from = cur.getInt(0);
+							cur.moveToNext();
+						}
+
+						cur.close();
+
+						cur = database.query("PASSWORD",
+								new String[] { "PWD" }, null, null, null, null,
+								null);
+
+						cur.moveToFirst();
+
+						String password = null;
+
+						while (cur.getCount() > 0 && !cur.isAfterLast()) {
+							password = cur.getString(0);
+							cur.moveToNext();
+						}
+
+						cur.close();
+
+						preferences.edit().putInt("work_time", work_from)
+								.commit();
+						preferences.edit().putString("password", password)
+								.commit();
 					}
 					return true;
 				}
@@ -535,6 +602,7 @@ public class Main_Activity extends Activity {
 		// utility.SetConfig();
 
 		thread.start();
+		thread_work_time.start();
 
 		utility.writeData("@");
 		utility.writeData("^");
@@ -582,6 +650,7 @@ public class Main_Activity extends Activity {
 
 	public void onBackPressed() {
 		thread.interrupt();
+		thread_work_time.interrupt();
 
 		utility.DestroyAccessory(true);
 
@@ -598,8 +667,7 @@ public class Main_Activity extends Activity {
 
 	@Override
 	protected void onResume() {
-		// Ideally should implement onResume() and onPause()
-		// to take appropriate action when the activity looses focus
+		datasource.open();
 		super.onResume();
 		if (2 == utility.ResumeAccessory(bConfiged)) {
 			cleanPreference();
@@ -609,8 +677,7 @@ public class Main_Activity extends Activity {
 
 	@Override
 	protected void onStop() {
-		// Ideally should implement onResume() and onPause()
-		// to take appropriate action when the activity looses focus
+
 		super.onStop();
 	}
 
