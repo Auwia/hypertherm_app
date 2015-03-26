@@ -127,8 +127,8 @@ public class Utility {
 
 						if (comandi[2].equals("?")) {
 
-							editor.putString("versione_firmware", comandi[1])
-									.commit();
+							editor.putString("versione_firmware",
+									comandi[0] + " " + comandi[1]).commit();
 						}
 					}
 
