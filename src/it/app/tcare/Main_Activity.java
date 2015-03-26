@@ -1,8 +1,11 @@
 package it.app.tcare;
 
+import java.util.Locale;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -10,7 +13,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,7 +38,7 @@ public class Main_Activity extends Activity {
 
 	public static Utility utility;
 
-	private SharedPreferences preferences;
+	private static SharedPreferences preferences;
 
 	public static Activity activity;
 
@@ -44,43 +49,94 @@ public class Main_Activity extends Activity {
 
 	public String act_string;
 
+	public static int exit = 0;
+
 	// VARIABILI DATA BASE
 	private static final String DATABASE_NAME = "TCaReDB.db";
 	private static SQLiteDatabase database;
 	private TCaReDataSource datasource;
 	private Cursor cur;
 
-	public static final Handler handler_send_w_work_time = new Handler() {
+	public static final Handler handler_reset_work_time_db = new Handler() {
 
 		public void handleMessage(Message msg) {
 
-			String aResponse = msg.getData().getString("message");
+			String query = "update WORK_TIME set WORK_FROM=0;";
 
-			if ((null != aResponse)) {
+			Log.d("TCARE", query);
+			database.execSQL(query);
+		}
+	};
 
-				Thread thread = new Thread() {
-					@Override
-					public void run() {
-						while (start_in_progress) {
-							try {
-								Thread.sleep(500);
-							} catch (InterruptedException e) {
-								start_in_progress = false;
-							}
-							utility.writeData("W");
-							try {
-								Thread.sleep(500);
-							} catch (InterruptedException e) {
-								start_in_progress = false;
-							}
-							database.execSQL("update WORK_TIME set WORK_FROM=WORK_FROM+1;");
-						}
+	public static final Handler handler_save_settings_db = new Handler() {
 
-					}
-				};
+		public void handleMessage(Message msg) {
 
-				thread.start();
+			if (preferences.getBoolean("isSmart", false)) {
+				Log.d("TCARE", "update SETTINGS set SMART=1, PHYSIO=0;");
+				database.execSQL("update SETTINGS set SMART=1, PHYSIO=0;");
+			}
 
+			if (preferences.getBoolean("isPhysio", false)) {
+				Log.d("TCARE", "update SETTINGS set SMART=0, PHYSIO=1;");
+				database.execSQL("update SETTINGS set SMART=0, PHYSIO=1;");
+			}
+
+			String query = "update SETTINGS set LANGUAGE='"
+					+ preferences.getString("language", "en") + "';";
+			Log.d("TCARE", query);
+			database.execSQL(query);
+		}
+	};
+
+	public static final Handler handler_save_serial_number_db = new Handler() {
+
+		public void handleMessage(Message msg) {
+
+			Log.d("TCARE",
+					"update SETTINGS set SERIAL_NUMBER='"
+							+ preferences.getString("serial_number",
+									"SN DEFAULT") + "';");
+			database.execSQL("update SETTINGS set SERIAL_NUMBER='"
+					+ preferences.getString("serial_number", "SN DEFAULT")
+					+ "';");
+		}
+	};
+
+	public static Thread thread = new Thread() {
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					start_in_progress = false;
+				}
+				utility.writeData("W");
+				exit += 1;
+				if (start_in_progress) {
+					database.execSQL("update WORK_TIME set WORK_FROM=WORK_FROM+1;");
+				}
+
+				if (exit > 5) {
+
+					Settings.System.putInt(activity.getContentResolver(),
+							Settings.System.SCREEN_OFF_TIMEOUT, 1);
+					exit = 0;
+
+				} else {
+					Settings.System.putInt(activity.getContentResolver(),
+							Settings.System.SCREEN_OFF_TIMEOUT, 1800000);
+
+					// WakeLock screenLock = ((PowerManager) activity
+					// .getSystemService(POWER_SERVICE))
+					// .newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK
+					// | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
+					// screenLock.acquire();
+					//
+					// // later
+					// screenLock.release();
+				}
 			}
 
 		}
@@ -89,6 +145,16 @@ public class Main_Activity extends Activity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+
+		if (preferences.getBoolean("isSmart", false)) {
+			cap.setVisibility(View.INVISIBLE);
+			res.setVisibility(View.INVISIBLE);
+		}
+
+		if (preferences.getBoolean("isPhysio", false)) {
+			cap.setVisibility(View.VISIBLE);
+			res.setVisibility(View.VISIBLE);
+		}
 
 		if (preferences.getBoolean("exit", false))
 			finish();
@@ -153,6 +219,34 @@ public class Main_Activity extends Activity {
 		database = openOrCreateDatabase(DATABASE_NAME,
 				SQLiteDatabase.CREATE_IF_NECESSARY, null);
 
+		cur = database.query("SETTINGS", new String[] { "SMART", "PHYSIO",
+				"SERIAL_NUMBER", "LANGUAGE" }, null, null, null, null, null);
+
+		cur.moveToFirst();
+		Boolean smart = null, physio = null;
+		String serial_number = null, language = null;
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			smart = cur.getInt(0) > 0;
+			physio = cur.getInt(1) > 0;
+			serial_number = cur.getString(2);
+			language = cur.getString(3);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		preferences.edit().putBoolean("isSmart", smart).commit();
+		preferences.edit().putBoolean("isPhysio", physio).commit();
+		preferences.edit().putString("serial_number", serial_number).commit();
+		preferences.edit().putString("language", language).commit();
+
+		Resources resource = getResources();
+		DisplayMetrics dm = resource.getDisplayMetrics();
+		android.content.res.Configuration conf = resource.getConfiguration();
+		conf.locale = new Locale(preferences.getString("language", "en"));
+		resource.updateConfiguration(conf, dm);
+		setContentView(R.layout.main_activity_layout);
+
 		activity = this;
 
 		label_continuos = (TextView) findViewById(R.id.label_continuos);
@@ -174,18 +268,19 @@ public class Main_Activity extends Activity {
 				if (preferences.getBoolean("isPlaying", false))
 					utility.writeData("P");
 
-				if (label_continuos.getVisibility() == View.VISIBLE) {
-					utility.writeData("0");
-				} else {
-					if (label_continuos.getText().subSequence(1, 2).toString()
-							.equals("z")) {
+				if (preferences.getBoolean("isContinuos", false)) {
+					if (preferences.getInt("hz", 1) == 0) {
 						utility.writeData("1");
 					} else {
-
-						utility.writeData(label_continuos.getText()
-								.subSequence(1, 2).toString());
+						utility.writeData(String.valueOf(preferences.getInt(
+								"hz", 1)));
 					}
+				} else if (preferences.getBoolean("isPulsed", false)) {
+					utility.writeData("0");
+				} else {
+					utility.writeData("1");
 				}
+
 			}
 		});
 
@@ -542,6 +637,7 @@ public class Main_Activity extends Activity {
 								.commit();
 						preferences.edit().putString("password", password)
 								.commit();
+
 					}
 					return true;
 				}
@@ -584,6 +680,16 @@ public class Main_Activity extends Activity {
 		// energy.setWidth((int) (blocco2_dim * moltiplicativo));
 		// energy.setHeight((int) (blocco2_dim * moltiplicativo / 0.40));
 
+		if (preferences.getBoolean("isSmart", false)) {
+			cap.setVisibility(View.INVISIBLE);
+			res.setVisibility(View.INVISIBLE);
+		}
+
+		if (preferences.getBoolean("isPhysio", false)) {
+			cap.setVisibility(View.VISIBLE);
+			res.setVisibility(View.VISIBLE);
+		}
+
 		utility.config(this);
 
 		act_string = getIntent().getAction();
@@ -607,6 +713,9 @@ public class Main_Activity extends Activity {
 		utility.writeData("^");
 		utility.writeData("a");
 		utility.writeData("?");
+
+		if (!thread.isAlive())
+			thread.start();
 
 	}
 
@@ -648,6 +757,8 @@ public class Main_Activity extends Activity {
 	}
 
 	public void onBackPressed() {
+
+		thread.interrupt();
 
 		utility.DestroyAccessory(true);
 

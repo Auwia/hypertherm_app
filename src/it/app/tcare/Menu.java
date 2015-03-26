@@ -22,7 +22,7 @@ import android.widget.TextView;
 public class Menu extends Activity {
 
 	private Button energy, button_energy, continuos, button_time, pulsed,
-			confirm, back, exit, service;
+			confirm, back, service;
 	private SeekBar seek_bar_frequency, seek_bar_energy;
 	private TextView uno, due, tre, quattro, cinque, label_energy;
 	private LinearLayout simbolo_frequenza;
@@ -110,7 +110,6 @@ public class Menu extends Activity {
 
 		preferences = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
-		preferences.edit().putBoolean("exit", false).commit();
 
 		button_energy = (Button) findViewById(R.id.button_energy);
 		continuos = (Button) findViewById(R.id.button_continuos);
@@ -119,7 +118,6 @@ public class Menu extends Activity {
 		energy = (Button) findViewById(R.id.energy);
 		confirm = (Button) findViewById(R.id.button_confirm);
 		back = (Button) findViewById(R.id.button_back);
-		exit = (Button) findViewById(R.id.exit);
 		service = (Button) findViewById(R.id.service);
 
 		simbolo_frequenza = (LinearLayout) findViewById(R.id.simbolo_frequenza);
@@ -142,13 +140,6 @@ public class Menu extends Activity {
 				preferences.edit().putBoolean("isService", true).commit();
 				Intent intent = new Intent(Menu.this, Service.class);
 				startActivityForResult(intent, REQUEST_CODE_TEST);
-			}
-		});
-
-		exit.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				preferences.edit().putBoolean("exit", true).commit();
-				finish();
 			}
 		});
 
@@ -177,6 +168,9 @@ public class Menu extends Activity {
 				if (pulsed.isPressed()) {
 					list.add("L");
 					list.add(String.valueOf(seek_bar_frequency.getProgress() + 1));
+					preferences.edit()
+							.putInt("hz", seek_bar_frequency.getProgress() + 1)
+							.commit();
 				}
 
 				if (continuos.isPressed()) {
@@ -247,9 +241,8 @@ public class Menu extends Activity {
 				});
 
 		Display display = getWindowManager().getDefaultDisplay();
-		int width, height;
+		int width;
 		width = display.getWidth();
-		height = display.getHeight();
 		android.view.ViewGroup.LayoutParams param = seek_bar_frequency
 				.getLayoutParams();
 		param.width = width * 35 / 100;
@@ -315,7 +308,7 @@ public class Menu extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					seek_bar_energy.setProgress(2);
+					seek_bar_energy.setProgress(40);
 					seek_bar_energy.setMax(100);
 					button_energy.setPressed(false);
 					button_time.setPressed(true);
@@ -341,7 +334,7 @@ public class Menu extends Activity {
 				// show interest in events resulting from ACTION_DOWN
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					seek_bar_energy.setMax(40);
-					seek_bar_energy.setProgress(1);
+					seek_bar_energy.setProgress(4);
 					button_energy.setPressed(true);
 					button_time.setPressed(false);
 					label_energy.setText(getResources().getString(

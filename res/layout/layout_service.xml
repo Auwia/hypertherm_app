@@ -37,19 +37,19 @@
         <TableLayout
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_weight="50" >
+            android:layout_weight="55" >
 
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="10"
+                android:layout_weight="12"
                 android:gravity="center_vertical"
                 android:orientation="horizontal" >
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="20" >
+                    android:layout_weight="5" >
                 </LinearLayout>
 
                 <TextView
@@ -61,39 +61,33 @@
                     android:text="@string/serial_number"
                     android:textColor="@android:color/black" />
 
-                <TextView
+                <Button
                     android:id="@+id/serial_number_value"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="20"
-                    android:gravity="right"
-                    android:textColor="@android:color/black" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="20" >
-                </LinearLayout>
+                    android:layout_weight="55"
+                    android:background="@drawable/custom_button_energy"
+                    android:textColor="@android:color/white" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="10"
+                android:layout_weight="12"
                 android:gravity="center_vertical"
                 android:orientation="horizontal" >
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="20" >
+                    android:layout_weight="5" >
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/software_version"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="40"
+                    android:layout_weight="50"
                     android:gravity="left"
                     android:text="@string/software_version"
                     android:textColor="@android:color/black" />
@@ -102,35 +96,29 @@
                     android:id="@+id/revision"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="20"
+                    android:layout_weight="45"
                     android:gravity="right"
                     android:textColor="@android:color/black" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="20" >
-                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="10"
+                android:layout_weight="12"
                 android:gravity="center_vertical"
                 android:orientation="horizontal" >
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="20" >
+                    android:layout_weight="5" >
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/work_time"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="40"
+                    android:layout_weight="50"
                     android:gravity="left"
                     android:text="@string/work_time"
                     android:textColor="@android:color/black" />
@@ -139,109 +127,72 @@
                     android:id="@+id/work_time_value"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="20"
+                    android:layout_weight="45"
                     android:gravity="right"
                     android:textColor="@android:color/black" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="20" >
-                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="10"
+                android:layout_weight="20"
                 android:gravity="center_vertical"
                 android:orientation="horizontal" >
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="20" >
+                    android:layout_weight="5" >
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/model"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="40"
+                    android:layout_weight="30"
                     android:gravity="left"
                     android:text="@string/model"
                     android:textColor="@android:color/black" />
 
-                <TextView
-                    android:id="@+id/model_value"
+                <RadioGroup
+                    android:id="@+id/radioGroup1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="20"
-                    android:gravity="right"
-                    android:textColor="@android:color/black" />
+                    android:layout_weight="65"
+                    android:orientation="horizontal" >
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="20" >
-                </LinearLayout>
+                    <RadioButton
+                        android:id="@+id/radio_button_smart"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Smart" />
+
+                    <RadioButton
+                        android:id="@+id/radio_button_physio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Physio" />
+                </RadioGroup>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="10"
+                android:layout_weight="12"
                 android:gravity="center_vertical"
                 android:orientation="horizontal" >
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="20" >
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/modello_firmware"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="40"
-                    android:gravity="left"
-                    android:text="@string/modello_firmware"
-                    android:textColor="@android:color/black" />
-
-                <TextView
-                    android:id="@+id/modello_firmware_value"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="20"
-                    android:gravity="right"
-                    android:textColor="@android:color/black" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="20" >
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="0dp"
-                android:layout_weight="10"
-                android:gravity="center_vertical"
-                android:orientation="horizontal" >
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="20" >
+                    android:layout_weight="5" >
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/versione_firmware"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="40"
+                    android:layout_weight="50"
                     android:gravity="left"
                     android:text="@string/versione_firmware"
                     android:textColor="@android:color/black" />
@@ -250,15 +201,9 @@
                     android:id="@+id/versione_firmware_value"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="20"
+                    android:layout_weight="45"
                     android:gravity="right"
                     android:textColor="@android:color/black" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="20" >
-                </LinearLayout>
             </LinearLayout>
 
             <TableRow
@@ -275,14 +220,14 @@
                     android:gravity="center_horizontal|center_vertical"
                     android:text="@string/reset"
                     android:textColor="@android:color/white"
-                    android:textSize="22sp" />
+                    android:textSize="18sp" />
             </TableRow>
 
             <TableRow
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="5"
-                android:gravity="center_horizontal|center_vertical" >
+                android:layout_weight="12"
+                android:gravity="center_horizontal|bottom" >
 
                 <TextView
                     android:id="@+id/language"
@@ -296,14 +241,15 @@
             <TableRow
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="25"
+                android:layout_weight="15"
                 android:gravity="center_horizontal|center_vertical" >
 
                 <LinearLayout
+                    android:id="@+id/english_rectangular"
                     android:layout_width="0dp"
                     android:layout_height="fill_parent"
                     android:layout_weight="33"
-                    android:gravity="right|center_vertical" >
+                    android:gravity="center_horizontal|center_vertical" >
 
                     <Button
                         android:id="@+id/english"
@@ -313,6 +259,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/russian_rectangular"
                     android:layout_width="0dp"
                     android:layout_height="fill_parent"
                     android:layout_weight="33"
@@ -326,10 +273,11 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/chinese_rectangular"
                     android:layout_width="0dp"
                     android:layout_height="fill_parent"
                     android:layout_weight="34"
-                    android:gravity="left|center_vertical" >
+                    android:gravity="center_horizontal|center_vertical" >
 
                     <Button
                         android:id="@+id/chinese"
@@ -343,7 +291,7 @@
         <TableLayout
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_weight="50" >
+            android:layout_weight="45" >
 
             <TableRow
                 android:layout_width="fill_parent"

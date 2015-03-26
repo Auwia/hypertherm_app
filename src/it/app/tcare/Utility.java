@@ -3,8 +3,6 @@ package it.app.tcare;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.Bundle;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -20,7 +18,7 @@ public class Utility {
 	private TextView time, label_start, label_pause, label_stop,
 			label_continuos;
 	private Button play, stop, pause, cap, res, body, face, energy, menu,
-			continuos, frequency, jaule;
+			continuos, frequency, joule;
 	private TableRow pannello_energia;
 
 	private FT311UARTInterface uartInterface;
@@ -107,7 +105,7 @@ public class Utility {
 		pannello_energia = (TableRow) activity
 				.findViewById(R.id.pannello_energia);
 
-		jaule = (Button) activity.findViewById(R.id.jaule);
+		joule = (Button) activity.findViewById(R.id.joule);
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(activity);
 		editor = preferences.edit();
@@ -127,26 +125,6 @@ public class Utility {
 
 						if (comandi[2].equals("?")) {
 
-							if (comandi[0].equals("01")) {
-								editor.putString("modello_firmware", "Base")
-										.commit();
-							}
-
-							if (comandi[0].equals("02")) {
-								editor.putString("modello_firmware", "Power")
-										.commit();
-							}
-
-							if (comandi[0].equals("03")) {
-								editor.putString("modello_firmware", "Estetica")
-										.commit();
-							}
-
-							if (comandi[0].equals("04")) {
-								editor.putString("modello_firmware",
-										"Multielettrodo").commit();
-							}
-
 							editor.putString(
 									"versione_firmware",
 									String.valueOf(Integer.parseInt(comandi[1],
@@ -158,12 +136,34 @@ public class Utility {
 
 						if (comandi[1].equals("W")) {
 
+							if (comandi[0].length() == 7) {
+
+								joule.setText(String.valueOf(Integer.parseInt(
+										comandi[0].substring(0, 2), 16) * 1000));
+								editor.putInt(
+										"energy",
+										Integer.parseInt(
+												comandi[0].substring(0, 2), 16) * 1000)
+										.commit();
+
+								seek_bar_percentage.setProgress(Integer
+										.parseInt(comandi[0].toString()
+												.substring(2, 4), 16));
+
+								label_continuos.setText(" "
+										+ Integer
+												.parseInt(comandi[0].toString()
+														.substring(6, 7), 16)
+										+ " Hz");
+							}
 						}
 					}
 
 					if (comandi != null && comandi.length == 10) {
 
 						if (comandi[9].equals("a")) {
+
+							Main_Activity.exit -= 1;
 
 							String minuti, secondi;
 
@@ -197,7 +197,7 @@ public class Utility {
 							editor.putString("timer",
 									minuti + "'" + secondi + "''").commit();
 
-							jaule.setText(String.valueOf(Integer.parseInt(
+							joule.setText(String.valueOf(Integer.parseInt(
 									comandi[1], 16) * 1000));
 
 							editor.putInt("energy",
@@ -273,6 +273,7 @@ public class Utility {
 								label_continuos.setVisibility(View.INVISIBLE);
 								editor.putBoolean("isContinuos", true).commit();
 								editor.putBoolean("isPulsed", false).commit();
+								editor.putInt("hz", 0).commit();
 							}
 
 							if (comandi[6].equals("00")) {
@@ -399,6 +400,11 @@ public class Utility {
 								label_continuos.setText(" "
 										+ Integer.parseInt(comandi[0]) + " Hz");
 								label_continuos.setVisibility(View.VISIBLE);
+
+								editor.putBoolean("isPulsed", true).commit();
+								editor.putBoolean("isContinuos", false)
+										.commit();
+
 							}
 
 							if (comandi[0].equals("00")) {
@@ -406,7 +412,14 @@ public class Utility {
 										.setBackgroundResource(R.drawable.continuos_normal);
 								label_continuos.setVisibility(View.INVISIBLE);
 								continuos.setPressed(false);
+
+								editor.putBoolean("isPulsed", false).commit();
+								editor.putBoolean("isContinuos", true).commit();
 							}
+
+							editor.putInt("hz", Integer.parseInt(comandi[1]))
+									.commit();
+
 						}
 
 						if (comandi[1].equals("q") || comandi[1].equals("c")
@@ -511,14 +524,6 @@ public class Utility {
 								menu.setEnabled(false);
 
 								Main_Activity.start_in_progress = true;
-
-								Message msgObj = Main_Activity.handler_send_w_work_time
-										.obtainMessage();
-								Bundle b = new Bundle();
-								b.putString("message", "Vai, go");
-								msgObj.setData(b);
-								Main_Activity.handler_send_w_work_time
-										.sendMessage(msgObj);
 
 							}
 						}

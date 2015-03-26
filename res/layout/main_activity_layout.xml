@@ -86,7 +86,8 @@
                     android:layout_alignBottom="@+id/face"
                     android:layout_marginLeft="5dp"
                     android:layout_toRightOf="@+id/face"
-                    android:background="@drawable/button_cap" />
+                    android:background="@drawable/button_cap"
+                    android:visibility="invisible" />
 
                 <Button
                     android:id="@+id/res"
@@ -95,7 +96,8 @@
                     android:layout_alignLeft="@+id/cap"
                     android:layout_below="@+id/cap"
                     android:layout_marginTop="10dp"
-                    android:background="@drawable/button_res" />
+                    android:background="@drawable/button_res"
+                    android:visibility="invisible" />
 
                 <Button
                     android:id="@+id/body"
@@ -421,7 +423,7 @@
                         android:gravity="center|center_horizontal" >
 
                         <Button
-                            android:id="@+id/jaule"
+                            android:id="@+id/joule"
                             android:layout_width="130dp"
                             android:layout_height="28dp"
                             android:background="@drawable/custom_button_set_value"

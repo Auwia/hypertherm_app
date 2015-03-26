@@ -390,6 +390,9 @@ public class FT311UARTInterface extends Activity {
 										Log.d("TCARE", "COMANDO_RICEVUTO="
 												+ readSB.toString());
 									}
+									// Log.d("TCARE",
+									// "COMANDO_RICEVUTO="
+									// + readSB.toString());
 									utility.esegui(readSB.toString().trim());
 									readSB.delete(0, readSB.length());
 

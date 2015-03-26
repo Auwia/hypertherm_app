@@ -351,19 +351,6 @@
             android:layout_height="0dp"
             android:layout_weight="20" >
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="17"
-                android:gravity="center" >
-
-                <Button
-                    android:id="@+id/exit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/exit_normal" />
-            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -387,7 +374,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="28"
+                android:layout_weight="25"
                 android:gravity="left" >
 
                 <TextView
@@ -404,7 +391,7 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
-                android:layout_weight="30"
+                android:layout_weight="50"
                 android:gravity="center_vertical|center_horizontal" >
 
                 <Button
