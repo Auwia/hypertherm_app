@@ -116,10 +116,21 @@ public class Service extends Activity {
 		work_time = work_time_value.getText().toString();
 
 		if (preferences.getString("language", "en").equals("en")) {
+			english_rectangular.setTag(R.drawable.cell_shape);
+			russian_rectangular.setTag(0);
+			chinese_rectangular.setTag(0);
 			english_rectangular.setBackgroundResource(R.drawable.cell_shape);
 		} else if (preferences.getString("language", "en").equals("ru")) {
+			russian_rectangular.setTag(R.drawable.cell_shape);
+			english_rectangular.setTag(0);
+			chinese_rectangular.setTag(0);
+
 			russian_rectangular.setBackgroundResource(R.drawable.cell_shape);
 		} else if (preferences.getString("language", "zh").equals("ru")) {
+			chinese_rectangular.setTag(R.drawable.cell_shape);
+			russian_rectangular.setTag(0);
+			english_rectangular.setTag(0);
+
 			chinese_rectangular.setBackgroundResource(R.drawable.cell_shape);
 		}
 

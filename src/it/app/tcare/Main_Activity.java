@@ -1,5 +1,6 @@
 package it.app.tcare;
 
+import java.math.BigInteger;
 import java.util.Locale;
 
 import android.app.Activity;
@@ -208,6 +209,12 @@ public class Main_Activity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity_layout);
+
+		String fs = new BigInteger("41", 16).toString(2);
+		if (fs.length() == 7)
+			fs = "0" + fs;
+
+		Log.d("TCARE", "Conversione hex to bin: " + fs);
 
 		preferences = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
