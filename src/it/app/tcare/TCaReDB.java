@@ -1,5 +1,6 @@
 package it.app.tcare;
 
+import java.io.File;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -15,6 +16,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class TCaReDB extends SQLiteOpenHelper {
+
+	private final Context myContext;
+
 	private static final String DATABASE_NAME = "TCaReDB.db";
 	private static final int DATABASE_VERSION = 1;
 
@@ -43,10 +47,19 @@ public class TCaReDB extends SQLiteOpenHelper {
 
 	public TCaReDB(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+
+		this.myContext = context;
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase database) {
+
+		boolean dbExist = checkDataBase();
+
+		 if (dbExist) {
+		
+		 } else {
+
 		database.execSQL(CREATE_TABLE_TABLE_WORK_TIME);
 		database.execSQL(CREATE_TABLE_TABLE_PASSWORD);
 
@@ -84,6 +97,7 @@ public class TCaReDB extends SQLiteOpenHelper {
 		database.insert(TABLE_PASSWORD, null, row);
 		database.setTransactionSuccessful();
 		database.endTransaction();
+		}
 	}
 
 	@Override
@@ -94,5 +108,11 @@ public class TCaReDB extends SQLiteOpenHelper {
 	@Override
 	public void onDowngrade(SQLiteDatabase database, int oldVersion,
 			int newVersion) {
+	}
+
+	private boolean checkDataBase() {
+
+		File dbFile = myContext.getDatabasePath(DATABASE_NAME);
+		return dbFile.exists();
 	}
 }

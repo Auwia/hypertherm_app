@@ -32,7 +32,7 @@ public class Main_Activity extends Activity {
 	private TextView label_start, label_pause, label_stop, title, title2,
 			percentage, percentuale_simbolo, duty, time, zero, dieci, venti,
 			trenta, quaranta, cinquanta, sessanta, settanta, ottanta, novanta,
-			cento, label_continuos;
+			cento;
 	private Button play, stop, pause, cap, res, body, face, menu, energy,
 			frequency, continuos;
 	private SeekBar seek_bar_percentage;
@@ -255,8 +255,6 @@ public class Main_Activity extends Activity {
 		setContentView(R.layout.main_activity_layout);
 
 		activity = this;
-
-		label_continuos = (TextView) findViewById(R.id.label_continuos);
 
 		utility = new Utility(this);
 
