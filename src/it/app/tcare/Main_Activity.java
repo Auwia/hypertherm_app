@@ -767,13 +767,16 @@ public class Main_Activity extends Activity {
 
 	public void onBackPressed() {
 
-		utility.DestroyAccessory(true);
+		start_lettura = false;
+		Main_Activity.start_lettura = false;
 
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+
+		utility.DestroyAccessory(true);
 
 		System.exit(0);
 
