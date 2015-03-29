@@ -61,9 +61,9 @@ public class Utility {
 
 		for (int i = 0; i < numBytes; i++) {
 			writeBuffer[i] = (byte) commandString.charAt(i);
-			if (!String.valueOf(commandString.charAt(i)).equals("W"))
-				Log.d("TCARE", "writeData: scrivo: " + commandString.charAt(i)
-						+ " tradotto: " + (byte) commandString.charAt(i));
+			// if (!String.valueOf(commandString.charAt(i)).equals("W"))
+			Log.d("TCARE", "writeData: scrivo: " + commandString.charAt(i)
+					+ " tradotto: " + (byte) commandString.charAt(i));
 		}
 
 		if (uartInterface != null)
@@ -299,8 +299,6 @@ public class Utility {
 					if (comandi != null && comandi.length == 10) {
 
 						if (comandi[9].equals("a")) {
-
-							Main_Activity.exit -= 1;
 
 							String minuti, secondi;
 

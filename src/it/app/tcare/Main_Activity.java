@@ -1,9 +1,9 @@
 package it.app.tcare;
 
-import java.math.BigInteger;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -13,8 +13,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -46,11 +46,13 @@ public class Main_Activity extends Activity {
 	private static final int REQUEST_CODE_TEST = 0;
 
 	public static boolean start_in_progress = false;
+	public static boolean start_lettura = true;
 	private boolean bConfiged = false;
 
 	public String act_string;
 
-	public static int exit = 0;
+	private PowerManager pm;
+	private static PowerManager.WakeLock wl;
 
 	// VARIABILI DATA BASE
 	private static final String DATABASE_NAME = "TCaReDB.db";
@@ -104,44 +106,43 @@ public class Main_Activity extends Activity {
 		}
 	};
 
-	public static Thread thread = new Thread() {
-		@Override
+	public class ThreadWriteW implements Runnable {
+
 		public void run() {
-			while (true) {
+			wl.acquire();
+			Log.d("TCARE", "Entro nel thread di W.");
+			while (start_lettura) {
+				Log.d("TCARE", "SONO nel thread di W.");
 				try {
+					Log.d("TCARE", "SONO nel thread di W prima di dormire.");
 					Thread.sleep(1000);
+					Log.d("TCARE", "SONO nel thread di W dopo la sveglia.");
 				} catch (InterruptedException e) {
 					start_in_progress = false;
+					Log.d("TCARE", "Il thread e' creaptp");
 				}
 				utility.writeData("W");
-				exit += 1;
+
 				if (start_in_progress) {
 					database.execSQL("update WORK_TIME set WORK_FROM=WORK_FROM+1;");
 				}
 
-				if (exit > 5) {
-
-					Settings.System.putInt(activity.getContentResolver(),
-							Settings.System.SCREEN_OFF_TIMEOUT, 1);
-					exit = 0;
-
-				} else {
-					Settings.System.putInt(activity.getContentResolver(),
-							Settings.System.SCREEN_OFF_TIMEOUT, 1800000);
-
-					// WakeLock screenLock = ((PowerManager) activity
-					// .getSystemService(POWER_SERVICE))
-					// .newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK
-					// | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
-					// screenLock.acquire();
-					//
-					// // later
-					// screenLock.release();
-				}
 			}
 
+			try {
+				Runtime.getRuntime().exec(
+						new String[] { "su", "-c", "input keyevent 26" });
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			start_lettura = false;
+			Log.d("TCARE", "Lo start_lettura e'? " + start_lettura);
+			Log.d("TCARE", "Esco dal thread di W.");
+
 		}
-	};
+	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -160,7 +161,7 @@ public class Main_Activity extends Activity {
 		if (preferences.getBoolean("exit", false))
 			finish();
 
-		utility.ResumeAccessory(bConfiged);
+		// utility.ResumeAccessory(bConfiged);
 
 		if (requestCode == REQUEST_CODE_TEST) {
 			if (resultCode == Activity.RESULT_OK) {
@@ -192,6 +193,9 @@ public class Main_Activity extends Activity {
 	@Override
 	protected void onDestroy() {
 
+		start_lettura = false;
+		Log.d("TCARE", "Lo start_lettura e'? " + start_lettura);
+
 		utility.DestroyAccessory(true);
 
 		try {
@@ -199,6 +203,8 @@ public class Main_Activity extends Activity {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+
+		wl.release();
 
 		System.exit(0);
 		super.onDestroy();
@@ -210,21 +216,18 @@ public class Main_Activity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity_layout);
 
-		String fs = new BigInteger("41", 16).toString(2);
-		if (fs.length() == 7)
-			fs = "0" + fs;
-
-		Log.d("TCARE", "Conversione hex to bin: " + fs);
+		pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "TCARE");
 
 		preferences = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
 
 		preferences.edit().putBoolean("isMenu", false).commit();
 
-		datasource = new TCaReDataSource(getApplicationContext());
-		datasource.open();
 		database = openOrCreateDatabase(DATABASE_NAME,
 				SQLiteDatabase.CREATE_IF_NECESSARY, null);
+		datasource = new TCaReDataSource(getApplicationContext());
+		datasource.open();
 
 		cur = database.query("SETTINGS", new String[] { "SMART", "PHYSIO",
 				"SERIAL_NUMBER", "LANGUAGE" }, null, null, null, null, null);
@@ -719,8 +722,9 @@ public class Main_Activity extends Activity {
 		utility.writeData("a");
 		utility.writeData("?");
 
-		if (!thread.isAlive())
-			thread.start();
+		Thread t = new Thread(new ThreadWriteW());
+		t.setName("Thread_W");
+		t.start();
 
 	}
 
@@ -763,8 +767,6 @@ public class Main_Activity extends Activity {
 
 	public void onBackPressed() {
 
-		thread.interrupt();
-
 		utility.DestroyAccessory(true);
 
 		try {
@@ -780,6 +782,12 @@ public class Main_Activity extends Activity {
 
 	@Override
 	protected void onResume() {
+
+		start_lettura = true;
+		Log.d("TCARE", "Lo start_lettura e'? " + start_lettura);
+
+		// wl.acquire();
+
 		datasource.open();
 		super.onResume();
 		if (2 == utility.ResumeAccessory(bConfiged)) {

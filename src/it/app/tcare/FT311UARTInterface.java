@@ -5,6 +5,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.Thread.State;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -36,15 +37,15 @@ public class FT311UARTInterface extends Activity {
 	public FileInputStream inputstream = null;
 	public FileOutputStream outputstream = null;
 	public boolean mPermissionRequestPending = false;
-	public read_thread readThread;
+	public static read_thread readThread;
 
 	private byte[] usbdata, writeusbdata;
 	private byte status;
 
 	private int readcount;
 
-	public boolean datareceived = false, accessory_attached = false,
-			READ_ENABLE = false;
+	public boolean datareceived = false, accessory_attached = false;
+	public static boolean READ_ENABLE = false;
 
 	public Activity global_context;
 
@@ -149,14 +150,18 @@ public class FT311UARTInterface extends Activity {
 			if (outputstream != null) {
 				outputstream.write(writeusbdata, 0, numBytes);
 			} else {
+				READ_ENABLE = false;
+				Main_Activity.start_lettura = false;
 				Log.i("TCARE", "SendPacket: stream di scrittura chiuso");
 				ResumeAccessory(false);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			DestroyAccessory(true);
-			CloseAccessory();
-			e.printStackTrace();
+			Log.d("TCARE", "SendPacket: HO PERSO LA SCHEDA");
+			READ_ENABLE = false;
+			Main_Activity.start_lettura = false;
+			// DestroyAccessory(true);
+			// CloseAccessory();
 		}
 	}
 
@@ -230,6 +235,7 @@ public class FT311UARTInterface extends Activity {
 
 		if (true == bConfiged) {
 			READ_ENABLE = false;
+			Main_Activity.start_lettura = false;
 			writeusbdata[0] = 0; // send dummy data for instream.read going
 			SendPacket(1);
 		} else {
@@ -238,10 +244,11 @@ public class FT311UARTInterface extends Activity {
 			try {
 				Thread.sleep(10);
 			} catch (Exception e) {
-				CloseAccessory();
+				// CloseAccessory();
 			}
 
 			READ_ENABLE = false;
+			Main_Activity.start_lettura = false;
 			writeusbdata[0] = 0; // send dummy data for instream.read going
 			SendPacket(1);
 			if (true == accessory_attached) {
@@ -253,7 +260,7 @@ public class FT311UARTInterface extends Activity {
 		try {
 			Thread.sleep(10);
 		} catch (Exception e) {
-			CloseAccessory();
+			// CloseAccessory();
 		}
 
 		CloseAccessory();
@@ -279,7 +286,11 @@ public class FT311UARTInterface extends Activity {
 			if (READ_ENABLE == false) {
 				READ_ENABLE = true;
 				readThread = new read_thread(inputstream);
-				readThread.start();
+				if (!readThread.isAlive()
+						&& readThread.getState() != State.RUNNABLE) {
+					readThread.setName("Thread_Lettura");
+					readThread.start();
+				}
 			}
 
 			Log.d("TCARE", "OpenAccessory: stream di lettura avviato");
@@ -375,7 +386,11 @@ public class FT311UARTInterface extends Activity {
 		}
 
 		public void run() {
+			Log.d("TCARE", "Il thread di lettura è? " + readThread.isAlive()
+					+ " - " + readThread.getState());
+			Log.d("TCARE", "ENTRO NEL LEGGO");
 			while (READ_ENABLE == true) {
+				Log.d("TCARE", "SONO NEL LEGGO");
 
 				try {
 					if (instream != null) {
@@ -386,13 +401,13 @@ public class FT311UARTInterface extends Activity {
 							for (int count = 0; count < readcount; count++) {
 
 								if (usbdata[count] == (byte) '\r') {
-									if (!readSB.toString().contains("W")) {
-										Log.d("TCARE", "COMANDO_RICEVUTO="
-												+ readSB.toString());
-									}
-									// Log.d("TCARE",
-									// "COMANDO_RICEVUTO="
+									// if (!readSB.toString().contains("W")) {
+									// Log.d("TCARE", "COMANDO_RICEVUTO="
 									// + readSB.toString());
+									// }
+									Log.d("TCARE",
+											"COMANDO_RICEVUTO="
+													+ readSB.toString());
 									utility.esegui(readSB.toString().trim());
 									readSB.delete(0, readSB.length());
 
@@ -400,20 +415,25 @@ public class FT311UARTInterface extends Activity {
 									readSB.append((char) usbdata[count]);
 								}
 							}
+						} else {
+							Log.d("TCARE", "BUFFER NULLO");
 						}
+					} else {
+						Log.d("TCARE", "read_thread: Inputstream NULL");
 					}
 				} catch (IOException e) {
+					Log.d("read_thread: CARE", "HO PERSO LA SCHEDA");
 					READ_ENABLE = false;
+					Main_Activity.start_lettura = false;
 					e.printStackTrace();
-					DestroyAccessory(true);
-					CloseAccessory();
+					// DestroyAccessory(true);
+					// CloseAccessory();
 				}
-			}
-		}
-	}
 
-	public boolean thread_lettura_is_alive() {
-		return readThread.isAlive();
+			}
+
+			Log.d("TCARE", "ESCO DAL LEGGO");
+		}
 	}
 
 	public void MandaDati(int max) {
@@ -428,8 +448,8 @@ public class FT311UARTInterface extends Activity {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			DestroyAccessory(true);
-			CloseAccessory();
+			// DestroyAccessory(true);
+			// CloseAccessory();
 		}
 	}
 
