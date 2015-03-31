@@ -619,67 +619,83 @@ public class Utility {
 							}
 						}
 
-						if (comandi[1].equals("T")) {
+						if (!(preferences.getBoolean("isMenu", false))) {
 
-							if (comandi[0].equals("00")) {
+							if (comandi[1].equals("T")
+									&& !(preferences
+											.getBoolean("isMenu", false))) {
 
-								editor.putBoolean("isPlaying", false).commit();
+								if (comandi[0].equals("00")) {
 
-								stop.setPressed(true);
-								stop.setTextColor(Color.parseColor("#015c5f"));
-								play.setPressed(false);
-								pause.setPressed(false);
-								label_stop.setTextColor(Color
-										.parseColor("#78d0d2"));
-								label_start.setTextColor(Color.WHITE);
-								label_pause.setTextColor(Color.WHITE);
+									editor.putBoolean("isPlaying", false)
+											.commit();
 
-								menu.setEnabled(true);
+									stop.setPressed(true);
+									stop.setTextColor(Color
+											.parseColor("#015c5f"));
+									play.setPressed(false);
+									pause.setPressed(false);
+									label_stop.setTextColor(Color
+											.parseColor("#78d0d2"));
+									label_start.setTextColor(Color.WHITE);
+									label_pause.setTextColor(Color.WHITE);
 
-								Main_Activity.start_in_progress = false;
+									menu.setEnabled(true);
 
+									Main_Activity.start_in_progress = false;
+								}
 							}
 						}
 
-						if (comandi[1].equals("S")) {
+						if (!(preferences.getBoolean("isMenu", false))) {
+							if (comandi[1].equals("S")) {
 
-							if (comandi[0].equals("01")) {
+								if (comandi[0].equals("01")) {
 
-								editor.putBoolean("isPlaying", true).commit();
+									editor.putBoolean("isPlaying", true)
+											.commit();
 
-								play.setPressed(true);
-								play.setTextColor(Color.parseColor("#015c5f"));
-								pause.setPressed(false);
-								stop.setPressed(false);
-								label_start.setTextColor(Color
-										.parseColor("#78d0d2"));
-								label_stop.setTextColor(Color.WHITE);
-								label_pause.setTextColor(Color.WHITE);
+									play.setPressed(true);
+									play.setTextColor(Color
+											.parseColor("#015c5f"));
+									pause.setPressed(false);
+									stop.setPressed(false);
+									label_start.setTextColor(Color
+											.parseColor("#78d0d2"));
+									label_stop.setTextColor(Color.WHITE);
+									label_pause.setTextColor(Color.WHITE);
 
-								menu.setEnabled(false);
+									menu.setEnabled(false);
 
-								Main_Activity.start_in_progress = true;
+									Main_Activity.start_in_progress = true;
 
+								}
 							}
 						}
 
-						if (comandi[1].equals("P")) {
-							if (comandi[0].equals("02")) {
+						if (!(preferences.getBoolean("isMenu", false))) {
+							if (comandi[1].equals("P")
+									&& !(preferences
+											.getBoolean("isMenu", false))) {
+								if (comandi[0].equals("02")) {
 
-								editor.putBoolean("isPlaying", false).commit();
+									editor.putBoolean("isPlaying", false)
+											.commit();
 
-								pause.setPressed(true);
-								pause.setTextColor(Color.parseColor("#015c5f"));
-								play.setPressed(false);
-								stop.setPressed(false);
-								label_pause.setTextColor(Color
-										.parseColor("#78d0d2"));
-								label_start.setTextColor(Color.WHITE);
-								label_stop.setTextColor(Color.WHITE);
+									pause.setPressed(true);
+									pause.setTextColor(Color
+											.parseColor("#015c5f"));
+									play.setPressed(false);
+									stop.setPressed(false);
+									label_pause.setTextColor(Color
+											.parseColor("#78d0d2"));
+									label_start.setTextColor(Color.WHITE);
+									label_stop.setTextColor(Color.WHITE);
 
-								menu.setEnabled(false);
+									menu.setEnabled(false);
 
-								Main_Activity.start_in_progress = false;
+									Main_Activity.start_in_progress = false;
+								}
 							}
 						}
 					}

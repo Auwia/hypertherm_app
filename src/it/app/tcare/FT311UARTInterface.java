@@ -425,6 +425,12 @@ public class FT311UARTInterface extends Activity {
 					Log.d("read_thread: CARE", "HO PERSO LA SCHEDA");
 					READ_ENABLE = false;
 					Main_Activity.start_lettura = false;
+
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e1) {
+					}
+
 					e.printStackTrace();
 					// DestroyAccessory(true);
 					// CloseAccessory();

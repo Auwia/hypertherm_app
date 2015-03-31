@@ -51,6 +51,8 @@ public class Main_Activity extends Activity {
 
 	public String act_string;
 
+	private Thread thread_w;
+
 	private PowerManager pm;
 	private static PowerManager.WakeLock wl;
 
@@ -110,21 +112,18 @@ public class Main_Activity extends Activity {
 
 		public void run() {
 			wl.acquire();
-			Log.d("TCARE", "Entro nel thread di W.");
+
 			while (start_lettura) {
-				Log.d("TCARE", "SONO nel thread di W.");
-				try {
-					Log.d("TCARE", "SONO nel thread di W prima di dormire.");
-					Thread.sleep(1000);
-					Log.d("TCARE", "SONO nel thread di W dopo la sveglia.");
-				} catch (InterruptedException e) {
-					start_in_progress = false;
-					Log.d("TCARE", "Il thread e' creaptp");
-				}
+
 				utility.writeData("W");
 
 				if (start_in_progress) {
 					database.execSQL("update WORK_TIME set WORK_FROM=WORK_FROM+1;");
+				}
+
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
 				}
 
 			}
@@ -136,17 +135,15 @@ public class Main_Activity extends Activity {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
-			start_lettura = false;
-			Log.d("TCARE", "Lo start_lettura e'? " + start_lettura);
-			Log.d("TCARE", "Esco dal thread di W.");
-
 		}
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+
+		Log.d("TCARE", "Chiamo onActivityResult, la lettura e': "
+				+ start_lettura);
 
 		if (preferences.getBoolean("isSmart", false)) {
 			cap.setVisibility(View.INVISIBLE);
@@ -186,15 +183,21 @@ public class Main_Activity extends Activity {
 
 	@Override
 	protected void onPause() {
-		datasource.close();
 		super.onPause();
+
+		datasource.close();
+		Log.d("TCARE", "Chiamo onPause, la lettura e': " + start_lettura);
+
 	}
 
 	@Override
 	protected void onDestroy() {
+		super.onDestroy();
 
 		start_lettura = false;
-		Log.d("TCARE", "Lo start_lettura e'? " + start_lettura);
+		FT311UARTInterface.READ_ENABLE = false;
+
+		Log.d("TCARE", "Chiamo onDestroy, la lettura e': " + start_lettura);
 
 		utility.DestroyAccessory(true);
 
@@ -207,8 +210,6 @@ public class Main_Activity extends Activity {
 		wl.release();
 
 		System.exit(0);
-		super.onDestroy();
-
 	}
 
 	@Override
@@ -698,7 +699,17 @@ public class Main_Activity extends Activity {
 			res.setVisibility(View.VISIBLE);
 		}
 
+		try {
+			Thread.sleep(250);
+		} catch (InterruptedException e) {
+		}
+
 		utility.config(this);
+
+		try {
+			Thread.sleep(250);
+		} catch (InterruptedException e) {
+		}
 
 		act_string = getIntent().getAction();
 		if (-1 != act_string.indexOf("android.intent.action.MAIN")) {
@@ -711,20 +722,25 @@ public class Main_Activity extends Activity {
 		if (false == bConfiged) {
 			bConfiged = true;
 			utility.SetConfig();
+			try {
+				Thread.sleep(250);
+			} catch (InterruptedException e) {
+			}
+
 			savePreference();
 		}
 
 		utility.ResumeAccessory(bConfiged);
 		// utility.SetConfig();
+		try {
+			Thread.sleep(250);
+		} catch (InterruptedException e) {
+		}
 
 		utility.writeData("@");
 		utility.writeData("^");
 		utility.writeData("a");
 		utility.writeData("?");
-
-		Thread t = new Thread(new ThreadWriteW());
-		t.setName("Thread_W");
-		t.start();
 
 	}
 
@@ -754,24 +770,21 @@ public class Main_Activity extends Activity {
 		}
 	}
 
-	@Override
-	public void onStart() {
-		super.onStart();
-
-	}
-
 	// @Override
 	public void onHomePressed() {
 		onBackPressed();
 	}
 
 	public void onBackPressed() {
+		super.onBackPressed();
 
 		start_lettura = false;
 		Main_Activity.start_lettura = false;
 
+		Log.d("TCARE", "Chiamo onBackPressed, la lettura e': " + start_lettura);
+
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -779,24 +792,36 @@ public class Main_Activity extends Activity {
 		utility.DestroyAccessory(true);
 
 		System.exit(0);
-
-		super.onBackPressed();
 	}
 
 	@Override
 	protected void onResume() {
-
-		start_lettura = true;
-		Log.d("TCARE", "Lo start_lettura e'? " + start_lettura);
-
-		// wl.acquire();
+		super.onResume();
 
 		datasource.open();
-		super.onResume();
+
 		if (2 == utility.ResumeAccessory(bConfiged)) {
 			cleanPreference();
 			restorePreference();
 		}
+
+		try {
+			Thread.sleep(1500);
+		} catch (InterruptedException e) {
+		}
+
+		Log.d("TCARE", "Chiamo il resume, la lettura e': " + start_lettura);
+
+		if (!(start_lettura) || thread_w == null) {
+
+			start_lettura = true;
+			FT311UARTInterface.READ_ENABLE = true;
+
+			thread_w = new Thread(new ThreadWriteW());
+			thread_w.setName("Thread_W");
+			thread_w.start();
+		}
+
 	}
 
 	@Override
