@@ -16,6 +16,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.hardware.usb.UsbAccessory;
 import android.hardware.usb.UsbManager;
+import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.widget.Toast;
@@ -37,7 +38,9 @@ public class FT311UARTInterface extends Activity {
 	public FileInputStream inputstream = null;
 	public FileOutputStream outputstream = null;
 	public boolean mPermissionRequestPending = false;
+
 	public static read_thread readThread;
+	public static write_thread writeThread;
 
 	private byte[] usbdata, writeusbdata;
 	private byte status;
@@ -291,6 +294,13 @@ public class FT311UARTInterface extends Activity {
 					readThread.setName("Thread_Lettura");
 					readThread.start();
 				}
+
+				writeThread = new write_thread();
+				if (!writeThread.isAlive()
+						&& writeThread.getState() != State.RUNNABLE) {
+					writeThread.setName("Thread_Scrittura");
+					writeThread.start();
+				}
 			}
 
 			Log.d("TCARE", "OpenAccessory: stream di lettura avviato");
@@ -389,7 +399,7 @@ public class FT311UARTInterface extends Activity {
 			Log.d("TCARE", "Il thread di lettura è? " + readThread.isAlive()
 					+ " - " + readThread.getState());
 			Log.d("TCARE", "ENTRO NEL LEGGO");
-			while (READ_ENABLE == true) {
+			while (READ_ENABLE) {
 				Log.d("TCARE", "SONO NEL LEGGO");
 
 				try {
@@ -442,6 +452,63 @@ public class FT311UARTInterface extends Activity {
 		}
 	}
 
+	private class write_thread extends Thread {
+
+		write_thread() {
+			// this.setPriority(Thread.MAX_PRIORITY);
+		}
+
+		public void run() {
+			Log.d("TCARE", "Il thread di scrittura è? " + writeThread.isAlive()
+					+ " - " + writeThread.getState());
+			Log.d("TCARE", "ENTRO NELLO SCRIVO");
+
+			while (READ_ENABLE) {
+				
+				Log.d("TCARE", "SONO NELLO SCRIVO");
+
+				writeData("W");
+
+				Message aggiorna_tempo_lavoro_db = Main_Activity.aggiorna_tempo_lavoro_db
+						.obtainMessage();
+				Main_Activity.aggiorna_tempo_lavoro_db
+						.sendMessage(aggiorna_tempo_lavoro_db);
+
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
+			}
+
+			try {
+				Runtime.getRuntime().exec(
+						new String[] { "su", "-c", "input keyevent 26" });
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			READ_ENABLE = false;
+			Log.d("TCARE", "ESCO DAL LEGGO");
+		}
+	}
+
+	public void writeData(String commandString) {
+
+		int numBytes = commandString.length();
+		byte[] writeBuffer = new byte[64];
+
+		for (int i = 0; i < numBytes; i++) {
+			writeBuffer[i] = (byte) commandString.charAt(i);
+			// if (!String.valueOf(commandString.charAt(i)).equals("W"))
+			Log.d("TCARE", "writeData: scrivo: " + commandString.charAt(i)
+					+ " tradotto: " + (byte) commandString.charAt(i));
+		}
+
+		SendData(numBytes, writeBuffer);
+
+	}
+
 	public void MandaDati(int max) {
 		try {
 			if (outputstream != null) {
@@ -453,9 +520,8 @@ public class FT311UARTInterface extends Activity {
 				Log.i("TCARE", "SendPacket: stream di scrittura chiuso");
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
-			// DestroyAccessory(true);
-			// CloseAccessory();
+			READ_ENABLE = false;
+			Main_Activity.start_lettura = false;
 		}
 	}
 

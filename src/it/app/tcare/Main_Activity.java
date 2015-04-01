@@ -51,8 +51,6 @@ public class Main_Activity extends Activity {
 
 	public String act_string;
 
-	private Thread thread_w;
-
 	private PowerManager pm;
 	private static PowerManager.WakeLock wl;
 
@@ -62,14 +60,19 @@ public class Main_Activity extends Activity {
 	private TCaReDataSource datasource;
 	private Cursor cur;
 
+	public static final Handler aggiorna_tempo_lavoro_db = new Handler() {
+
+		public void handleMessage(Message msg) {
+
+			database.execSQL("update WORK_TIME set WORK_FROM=WORK_FROM+1;");
+		}
+	};
+
 	public static final Handler handler_reset_work_time_db = new Handler() {
 
 		public void handleMessage(Message msg) {
 
-			String query = "update WORK_TIME set WORK_FROM=0;";
-
-			Log.d("TCARE", query);
-			database.execSQL(query);
+			database.execSQL("update WORK_TIME set WORK_FROM=0;");
 		}
 	};
 
@@ -107,36 +110,6 @@ public class Main_Activity extends Activity {
 					+ "';");
 		}
 	};
-
-	public class ThreadWriteW implements Runnable {
-
-		public void run() {
-			wl.acquire();
-
-			while (start_lettura) {
-
-				utility.writeData("W");
-
-				if (start_in_progress) {
-					database.execSQL("update WORK_TIME set WORK_FROM=WORK_FROM+1;");
-				}
-
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-				}
-
-			}
-
-			try {
-				Runtime.getRuntime().exec(
-						new String[] { "su", "-c", "input keyevent 26" });
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -219,6 +192,8 @@ public class Main_Activity extends Activity {
 
 		pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "TCARE");
+
+		wl.acquire();
 
 		preferences = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
@@ -808,18 +783,6 @@ public class Main_Activity extends Activity {
 		try {
 			Thread.sleep(1500);
 		} catch (InterruptedException e) {
-		}
-
-		Log.d("TCARE", "Chiamo il resume, la lettura e': " + start_lettura);
-
-		if (!(start_lettura) || thread_w == null) {
-
-			start_lettura = true;
-			FT311UARTInterface.READ_ENABLE = true;
-
-			thread_w = new Thread(new ThreadWriteW());
-			thread_w.setName("Thread_W");
-			thread_w.start();
 		}
 
 	}
