@@ -212,15 +212,36 @@
                 android:layout_weight="5"
                 android:gravity="center_horizontal|center_vertical" >
 
-                <Button
-                    android:id="@+id/reset"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/custom_button_energy"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text="@string/reset"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp" />
+                    android:layout_weight="50"
+                    android:gravity="center" >
+
+                    <Button
+                        android:id="@+id/exit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/exit_normal" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="50"
+                    android:gravity="center" >
+
+                    <Button
+                        android:id="@+id/reset"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        android:background="@drawable/custom_button_energy"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:text="@string/reset"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp" />
+                </LinearLayout>
             </TableRow>
 
             <TableRow

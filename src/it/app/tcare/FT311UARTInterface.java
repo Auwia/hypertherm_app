@@ -45,7 +45,7 @@ public class FT311UARTInterface extends Activity {
 	private byte[] usbdata, writeusbdata;
 	private byte status;
 
-	private int readcount;
+	private int readcount, exit;
 
 	public boolean datareceived = false, accessory_attached = false;
 	public static boolean READ_ENABLE = false;
@@ -154,17 +154,13 @@ public class FT311UARTInterface extends Activity {
 				outputstream.write(writeusbdata, 0, numBytes);
 			} else {
 				READ_ENABLE = false;
-				Main_Activity.start_lettura = false;
 				Log.i("TCARE", "SendPacket: stream di scrittura chiuso");
-				ResumeAccessory(false);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+
 			Log.d("TCARE", "SendPacket: HO PERSO LA SCHEDA");
 			READ_ENABLE = false;
-			Main_Activity.start_lettura = false;
-			// DestroyAccessory(true);
-			// CloseAccessory();
+
 		}
 	}
 
@@ -214,8 +210,6 @@ public class FT311UARTInterface extends Activity {
 
 			if (usbmanager.hasPermission(accessory)) {
 				OpenAccessory(accessory);
-				if (!bConfiged)
-					SetConfig();
 			} else {
 				synchronized (mUsbReceiver) {
 					if (!mPermissionRequestPending) {
@@ -238,7 +232,6 @@ public class FT311UARTInterface extends Activity {
 
 		if (true == bConfiged) {
 			READ_ENABLE = false;
-			Main_Activity.start_lettura = false;
 			writeusbdata[0] = 0; // send dummy data for instream.read going
 			SendPacket(1);
 		} else {
@@ -251,7 +244,6 @@ public class FT311UARTInterface extends Activity {
 			}
 
 			READ_ENABLE = false;
-			Main_Activity.start_lettura = false;
 			writeusbdata[0] = 0; // send dummy data for instream.read going
 			SendPacket(1);
 			if (true == accessory_attached) {
@@ -286,8 +278,21 @@ public class FT311UARTInterface extends Activity {
 				return;
 			}
 
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e1) {
+			}
+
 			if (READ_ENABLE == false) {
 				READ_ENABLE = true;
+
+				SetConfig();
+
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
+
 				readThread = new read_thread(inputstream);
 				if (!readThread.isAlive()
 						&& readThread.getState() != State.RUNNABLE) {
@@ -300,7 +305,18 @@ public class FT311UARTInterface extends Activity {
 						&& writeThread.getState() != State.RUNNABLE) {
 					writeThread.setName("Thread_Scrittura");
 					writeThread.start();
+
 				}
+
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
+
+				writeData("@");
+				writeData("^");
+				writeData("a");
+				writeData("?");
 			}
 
 			Log.d("TCARE", "OpenAccessory: stream di lettura avviato");
@@ -377,6 +393,7 @@ public class FT311UARTInterface extends Activity {
 					mPermissionRequestPending = false;
 				}
 			} else if (UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
+				READ_ENABLE = false;
 				saveDetachPreference();
 				DestroyAccessory(true);
 			} else {
@@ -396,11 +413,12 @@ public class FT311UARTInterface extends Activity {
 		}
 
 		public void run() {
-			Log.d("TCARE", "Il thread di lettura è? " + readThread.isAlive()
-					+ " - " + readThread.getState());
+
 			Log.d("TCARE", "ENTRO NEL LEGGO");
+
 			while (READ_ENABLE) {
-				Log.d("TCARE", "SONO NEL LEGGO");
+
+//				Log.d("TCARE", "SONO NEL LEGGO");
 
 				try {
 					if (instream != null) {
@@ -418,6 +436,9 @@ public class FT311UARTInterface extends Activity {
 									Log.d("TCARE",
 											"COMANDO_RICEVUTO="
 													+ readSB.toString());
+
+									exit -= 1;
+
 									utility.esegui(readSB.toString().trim());
 									readSB.delete(0, readSB.length());
 
@@ -427,47 +448,52 @@ public class FT311UARTInterface extends Activity {
 							}
 						} else {
 							Log.d("TCARE", "BUFFER NULLO");
+							READ_ENABLE = false;
 						}
 					} else {
 						Log.d("TCARE", "read_thread: Inputstream NULL");
+						READ_ENABLE = false;
 					}
 				} catch (IOException e) {
+
 					Log.d("read_thread: CARE", "HO PERSO LA SCHEDA");
 					READ_ENABLE = false;
-					Main_Activity.start_lettura = false;
 
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e1) {
-					}
+				}
 
-					e.printStackTrace();
-					// DestroyAccessory(true);
-					// CloseAccessory();
+				if (exit > 5) {
+					READ_ENABLE = false;
 				}
 
 			}
 
 			Log.d("TCARE", "ESCO DAL LEGGO");
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+
+			android.os.Process.killProcess(android.os.Process.myPid());
 		}
 	}
 
 	private class write_thread extends Thread {
 
 		write_thread() {
-			// this.setPriority(Thread.MAX_PRIORITY);
 		}
 
 		public void run() {
-			Log.d("TCARE", "Il thread di scrittura è? " + writeThread.isAlive()
-					+ " - " + writeThread.getState());
+
 			Log.d("TCARE", "ENTRO NELLO SCRIVO");
 
 			while (READ_ENABLE) {
-				
-				Log.d("TCARE", "SONO NELLO SCRIVO");
+
+//				Log.d("TCARE", "SONO NELLO SCRIVO");
 
 				writeData("W");
+
+				exit += 1;
 
 				Message aggiorna_tempo_lavoro_db = Main_Activity.aggiorna_tempo_lavoro_db
 						.obtainMessage();
@@ -480,16 +506,15 @@ public class FT311UARTInterface extends Activity {
 				}
 			}
 
+			READ_ENABLE = false;
+			Log.d("TCARE", "ESCO DALLO SCRIVO");
+
 			try {
-				Runtime.getRuntime().exec(
-						new String[] { "su", "-c", "input keyevent 26" });
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
 			}
 
-			READ_ENABLE = false;
-			Log.d("TCARE", "ESCO DAL LEGGO");
+			android.os.Process.killProcess(android.os.Process.myPid());
 		}
 	}
 
@@ -515,13 +540,22 @@ public class FT311UARTInterface extends Activity {
 				outputstream.write(max);
 				outputstream.flush();
 
-				Log.d("TCARE", "SendPacket: scrittura eseguita= " + max);
+				Log.d("TCARE", "MandaDati: scrittura eseguita= " + max);
 			} else {
-				Log.i("TCARE", "SendPacket: stream di scrittura chiuso");
+				Log.i("TCARE", "MandaDati: stream di scrittura chiuso");
+				READ_ENABLE = false;
 			}
 		} catch (IOException e) {
+
 			READ_ENABLE = false;
-			Main_Activity.start_lettura = false;
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e1) {
+			}
+
+			android.os.Process.killProcess(android.os.Process.myPid());
+
 		}
 	}
 

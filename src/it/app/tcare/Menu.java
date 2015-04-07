@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,20 +33,37 @@ public class Menu extends Activity {
 
 	private SharedPreferences preferences;
 
-	private static final int REQUEST_CODE_TEST = 0;
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+
+		Log.d("TCARE", "SONO IN MENU onActivityResult");
+
+		if (preferences.getBoolean("exit", false)) {
+			Log.d("TCARE", "MENU - APPLICO USCITA");
+			finish();
+		} else {
+			Log.d("TCARE", "MENU - NON APPLICO USCITA");
+		}
+	}
 
 	@Override
 	public void finish() {
 
+		Intent i = new Intent();
+
 		if (comando_da_inviare != null) {
 			Bundle b = new Bundle();
 			b.putStringArray("comandi_da_eseguire", comando_da_inviare);
-			Intent i = new Intent();
 			i.putExtras(b);
 			setResult(RESULT_OK, i);
 		}
 
 		preferences.edit().putBoolean("isMenu", false).commit();
+
+		if (preferences.getBoolean("exit", false)) {
+			setResult(RESULT_OK);
+		}
 
 		super.finish();
 	}
@@ -139,7 +157,7 @@ public class Menu extends Activity {
 			public void onClick(View v) {
 				preferences.edit().putBoolean("isService", true).commit();
 				Intent intent = new Intent(Menu.this, Service.class);
-				startActivityForResult(intent, REQUEST_CODE_TEST);
+				startActivityForResult(intent, 0);
 			}
 		});
 

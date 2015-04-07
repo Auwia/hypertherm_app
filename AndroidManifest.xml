@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="it.app.tcare"
-    android:sharedUserId="triggers.dummy.loader"
-    android:versionCode="1370"
-    android:versionName="1.37.0" >
+    android:versionCode="1380"
+    android:versionName="1.38.0" >
 
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="22" />
 
     <uses-feature android:name="android.hardware.usb.accessory" />
-
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"

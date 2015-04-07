@@ -3,7 +3,6 @@ package it.app.tcare;
 import java.util.Locale;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -13,7 +12,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -46,13 +44,12 @@ public class Main_Activity extends Activity {
 	private static final int REQUEST_CODE_TEST = 0;
 
 	public static boolean start_in_progress = false;
-	public static boolean start_lettura = true;
+
 	private boolean bConfiged = false;
 
 	public String act_string;
 
-	private PowerManager pm;
-	private static PowerManager.WakeLock wl;
+	public static int exit = 0;
 
 	// VARIABILI DATA BASE
 	private static final String DATABASE_NAME = "TCaReDB.db";
@@ -115,8 +112,11 @@ public class Main_Activity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
-		Log.d("TCARE", "Chiamo onActivityResult, la lettura e': "
-				+ start_lettura);
+		Log.d("TCARE", "SONO IN onActivityResult");
+
+		if (preferences.getBoolean("exit", false)) {
+			killAPP();
+		}
 
 		if (preferences.getBoolean("isSmart", false)) {
 			cap.setVisibility(View.INVISIBLE);
@@ -127,11 +127,6 @@ public class Main_Activity extends Activity {
 			cap.setVisibility(View.VISIBLE);
 			res.setVisibility(View.VISIBLE);
 		}
-
-		if (preferences.getBoolean("exit", false))
-			finish();
-
-		// utility.ResumeAccessory(bConfiged);
 
 		if (requestCode == REQUEST_CODE_TEST) {
 			if (resultCode == Activity.RESULT_OK) {
@@ -159,7 +154,6 @@ public class Main_Activity extends Activity {
 		super.onPause();
 
 		datasource.close();
-		Log.d("TCARE", "Chiamo onPause, la lettura e': " + start_lettura);
 
 	}
 
@@ -167,22 +161,13 @@ public class Main_Activity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 
-		start_lettura = false;
-		FT311UARTInterface.READ_ENABLE = false;
+		if (preferences.getBoolean("exit", false)) {
+			utility.DestroyAccessory(true);
 
-		Log.d("TCARE", "Chiamo onDestroy, la lettura e': " + start_lettura);
+			FT311UARTInterface.READ_ENABLE = false;
 
-		utility.DestroyAccessory(true);
-
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+			finish();
 		}
-
-		wl.release();
-
-		System.exit(0);
 	}
 
 	@Override
@@ -190,15 +175,13 @@ public class Main_Activity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity_layout);
 
-		pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "TCARE");
-
-		wl.acquire();
+		Log.d("TCARE", "SONO IN ONCREATE");
 
 		preferences = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
 
 		preferences.edit().putBoolean("isMenu", false).commit();
+		preferences.edit().putBoolean("exit", false).commit();
 
 		database = openOrCreateDatabase(DATABASE_NAME,
 				SQLiteDatabase.CREATE_IF_NECESSARY, null);
@@ -674,17 +657,7 @@ public class Main_Activity extends Activity {
 			res.setVisibility(View.VISIBLE);
 		}
 
-		try {
-			Thread.sleep(250);
-		} catch (InterruptedException e) {
-		}
-
 		utility.config(this);
-
-		try {
-			Thread.sleep(250);
-		} catch (InterruptedException e) {
-		}
 
 		act_string = getIntent().getAction();
 		if (-1 != act_string.indexOf("android.intent.action.MAIN")) {
@@ -697,26 +670,14 @@ public class Main_Activity extends Activity {
 		if (false == bConfiged) {
 			bConfiged = true;
 			utility.SetConfig();
-			try {
-				Thread.sleep(250);
-			} catch (InterruptedException e) {
-			}
 
 			savePreference();
 		}
 
-		utility.ResumeAccessory(bConfiged);
-		// utility.SetConfig();
-		try {
-			Thread.sleep(250);
-		} catch (InterruptedException e) {
+		if (2 == utility.ResumeAccessory(bConfiged)) {
+			cleanPreference();
+			restorePreference();
 		}
-
-		utility.writeData("@");
-		utility.writeData("^");
-		utility.writeData("a");
-		utility.writeData("?");
-
 	}
 
 	protected void cleanPreference() {
@@ -731,8 +692,6 @@ public class Main_Activity extends Activity {
 		} else {
 			preferences.edit().putString("configed", "FALSE").commit();
 		}
-
-		preferences.edit().putBoolean("exit", false).commit();
 
 	}
 
@@ -753,35 +712,20 @@ public class Main_Activity extends Activity {
 	public void onBackPressed() {
 		super.onBackPressed();
 
-		start_lettura = false;
-		Main_Activity.start_lettura = false;
+		killAPP();
 
-		Log.d("TCARE", "Chiamo onBackPressed, la lettura e': " + start_lettura);
-
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		utility.DestroyAccessory(true);
-
-		System.exit(0);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 
+		Log.d("TCARE", "SONO IN ONRESUME");
+
 		datasource.open();
 
-		if (2 == utility.ResumeAccessory(bConfiged)) {
-			cleanPreference();
-			restorePreference();
-		}
-
 		try {
-			Thread.sleep(1500);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 		}
 
@@ -791,6 +735,25 @@ public class Main_Activity extends Activity {
 	protected void onStop() {
 
 		super.onStop();
+		Log.d("TCARE", "SONO IN ONSTOP");
+	}
+
+	private void killAPP() {
+		FT311UARTInterface.READ_ENABLE = false;
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+
+		utility.DestroyAccessory(true);
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+
+		android.os.Process.killProcess(android.os.Process.myPid());
 	}
 
 }

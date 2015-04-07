@@ -29,7 +29,7 @@ public class Service extends Activity {
 
 	private Button esc, ok, zero, uno, due, tre, quattro, cinque, sei, sette,
 			otto, nove, password, del, serial_number_value, reset, english,
-			russian, chinese;
+			russian, chinese, exit;
 	private TextView revision, versione_firmware_value, work_time_value;
 	private RadioButton radio_button_smart, radio_button_physio;
 	private LinearLayout english_rectangular, russian_rectangular,
@@ -50,6 +50,7 @@ public class Service extends Activity {
 		work_time_value = (TextView) findViewById(R.id.work_time_value);
 		versione_firmware_value = (TextView) findViewById(R.id.versione_firmware_value);
 
+		exit = (Button) findViewById(R.id.exit);
 		esc = (Button) findViewById(R.id.esc);
 		serial_number_value = (Button) findViewById(R.id.serial_number_value);
 		del = (Button) findViewById(R.id.del);
@@ -479,6 +480,16 @@ public class Service extends Activity {
 				english_rectangular.setTag(0);
 				russian_rectangular.setTag(0);
 				chinese_rectangular.setTag(R.drawable.cell_shape);
+
+			}
+		});
+
+		exit.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+
+				preferences.edit().putBoolean("exit", true).commit();
+
+				finish();
 
 			}
 		});
