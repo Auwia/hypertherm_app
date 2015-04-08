@@ -41,7 +41,7 @@ public class TCaReDB extends SQLiteOpenHelper {
 	private static final String CREATE_TABLE_TABLE_SETTINGS = "create table "
 			+ TABLE_SETTINGS + "(" + COLUMN_SMART + " bit, " + COLUMN_PHYSIO
 			+ " bit, " + COLUMN_SERIAL_NUMBER + " VARCHAR(20), "
-			+ COLUMN_LANGUAGE + " varchar(2), " + COLUMN_TIMEOUT + "integer);";
+			+ COLUMN_LANGUAGE + " varchar(2), " + COLUMN_TIMEOUT + " integer);";
 
 	public TCaReDB(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);

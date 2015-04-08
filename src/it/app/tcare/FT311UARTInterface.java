@@ -60,7 +60,7 @@ public class FT311UARTInterface extends Activity {
 	private Utility utility;
 	private StringBuffer readSB = new StringBuffer();
 
-	public SharedPreferences intsharePrefSettings;
+	public SharedPreferences preferences;
 
 	/* constructor */
 	public FT311UARTInterface(Activity context,
@@ -68,7 +68,7 @@ public class FT311UARTInterface extends Activity {
 		super();
 		global_context = context;
 
-		intsharePrefSettings = sharePrefSettings;
+		preferences = sharePrefSettings;
 
 		utility = new Utility(global_context);
 
@@ -358,14 +358,14 @@ public class FT311UARTInterface extends Activity {
 	}
 
 	protected void saveDetachPreference() {
-		if (intsharePrefSettings != null) {
-			intsharePrefSettings.edit().putString("configed", "FALSE").commit();
+		if (preferences != null) {
+			preferences.edit().putString("configed", "FALSE").commit();
 		}
 	}
 
 	protected void saveDefaultPreference() {
-		if (intsharePrefSettings != null) {
-			intsharePrefSettings.edit().putString("configed", "TRUE").commit();
+		if (preferences != null) {
+			preferences.edit().putString("configed", "TRUE").commit();
 		}
 	}
 
@@ -418,7 +418,7 @@ public class FT311UARTInterface extends Activity {
 
 			while (READ_ENABLE) {
 
-//				Log.d("TCARE", "SONO NEL LEGGO");
+				// Log.d("TCARE", "SONO NEL LEGGO");
 
 				try {
 					if (instream != null) {
@@ -437,7 +437,8 @@ public class FT311UARTInterface extends Activity {
 											"COMANDO_RICEVUTO="
 													+ readSB.toString());
 
-									exit -= 1;
+									// Log.d("TCARE", "EXIT=" + exit);
+									exit = 0;
 
 									utility.esegui(readSB.toString().trim());
 									readSB.delete(0, readSB.length());
@@ -456,12 +457,14 @@ public class FT311UARTInterface extends Activity {
 					}
 				} catch (IOException e) {
 
-					Log.d("read_thread: CARE", "HO PERSO LA SCHEDA");
+					Log.d("CARE", "read_thread: HO PERSO LA SCHEDA");
 					READ_ENABLE = false;
 
 				}
 
-				if (exit > 5) {
+				Log.d("TCARE", "EXIT=" + exit);
+				if (exit > preferences.getInt("timeout", 5)) {
+					Log.d("TCARE", "AZZERO LA SCHEDA");
 					READ_ENABLE = false;
 				}
 
@@ -489,7 +492,7 @@ public class FT311UARTInterface extends Activity {
 
 			while (READ_ENABLE) {
 
-//				Log.d("TCARE", "SONO NELLO SCRIVO");
+				// Log.d("TCARE", "SONO NELLO SCRIVO");
 
 				writeData("W");
 
@@ -503,6 +506,10 @@ public class FT311UARTInterface extends Activity {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
+				}
+
+				if (exit > preferences.getInt("timeout", 5)) {
+					READ_ENABLE = false;
 				}
 			}
 

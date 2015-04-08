@@ -1,4 +1,4 @@
-package it.app.tcare;
+	package it.app.tcare;
 
 import java.util.Locale;
 
@@ -189,17 +189,20 @@ public class Main_Activity extends Activity {
 		datasource.open();
 
 		cur = database.query("SETTINGS", new String[] { "SMART", "PHYSIO",
-				"SERIAL_NUMBER", "LANGUAGE" }, null, null, null, null, null);
+				"SERIAL_NUMBER", "LANGUAGE", "TIMEOUT" }, null, null, null,
+				null, null);
 
 		cur.moveToFirst();
 		Boolean smart = null, physio = null;
 		String serial_number = null, language = null;
+		int timeout = 5;
 
 		while (cur.getCount() > 0 && !cur.isAfterLast()) {
 			smart = cur.getInt(0) > 0;
 			physio = cur.getInt(1) > 0;
 			serial_number = cur.getString(2);
 			language = cur.getString(3);
+			timeout = cur.getInt(4);
 			cur.moveToNext();
 		}
 		cur.close();
@@ -208,6 +211,7 @@ public class Main_Activity extends Activity {
 		preferences.edit().putBoolean("isPhysio", physio).commit();
 		preferences.edit().putString("serial_number", serial_number).commit();
 		preferences.edit().putString("language", language).commit();
+		preferences.edit().putInt("timeout", timeout).commit();
 
 		Resources resource = getResources();
 		DisplayMetrics dm = resource.getDisplayMetrics();
