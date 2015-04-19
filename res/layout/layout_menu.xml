@@ -143,7 +143,7 @@
                 android:id="@+id/simbolo_frequenza"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
-                android:layout_weight="20"
+                android:layout_weight="10"
                 android:gravity="center|right"
                 android:visibility="invisible" >
 
@@ -160,7 +160,7 @@
                 android:id="@+id/barra_orizzontale"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
-                android:layout_weight="40"
+                android:layout_weight="50"
                 android:gravity="center_vertical|center_horizontal"
                 android:visibility="invisible" >
 
@@ -170,7 +170,7 @@
                     android:layout_height="wrap_content"
                     android:layout_above="@+id/seek_bar_frequency"
                     android:layout_alignLeft="@+id/seek_bar_frequency"
-                    android:gravity="left"
+                    android:gravity="center"
                     android:text="@string/uno"
                     android:textColor="@android:color/white" />
 
@@ -210,7 +210,7 @@
                     android:layout_height="wrap_content"
                     android:layout_above="@+id/seek_bar_frequency"
                     android:layout_toRightOf="@+id/quattro"
-                    android:gravity="right"
+                    android:gravity="center"
                     android:text="@string/cinque"
                     android:textColor="@android:color/white" />
 
@@ -401,7 +401,7 @@
                     android:background="@drawable/custom_button_set_value"
                     android:gravity="center_horizontal|center_vertical"
                     android:text="@string/service"
-                    android:textColor="@android:color/black" />
+                    android:textColor="@android:color/white" />
             </LinearLayout>
         </TableRow>
     </LinearLayout>

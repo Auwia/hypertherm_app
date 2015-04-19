@@ -3,7 +3,8 @@
 
     <string name="app_name">TCaRe</string>
     <string name="title">Thermal Therapy</string>
-    <string name="title2">Physio</string>
+    <string name="title2_physio">Physio</string>
+    <string name="title2_smart">Smart</string>
     <string name="button_play">Боттоне circolare игра Центральный</string>
     <string name="action_settings">настройки</string>
     <string name="start">начало</string>

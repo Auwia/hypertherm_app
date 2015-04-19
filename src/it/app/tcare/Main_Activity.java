@@ -1,4 +1,4 @@
-	package it.app.tcare;
+package it.app.tcare;
 
 import java.util.Locale;
 
@@ -112,20 +112,25 @@ public class Main_Activity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
-		Log.d("TCARE", "SONO IN onActivityResult");
+		Log.d("TCARE", "EXIT? " + preferences.getBoolean("exit", false));
 
 		if (preferences.getBoolean("exit", false)) {
 			killAPP();
+			return;
 		}
+
+		Log.d("TCARE", "SONO IN onActivityResult");
 
 		if (preferences.getBoolean("isSmart", false)) {
 			cap.setVisibility(View.INVISIBLE);
 			res.setVisibility(View.INVISIBLE);
+			title2.setText(getResources().getString(R.string.title2_smart));
 		}
 
 		if (preferences.getBoolean("isPhysio", false)) {
 			cap.setVisibility(View.VISIBLE);
 			res.setVisibility(View.VISIBLE);
+			title2.setText(getResources().getString(R.string.title2_physio));
 		}
 
 		if (requestCode == REQUEST_CODE_TEST) {
@@ -181,7 +186,6 @@ public class Main_Activity extends Activity {
 				.getDefaultSharedPreferences(getApplicationContext());
 
 		preferences.edit().putBoolean("isMenu", false).commit();
-		preferences.edit().putBoolean("exit", false).commit();
 
 		database = openOrCreateDatabase(DATABASE_NAME,
 				SQLiteDatabase.CREATE_IF_NECESSARY, null);
@@ -654,11 +658,13 @@ public class Main_Activity extends Activity {
 		if (preferences.getBoolean("isSmart", false)) {
 			cap.setVisibility(View.INVISIBLE);
 			res.setVisibility(View.INVISIBLE);
+			title2.setText(getResources().getString(R.string.title2_smart));
 		}
 
 		if (preferences.getBoolean("isPhysio", false)) {
 			cap.setVisibility(View.VISIBLE);
 			res.setVisibility(View.VISIBLE);
+			title2.setText(getResources().getString(R.string.title2_physio));
 		}
 
 		utility.config(this);
@@ -756,6 +762,10 @@ public class Main_Activity extends Activity {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 		}
+
+		Log.d("TCARE", "ESCI");
+
+		preferences.edit().putBoolean("exit", false).commit();
 
 		android.os.Process.killProcess(android.os.Process.myPid());
 	}
