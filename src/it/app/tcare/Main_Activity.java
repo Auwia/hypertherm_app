@@ -115,6 +115,7 @@ public class Main_Activity extends Activity {
 		Log.d("TCARE", "EXIT? " + preferences.getBoolean("exit", false));
 
 		if (preferences.getBoolean("exit", false)) {
+			preferences.edit().putBoolean("exit", false).commit();
 			killAPP();
 			return;
 		}
@@ -626,6 +627,7 @@ public class Main_Activity extends Activity {
 	}
 
 	private void killAPP() {
+
 		FT311UARTInterface.READ_ENABLE = false;
 
 		try {

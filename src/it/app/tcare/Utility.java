@@ -18,7 +18,7 @@ public class Utility {
 	private Activity activity;
 	private SeekBar seek_bar_percentage;
 	private TextView time, label_start, label_pause, label_stop,
-			label_continuos, label_energy;
+			label_continuos, label_energy, jaule_label;
 	private Button play, stop, pause, cap, res, body, face, energy, menu,
 			continuos, frequency, joule;
 	private TableRow pannello_energia;
@@ -81,6 +81,7 @@ public class Utility {
 		seek_bar_percentage = (SeekBar) activity
 				.findViewById(R.id.seek_bar_percentage);
 
+		jaule_label = (TextView) activity.findViewById(R.id.jaule_label);
 		label_energy = (TextView) activity.findViewById(R.id.label_energy);
 		label_start = (TextView) activity.findViewById(R.id.label_start);
 		label_stop = (TextView) activity.findViewById(R.id.label_stop);
@@ -145,6 +146,14 @@ public class Utility {
 											.parseInt(
 													comandi[0].substring(0, 2),
 													16) * 1000));
+
+									jaule_label.setText(String.valueOf(Integer
+											.parseInt(
+													comandi[0].substring(0, 2),
+													16) * 1000));
+
+									jaule_label.setText(R.string.setValue);
+
 									editor.putInt(
 											"energy",
 											Integer.parseInt(
