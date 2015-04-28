@@ -263,13 +263,15 @@ public class Menu extends Activity {
 		width = display.getWidth();
 		android.view.ViewGroup.LayoutParams param = seek_bar_frequency
 				.getLayoutParams();
-		param.width = width * 35 / 100;
+		param.width = (width * 34 / 100) - 3;
 
-		uno.setWidth(width * 35 / 100 / 5);
-		due.setWidth(width * 35 / 100 / 5);
-		tre.setWidth(width * 35 / 100 / 5);
-		quattro.setWidth(width * 35 / 100 / 5);
-		cinque.setWidth(width * 35 / 100 / 5);
+		int larghezza = (int) (width * 35 / 100 / 5);
+
+		uno.setWidth(larghezza);
+		due.setWidth(larghezza);
+		tre.setWidth(larghezza);
+		quattro.setWidth(larghezza);
+		cinque.setWidth(larghezza);
 
 		param = seek_bar_energy.getLayoutParams();
 		param.width = width * 60 / 100;
@@ -320,7 +322,7 @@ public class Menu extends Activity {
 
 		button_time.setPressed(true);
 		seek_bar_energy.setMax(100);
-		seek_bar_energy.setProgress(2);
+		seek_bar_energy.setProgress(40);
 		button_time.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {

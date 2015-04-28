@@ -241,7 +241,7 @@
                 android:id="@+id/prima_riga"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="10"
+                android:layout_weight="5"
                 android:gravity="top" >
 
                 <TextView
@@ -405,7 +405,7 @@
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="50"
+                android:layout_weight="55"
                 android:baselineAligned="false" >
 
                 <TableLayout
@@ -425,7 +425,7 @@
                         <Button
                             android:id="@+id/joule"
                             android:layout_width="130dp"
-                            android:layout_height="28dp"
+                            android:layout_height="25dp"
                             android:background="@drawable/custom_button_set_value"
                             android:gravity="center_horizontal|center_vertical"
                             android:textColor="@android:color/white" />
@@ -449,7 +449,7 @@
                         <Button
                             android:id="@+id/energy"
                             android:layout_width="130dp"
-                            android:layout_height="28dp"
+                            android:layout_height="25dp"
                             android:background="@drawable/custom_button_energy"
                             android:gravity="center_horizontal|center_vertical"
                             android:textColor="@android:color/white" />

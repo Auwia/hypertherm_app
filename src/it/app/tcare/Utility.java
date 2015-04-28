@@ -18,7 +18,7 @@ public class Utility {
 	private Activity activity;
 	private SeekBar seek_bar_percentage;
 	private TextView time, label_start, label_pause, label_stop,
-			label_continuos;
+			label_continuos, label_energy;
 	private Button play, stop, pause, cap, res, body, face, energy, menu,
 			continuos, frequency, joule;
 	private TableRow pannello_energia;
@@ -81,6 +81,7 @@ public class Utility {
 		seek_bar_percentage = (SeekBar) activity
 				.findViewById(R.id.seek_bar_percentage);
 
+		label_energy = (TextView) activity.findViewById(R.id.label_energy);
 		label_start = (TextView) activity.findViewById(R.id.label_start);
 		label_stop = (TextView) activity.findViewById(R.id.label_stop);
 		label_pause = (TextView) activity.findViewById(R.id.label_pause);
@@ -219,8 +220,6 @@ public class Utility {
 													false).commit();
 
 											stop.setPressed(true);
-											stop.setTextColor(Color
-													.parseColor("#015c5f"));
 											play.setPressed(false);
 											pause.setPressed(false);
 											label_stop.setTextColor(Color
@@ -242,12 +241,8 @@ public class Utility {
 													.commit();
 
 											play.setPressed(true);
-											play.setTextColor(Color
-													.parseColor("#015c5f"));
 											pause.setPressed(false);
 											stop.setPressed(false);
-											label_start.setTextColor(Color
-													.parseColor("#78d0d2"));
 											label_stop
 													.setTextColor(Color.WHITE);
 											label_pause
@@ -265,8 +260,6 @@ public class Utility {
 													false).commit();
 
 											pause.setPressed(true);
-											pause.setTextColor(Color
-													.parseColor("#015c5f"));
 											play.setPressed(false);
 											stop.setPressed(false);
 											label_pause.setTextColor(Color
@@ -479,8 +472,6 @@ public class Utility {
 											.commit();
 
 									play.setPressed(true);
-									play.setTextColor(Color
-											.parseColor("#015c5f"));
 									pause.setPressed(false);
 									stop.setPressed(false);
 									label_start.setTextColor(Color
@@ -520,8 +511,15 @@ public class Utility {
 						if (comandi != null && comandi.length == 2) {
 
 							if (comandi[1].equals("J")) {
+
 								energy.setText(String.valueOf(Integer.parseInt(
 										comandi[0], 16)));
+
+								label_energy.setText(String.valueOf(Integer
+										.parseInt(comandi[0], 16)));
+
+								label_energy.setText(R.string.energy);
+
 							}
 
 							if (comandi[1].equals("(")
@@ -683,8 +681,6 @@ public class Utility {
 												.commit();
 
 										stop.setPressed(true);
-										stop.setTextColor(Color
-												.parseColor("#015c5f"));
 										play.setPressed(false);
 										pause.setPressed(false);
 										label_stop.setTextColor(Color
@@ -708,8 +704,6 @@ public class Utility {
 												.commit();
 
 										play.setPressed(true);
-										play.setTextColor(Color
-												.parseColor("#015c5f"));
 										pause.setPressed(false);
 										stop.setPressed(false);
 										label_start.setTextColor(Color
@@ -735,8 +729,6 @@ public class Utility {
 												.commit();
 
 										pause.setPressed(true);
-										pause.setTextColor(Color
-												.parseColor("#015c5f"));
 										play.setPressed(false);
 										stop.setPressed(false);
 										label_pause.setTextColor(Color

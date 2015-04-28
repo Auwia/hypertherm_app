@@ -429,13 +429,13 @@ public class FT311UARTInterface extends Activity {
 							for (int count = 0; count < readcount; count++) {
 
 								if (usbdata[count] == (byte) '\r') {
-									// if (!readSB.toString().contains("W")) {
-									// Log.d("TCARE", "COMANDO_RICEVUTO="
+									if (!readSB.toString().contains("W")) {
+										Log.d("TCARE", "COMANDO_RICEVUTO="
+												+ readSB.toString());
+									}
+									// Log.d("TCARE",
+									// "COMANDO_RICEVUTO="
 									// + readSB.toString());
-									// }
-									Log.d("TCARE",
-											"COMANDO_RICEVUTO="
-													+ readSB.toString());
 
 									// Log.d("TCARE", "EXIT=" + exit);
 									exit = 0;
@@ -445,6 +445,9 @@ public class FT311UARTInterface extends Activity {
 
 								} else {
 									readSB.append((char) usbdata[count]);
+									// Log.d("TCARE",
+									// "COMANDO_WIP="
+									// + readSB.toString());
 								}
 							}
 						} else {
@@ -457,12 +460,12 @@ public class FT311UARTInterface extends Activity {
 					}
 				} catch (IOException e) {
 
-					Log.d("CARE", "read_thread: HO PERSO LA SCHEDA");
+					Log.d("TCARE", "read_thread: HO PERSO LA SCHEDA");
 					READ_ENABLE = false;
 
 				}
 
-				Log.d("TCARE", "EXIT=" + exit);
+				// Log.d("TCARE", "EXIT=" + exit);
 				if (exit > preferences.getInt("timeout", 5)) {
 					Log.d("TCARE", "AZZERO LA SCHEDA");
 					READ_ENABLE = false;
@@ -532,9 +535,9 @@ public class FT311UARTInterface extends Activity {
 
 		for (int i = 0; i < numBytes; i++) {
 			writeBuffer[i] = (byte) commandString.charAt(i);
-			// if (!String.valueOf(commandString.charAt(i)).equals("W"))
-			Log.d("TCARE", "writeData: scrivo: " + commandString.charAt(i)
-					+ " tradotto: " + (byte) commandString.charAt(i));
+			if (!String.valueOf(commandString.charAt(i)).equals("W"))
+				Log.d("TCARE", "writeData: scrivo: " + commandString.charAt(i)
+						+ " tradotto: " + (byte) commandString.charAt(i));
 		}
 
 		SendData(numBytes, writeBuffer);

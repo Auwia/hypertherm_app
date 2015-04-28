@@ -349,155 +349,65 @@ public class Main_Activity extends Activity {
 		cap.setPressed(true);
 
 		play = (Button) findViewById(R.id.button_play);
-		play.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// show interest in events resulting from ACTION_DOWN
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-
-					utility.writeData("S");
-
-					return true;
-				}
-
-				// don't handle event unless its ACTION_UP so "doSomething()"
-				// only runs once.
-				if (event.getAction() != MotionEvent.ACTION_UP) {
-					return false;
-				}
-
-				return true;
+		play.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				utility.writeData("S");
 			}
 		});
 
 		stop = (Button) findViewById(R.id.button_stop);
 		stop.setPressed(true);
-		label_stop.setTextColor(Color.parseColor("#78d0d2"));
-		stop.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// show interest in events resulting from ACTION_DOWN
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					utility.writeData("T");
-
-					return true;
-				}
-				// don't handle event unless its ACTION_UP so "doSomething()"
-				// only runs once.
-				if (event.getAction() != MotionEvent.ACTION_UP) {
-					return false;
-				}
-
-				return true;
+		stop.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				utility.writeData("T");
 			}
 		});
+		label_stop.setTextColor(Color.parseColor("#78d0d2"));
 
 		pause = (Button) findViewById(R.id.button_pause);
-		pause.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// show interest in events resulting from ACTION_DOWN
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-
-					utility.writeData("P");
-
-					return true;
-				}
-				// don't handle event unless its ACTION_UP so "doSomething()"
-				// only runs once.
-				if (event.getAction() != MotionEvent.ACTION_UP) {
-					return false;
-				}
-
-				return true;
+		pause.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				utility.writeData("P");
 			}
 		});
 
 		cap = (Button) findViewById(R.id.cap);
-		cap.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// show interest in events resulting from ACTION_DOWN
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+		cap.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				if (preferences.getBoolean("isPlaying", false))
+					utility.writeData("P");
 
-					if (preferences.getBoolean("isPlaying", false))
-						utility.writeData("P");
-
-					utility.writeData("C");
-					return true;
-				}
-				// don't handle event unless its ACTION_UP so "doSomething()"
-				// only runs once.
-				if (event.getAction() != MotionEvent.ACTION_UP)
-					return false;
-
-				return true;
+				utility.writeData("C");
 			}
 		});
 
 		res = (Button) findViewById(R.id.res);
-		res.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// show interest in events resulting from ACTION_DOWN
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+		res.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				if (preferences.getBoolean("isPlaying", false))
+					utility.writeData("P");
 
-					if (preferences.getBoolean("isPlaying", false))
-						utility.writeData("P");
-
-					utility.writeData("R");
-					return true;
-				}
-				// don't handle event unless its ACTION_UP so "doSomething()"
-				// only runs once.
-				if (event.getAction() != MotionEvent.ACTION_UP)
-					return false;
-
-				return true;
+				utility.writeData("R");
 			}
 		});
 
 		body = (Button) findViewById(R.id.body);
-		body.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// show interest in events resulting from ACTION_DOWN
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+		body.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				if (preferences.getBoolean("isPlaying", false))
+					utility.writeData("P");
 
-					if (preferences.getBoolean("isPlaying", false))
-						utility.writeData("P");
-
-					utility.writeData("B");
-					return true;
-				}
-				// don't handle event unless its ACTION_UP so "doSomething()"
-				// only runs once.
-				if (event.getAction() != MotionEvent.ACTION_UP)
-					return false;
-
-				return true;
+				utility.writeData("B");
 			}
 		});
 
 		face = (Button) findViewById(R.id.face);
-		face.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// show interest in events resulting from ACTION_DOWN
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+		face.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				if (preferences.getBoolean("isPlaying", false))
+					utility.writeData("P");
 
-					if (preferences.getBoolean("isPlaying", false))
-						utility.writeData("P");
-
-					utility.writeData("F");
-					return true;
-				}
-				// don't handle event unless its ACTION_UP so "doSomething()"
-				// only runs once.
-				if (event.getAction() != MotionEvent.ACTION_UP)
-					return false;
-
-				return true;
+				utility.writeData("F");
 			}
 		});
 
@@ -538,17 +448,6 @@ public class Main_Activity extends Activity {
 		title.setTextSize(width * moltiplicativo / 100);
 		title2.setTextSize(width * moltiplicativo / 100);
 
-		int blocco1_dim = (int) (width * 30 / 100 / 2.2);
-		face.setWidth(blocco1_dim);
-		body.setWidth(blocco1_dim);
-		res.setWidth(blocco1_dim);
-		cap.setWidth(blocco1_dim);
-		// per mantenere le proporzioni: altezza = 35% larghezza
-		face.setHeight(blocco1_dim * 35 / 100);
-		body.setHeight(blocco1_dim * 35 / 100);
-		res.setHeight(blocco1_dim * 35 / 100);
-		cap.setHeight(blocco1_dim * 35 / 100);
-
 		final int blocco2_dim = (int) (width * 50 / 100 / 5);
 		label_start.setWidth(blocco2_dim);
 		label_stop.setWidth(blocco2_dim);
@@ -558,76 +457,53 @@ public class Main_Activity extends Activity {
 		// label_pause.setTextSize(width * moltiplicativo / 100 / 2);
 
 		menu = (Button) findViewById(R.id.menu);
-		menu.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// show interest in events resulting from ACTION_DOWN
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+		menu.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
 
-					if (!preferences.getBoolean("isMenu", false)) {
+				utility.writeData("a");
 
-						utility.writeData("a");
-
-						try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-						}
-
-						preferences.edit().putBoolean("isMenu", true).commit();
-						Intent intent = new Intent(Main_Activity.this,
-								Menu.class);
-						startActivityForResult(intent, REQUEST_CODE_TEST);
-
-						cur = database.query("WORK_TIME",
-								new String[] { "WORK_FROM" }, null, null, null,
-								null, null);
-
-						cur.moveToFirst();
-
-						int work_from = 0;
-
-						while (cur.getCount() > 0 && !cur.isAfterLast()) {
-							work_from = cur.getInt(0);
-							cur.moveToNext();
-						}
-
-						cur.close();
-
-						cur = database.query("PASSWORD",
-								new String[] { "PWD" }, null, null, null, null,
-								null);
-
-						cur.moveToFirst();
-
-						String password = null;
-
-						while (cur.getCount() > 0 && !cur.isAfterLast()) {
-							password = cur.getString(0);
-							cur.moveToNext();
-						}
-
-						cur.close();
-
-						preferences.edit().putInt("work_time", work_from)
-								.commit();
-						preferences.edit().putString("password", password)
-								.commit();
-
-					}
-					return true;
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
 				}
 
-				if (event.getAction() != MotionEvent.ACTION_UP) {
+				preferences.edit().putBoolean("isMenu", true).commit();
+				Intent intent = new Intent(Main_Activity.this, Menu.class);
+				startActivityForResult(intent, REQUEST_CODE_TEST);
 
-					return false;
+				cur = database.query("WORK_TIME", new String[] { "WORK_FROM" },
+						null, null, null, null, null);
+
+				cur.moveToFirst();
+
+				int work_from = 0;
+
+				while (cur.getCount() > 0 && !cur.isAfterLast()) {
+					work_from = cur.getInt(0);
+					cur.moveToNext();
 				}
 
-				return true;
+				cur.close();
+
+				cur = database.query("PASSWORD", new String[] { "PWD" }, null,
+						null, null, null, null);
+
+				cur.moveToFirst();
+
+				String password = null;
+
+				while (cur.getCount() > 0 && !cur.isAfterLast()) {
+					password = cur.getString(0);
+					cur.moveToNext();
+				}
+
+				cur.close();
+
+				preferences.edit().putInt("work_time", work_from).commit();
+				preferences.edit().putString("password", password).commit();
+
 			}
 		});
-
-		menu.setWidth(blocco2_dim);
-		menu.setHeight(blocco2_dim);
 
 		percentage.setTextSize(height / 2 * 20 / 100 / density);
 		percentuale_simbolo.setTextSize(height / 2 * 20 / 100 / density);
@@ -638,7 +514,7 @@ public class Main_Activity extends Activity {
 				.getLayoutParams();
 		param.width = width * 70 / 100;
 
-		int padding = (int) (width * 70 / 100 / (11));
+		int padding = (int) (width * 70 / 100 / 11);
 
 		zero.setWidth(padding);
 		dieci.setWidth(padding);
@@ -688,6 +564,7 @@ public class Main_Activity extends Activity {
 			cleanPreference();
 			restorePreference();
 		}
+
 	}
 
 	protected void cleanPreference() {
@@ -763,9 +640,15 @@ public class Main_Activity extends Activity {
 		} catch (InterruptedException e) {
 		}
 
-		Log.d("TCARE", "ESCI");
-
 		preferences.edit().putBoolean("exit", false).commit();
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+
+		Log.d("TCARE", "EXIT = " + preferences.getBoolean("exit", false));
+		Log.d("TCARE", "ESCI");
 
 		android.os.Process.killProcess(android.os.Process.myPid());
 	}
