@@ -96,6 +96,7 @@ public class Service extends Activity {
 
 			@Override
 			public void onClick(View view) {
+				preferences.edit().putBoolean("exit", false).commit();
 				finish();
 			}
 		});
@@ -215,6 +216,8 @@ public class Service extends Activity {
 						Toast.makeText(getApplicationContext(),
 								getResources().getString(R.string.ok_password),
 								Toast.LENGTH_LONG).show();
+
+						preferences.edit().putBoolean("exit", false).commit();
 
 						finish();
 					} else {

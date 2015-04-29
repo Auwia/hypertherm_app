@@ -163,6 +163,7 @@ public class Menu extends Activity {
 
 		back.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+				preferences.edit().putBoolean("exit", false).commit();
 				finish();
 			}
 		});
@@ -201,6 +202,8 @@ public class Menu extends Activity {
 				for (int i = 0; i < list.size(); i++) {
 					comando_da_inviare[i] = list.get(i);
 				}
+
+				preferences.edit().putBoolean("exit", false).commit();
 
 				finish();
 			}

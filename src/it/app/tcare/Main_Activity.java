@@ -112,6 +112,8 @@ public class Main_Activity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
+		Log.d("TCARE", "SONO IN onActivityResult");
+
 		Log.d("TCARE", "EXIT? " + preferences.getBoolean("exit", false));
 
 		if (preferences.getBoolean("exit", false)) {
@@ -119,8 +121,6 @@ public class Main_Activity extends Activity {
 			killAPP();
 			return;
 		}
-
-		Log.d("TCARE", "SONO IN onActivityResult");
 
 		if (preferences.getBoolean("isSmart", false)) {
 			cap.setVisibility(View.INVISIBLE);
@@ -186,6 +186,10 @@ public class Main_Activity extends Activity {
 		preferences = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
 
+		Log.d("TCARE",
+				"EXIT (SONO IN ONCREATE)? "
+						+ preferences.getBoolean("exit", false));
+
 		preferences.edit().putBoolean("isMenu", false).commit();
 
 		database = openOrCreateDatabase(DATABASE_NAME,
@@ -223,7 +227,6 @@ public class Main_Activity extends Activity {
 		android.content.res.Configuration conf = resource.getConfiguration();
 		conf.locale = new Locale(preferences.getString("language", "en"));
 		resource.updateConfiguration(conf, dm);
-		setContentView(R.layout.main_activity_layout);
 
 		activity = this;
 
