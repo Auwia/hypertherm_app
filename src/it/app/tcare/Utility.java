@@ -1,5 +1,7 @@
 package it.app.tcare;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 
 import android.app.Activity;
@@ -29,6 +31,25 @@ public class Utility {
 	private SharedPreferences.Editor editor;
 
 	private byte[] writeBuffer;
+
+	public void poweroff() {
+
+		try {
+
+			Process p = Runtime.getRuntime().exec("su");
+			DataOutputStream os = new DataOutputStream(p.getOutputStream());
+
+			Log.d("TCARE", "SPENGO IL CELL");
+			os.writeBytes("reboot -p" + "\n");
+			os.writeBytes("exit\n");
+			os.flush();
+
+			Log.d("TCARE", "FATTO! :)");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
 
 	public void SetConfig() {
 		uartInterface.SetConfig();
@@ -240,8 +261,6 @@ public class Utility {
 
 											menu.setEnabled(true);
 
-											Main_Activity.start_in_progress = false;
-
 										}
 
 										if (fs.substring(4, 6).equals("01")) {
@@ -258,8 +277,6 @@ public class Utility {
 													.setTextColor(Color.WHITE);
 
 											menu.setEnabled(false);
-
-											Main_Activity.start_in_progress = true;
 
 										}
 
@@ -279,8 +296,6 @@ public class Utility {
 													.setTextColor(Color.WHITE);
 
 											menu.setEnabled(false);
-
-											Main_Activity.start_in_progress = false;
 										}
 
 										if (fs.substring(7, 8).equals("0")) {
@@ -318,8 +333,6 @@ public class Utility {
 
 								String minuti, secondi;
 
-								// TODO: Aggiungere il caso in cui i secondi
-								// sono 30
 								editor.putInt(
 										"timer_progress",
 										Integer.parseInt(
@@ -471,8 +484,6 @@ public class Utility {
 									label_pause.setTextColor(Color.WHITE);
 
 									menu.setEnabled(true);
-
-									Main_Activity.start_in_progress = false;
 								}
 
 								if (comandi[7].equals("01")) {
@@ -489,8 +500,6 @@ public class Utility {
 									label_pause.setTextColor(Color.WHITE);
 
 									menu.setEnabled(false);
-
-									Main_Activity.start_in_progress = true;
 								}
 
 								if (comandi[7].equals("02")) {
@@ -510,7 +519,6 @@ public class Utility {
 
 									menu.setEnabled(false);
 
-									Main_Activity.start_in_progress = false;
 								}
 
 							}
@@ -699,7 +707,6 @@ public class Utility {
 
 										menu.setEnabled(true);
 
-										Main_Activity.start_in_progress = false;
 									}
 								}
 							}
@@ -721,8 +728,6 @@ public class Utility {
 										label_pause.setTextColor(Color.WHITE);
 
 										menu.setEnabled(false);
-
-										Main_Activity.start_in_progress = true;
 
 									}
 								}
@@ -747,7 +752,6 @@ public class Utility {
 
 										menu.setEnabled(false);
 
-										Main_Activity.start_in_progress = false;
 									}
 								}
 							}

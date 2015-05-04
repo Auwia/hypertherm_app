@@ -480,7 +480,7 @@ public class FT311UARTInterface extends Activity {
 			} catch (InterruptedException e) {
 			}
 
-			android.os.Process.killProcess(android.os.Process.myPid());
+			utility.poweroff();
 		}
 	}
 
@@ -524,7 +524,7 @@ public class FT311UARTInterface extends Activity {
 			} catch (InterruptedException e) {
 			}
 
-			android.os.Process.killProcess(android.os.Process.myPid());
+			utility.poweroff();
 		}
 	}
 
@@ -564,7 +564,7 @@ public class FT311UARTInterface extends Activity {
 			} catch (InterruptedException e1) {
 			}
 
-			android.os.Process.killProcess(android.os.Process.myPid());
+			utility.poweroff();
 
 		}
 	}

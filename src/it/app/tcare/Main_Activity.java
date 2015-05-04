@@ -15,17 +15,19 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 public class Main_Activity extends Activity {
+
+	public static Activity activity;
 
 	private TextView label_start, label_pause, label_stop, title, title2,
 			percentage, percentuale_simbolo, duty, time, zero, dieci, venti,
@@ -39,17 +41,11 @@ public class Main_Activity extends Activity {
 
 	private static SharedPreferences preferences;
 
-	public static Activity activity;
-
 	private static final int REQUEST_CODE_TEST = 0;
-
-	public static boolean start_in_progress = false;
 
 	private boolean bConfiged = false;
 
 	public String act_string;
-
-	public static int exit = 0;
 
 	// VARIABILI DATA BASE
 	private static final String DATABASE_NAME = "TCaReDB.db";
@@ -112,15 +108,7 @@ public class Main_Activity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
-		Log.d("TCARE", "SONO IN onActivityResult");
-
-		Log.d("TCARE", "EXIT? " + preferences.getBoolean("exit", false));
-
-		if (preferences.getBoolean("exit", false)) {
-			preferences.edit().putBoolean("exit", false).commit();
-			killAPP();
-			return;
-		}
+		Log.d("TCARE", "MAIN ACTIVITY: SONO IN onActivityResult");
 
 		if (preferences.getBoolean("isSmart", false)) {
 			cap.setVisibility(View.INVISIBLE);
@@ -182,6 +170,8 @@ public class Main_Activity extends Activity {
 		setContentView(R.layout.main_activity_layout);
 
 		Log.d("TCARE", "SONO IN ONCREATE");
+
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		preferences = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
@@ -427,15 +417,13 @@ public class Main_Activity extends Activity {
 		novanta = (TextView) findViewById(R.id.novanta);
 		cento = (TextView) findViewById(R.id.cento);
 
-		Display display = getWindowManager().getDefaultDisplay();
+		DisplayMetrics display = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(display);
 
 		int width, height;
 
-		width = display.getWidth();
-		height = display.getHeight();
-
-		DisplayMetrics outMetrics = new DisplayMetrics();
-		display.getMetrics(outMetrics);
+		width = display.widthPixels;
+		height = display.heightPixels;
 
 		float density = getResources().getDisplayMetrics().density;
 
@@ -603,8 +591,6 @@ public class Main_Activity extends Activity {
 	public void onBackPressed() {
 		super.onBackPressed();
 
-		killAPP();
-
 	}
 
 	@Override
@@ -627,35 +613,6 @@ public class Main_Activity extends Activity {
 
 		super.onStop();
 		Log.d("TCARE", "SONO IN ONSTOP");
-	}
-
-	private void killAPP() {
-
-		FT311UARTInterface.READ_ENABLE = false;
-
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-		}
-
-		utility.DestroyAccessory(true);
-
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-		}
-
-		preferences.edit().putBoolean("exit", false).commit();
-
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-		}
-
-		Log.d("TCARE", "EXIT = " + preferences.getBoolean("exit", false));
-		Log.d("TCARE", "ESCI");
-
-		android.os.Process.killProcess(android.os.Process.myPid());
 	}
 
 }
