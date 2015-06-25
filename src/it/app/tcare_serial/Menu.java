@@ -1,4 +1,6 @@
-package it.app.tcare;
+package it.app.tcare_serial;
+
+import it.app.tcare.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,12 +10,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnTouchListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -265,9 +267,13 @@ public class Menu extends Activity {
 					}
 				});
 
-		Display display = getWindowManager().getDefaultDisplay();
+		DisplayMetrics display = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(display);
+
 		int width;
-		width = display.getWidth();
+
+		width = display.widthPixels;
+
 		android.view.ViewGroup.LayoutParams param = seek_bar_frequency
 				.getLayoutParams();
 		param.width = (width * 34 / 100) - 3;

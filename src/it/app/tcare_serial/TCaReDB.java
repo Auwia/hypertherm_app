@@ -1,4 +1,4 @@
-package it.app.tcare;
+package it.app.tcare_serial;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;

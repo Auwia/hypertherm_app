@@ -1,4 +1,6 @@
-package it.app.tcare;
+package it.app.tcare_serial;
+
+import it.app.tcare.R;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -25,12 +27,8 @@ public class Utility {
 			continuos, frequency, joule;
 	private TableRow pannello_energia;
 
-	private FT311UARTInterface uartInterface;
-
 	private SharedPreferences preferences;
 	private SharedPreferences.Editor editor;
-
-	private byte[] writeBuffer;
 
 	public void poweroff() {
 
@@ -47,50 +45,6 @@ public class Utility {
 			Log.d("TCARE", "FATTO! :)");
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-
-	}
-
-	public void SetConfig() {
-		uartInterface.SetConfig();
-	}
-
-	public int ResumeAccessory(boolean bConfiged) {
-		return uartInterface.ResumeAccessory(bConfiged);
-	}
-
-	public void DestroyAccessory(boolean x) {
-		uartInterface.DestroyAccessory(x);
-	}
-
-	public void MandaDati(int x) {
-		uartInterface.MandaDati(x);
-	}
-
-	public void config(Activity x) {
-		try {
-			uartInterface = new FT311UARTInterface(x, preferences);
-		} catch (InterruptedException e) {
-			Log.e("TCARE", e.getMessage());
-		}
-	}
-
-	public void writeData(String commandString) {
-
-		int numBytes = commandString.length();
-		writeBuffer = new byte[64];
-
-		for (int i = 0; i < numBytes; i++) {
-			writeBuffer[i] = (byte) commandString.charAt(i);
-			// if (!String.valueOf(commandString.charAt(i)).equals("W"))
-			Log.d("TCARE", "writeData: scrivo: " + commandString.charAt(i)
-					+ " tradotto: " + (byte) commandString.charAt(i));
-		}
-
-		if (uartInterface != null)
-			uartInterface.SendData(numBytes, writeBuffer);
-		else {
-			Log.e("TCARE", "Interfaccia non avviata!!!");
 		}
 
 	}
@@ -771,6 +725,16 @@ public class Utility {
 		} catch (NumberFormatException nfe) {
 		}
 		return false;
+	}
+
+	public static byte[] stringToBytesASCII(String str) {
+
+		byte[] b = new byte[str.length()];
+		for (int i = 0; i < b.length; i++) {
+
+			b[i] = (byte) str.charAt(i);
+		}
+		return b;
 	}
 
 }

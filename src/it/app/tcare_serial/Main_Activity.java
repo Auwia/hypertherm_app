@@ -1,5 +1,11 @@
-package it.app.tcare;
+package it.app.tcare_serial;
 
+import it.app.tcare.R;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.Thread.State;
+import java.util.LinkedList;
 import java.util.Locale;
 
 import android.app.Activity;
@@ -24,6 +30,9 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.dwin.navy.serialportapi.SerialPortOpt;
 
 public class Main_Activity extends Activity {
 
@@ -52,6 +61,51 @@ public class Main_Activity extends Activity {
 	private static SQLiteDatabase database;
 	private TCaReDataSource datasource;
 	private Cursor cur;
+
+	private SerialPortOpt serialPort;
+	private LinkedList<byte[]> byteLinkedList = new LinkedList();
+
+	private InputStream mInputStream;
+	private ReadThread mReadThread;
+
+	private byte[] writeusbdata = new byte[256];
+
+	public static write_thread writeThread;
+
+	private void initSerialPort() {
+		serialPort = new SerialPortOpt();
+		serialPort.mDevNum = 0;
+		serialPort.mDataBits = 8;
+		serialPort.mSpeed = 115200;
+		serialPort.mStopBits = 1;
+		serialPort.mParity = 'n';
+		serialPort.openDev(serialPort.mDevNum);
+		serialPort.setSpeed(serialPort.mFd, serialPort.mSpeed);
+		serialPort.setParity(serialPort.mFd, serialPort.mDataBits,
+				serialPort.mStopBits, serialPort.mParity);
+
+		mInputStream = this.serialPort.getInputStream();
+		mReadThread = new ReadThread();
+		mReadThread.start();
+
+	}
+
+	protected void onDataReceived() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				byte[] arrayOfByte;
+				int i;
+
+				arrayOfByte = (byte[]) Main_Activity.this.byteLinkedList.poll();
+				i = arrayOfByte.length;
+				Log.i("TCARE", new String(arrayOfByte, 0, i));
+				Toast.makeText(getApplicationContext(),
+						new String(arrayOfByte, 0, i), Toast.LENGTH_LONG)
+						.show();
+
+			}
+		});
+	}
 
 	public static final Handler aggiorna_tempo_lavoro_db = new Handler() {
 
@@ -131,16 +185,18 @@ public class Main_Activity extends Activity {
 
 					for (int i = 0; i < array.length; i++) {
 						if (array[i].length() > 1) {
-							utility.MandaDati(Integer.valueOf(array[i]));
+							serialPort.writeBytes(Utility
+									.stringToBytesASCII(array[i]));
 						} else {
-							utility.writeData(array[i]);
+							serialPort.writeBytes(Utility
+									.stringToBytesASCII(array[i]));
 						}
 					}
 				}
 			}
 		}
 
-		utility.writeData("a");
+		inviaComandi("a");
 	}
 
 	@Override
@@ -156,9 +212,6 @@ public class Main_Activity extends Activity {
 		super.onDestroy();
 
 		if (preferences.getBoolean("exit", false)) {
-			utility.DestroyAccessory(true);
-
-			FT311UARTInterface.READ_ENABLE = false;
 
 			finish();
 		}
@@ -235,19 +288,18 @@ public class Main_Activity extends Activity {
 			public void onClick(View v) {
 
 				if (preferences.getBoolean("isPlaying", false))
-					utility.writeData("P");
+					inviaComandi("P");
 
 				if (preferences.getBoolean("isContinuos", false)) {
 					if (preferences.getInt("hz", 1) == 0) {
-						utility.writeData("1");
+						inviaComandi("1");
 					} else {
-						utility.writeData(String.valueOf(preferences.getInt(
-								"hz", 1)));
+						inviaComandiNumerici(preferences.getInt("hz", 1));
 					}
 				} else if (preferences.getBoolean("isPulsed", false)) {
-					utility.writeData("0");
+					inviaComandi("0");
 				} else {
-					utility.writeData("1");
+					inviaComandi("1");
 				}
 
 			}
@@ -261,20 +313,20 @@ public class Main_Activity extends Activity {
 			public void onClick(View arg0) {
 
 				if (preferences.getBoolean("isPlaying", false))
-					utility.writeData("P");
+					inviaComandi("P");
 
 				switch ((Integer) frequency.getTag()) {
 				case R.drawable.button_457:
-					utility.writeData("s");
+					inviaComandi("s");
 					break;
 				case R.drawable.button_571:
-					utility.writeData("m");
+					inviaComandi("m");
 					break;
 				case R.drawable.button_714:
-					utility.writeData("q");
+					inviaComandi("q");
 					break;
 				case R.drawable.button_145:
-					utility.writeData("c");
+					inviaComandi("c");
 					break;
 
 				}
@@ -322,8 +374,8 @@ public class Main_Activity extends Activity {
 
 					public void onStopTrackingTouch(SeekBar seekBar) {
 
-						utility.MandaDati(Integer.parseInt(percentage.getText()
-								.toString()) + 150);
+						inviaComandiNumerici(Integer.parseInt(percentage
+								.getText().toString()) + 150);
 
 					}
 				});
@@ -345,7 +397,7 @@ public class Main_Activity extends Activity {
 		play = (Button) findViewById(R.id.button_play);
 		play.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				utility.writeData("S");
+				inviaComandi("S");
 			}
 		});
 
@@ -353,7 +405,7 @@ public class Main_Activity extends Activity {
 		stop.setPressed(true);
 		stop.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				utility.writeData("T");
+				inviaComandi("T");
 			}
 		});
 		label_stop.setTextColor(Color.parseColor("#78d0d2"));
@@ -361,7 +413,7 @@ public class Main_Activity extends Activity {
 		pause = (Button) findViewById(R.id.button_pause);
 		pause.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				utility.writeData("P");
+				inviaComandi("P");
 			}
 		});
 
@@ -369,9 +421,9 @@ public class Main_Activity extends Activity {
 		cap.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (preferences.getBoolean("isPlaying", false))
-					utility.writeData("P");
+					inviaComandi("P");
 
-				utility.writeData("C");
+				inviaComandi("C");
 			}
 		});
 
@@ -379,9 +431,9 @@ public class Main_Activity extends Activity {
 		res.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (preferences.getBoolean("isPlaying", false))
-					utility.writeData("P");
+					inviaComandi("P");
 
-				utility.writeData("R");
+				inviaComandi("R");
 			}
 		});
 
@@ -389,9 +441,9 @@ public class Main_Activity extends Activity {
 		body.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (preferences.getBoolean("isPlaying", false))
-					utility.writeData("P");
+					inviaComandi("P");
 
-				utility.writeData("B");
+				inviaComandi("B");
 			}
 		});
 
@@ -399,9 +451,9 @@ public class Main_Activity extends Activity {
 		face.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (preferences.getBoolean("isPlaying", false))
-					utility.writeData("P");
+					inviaComandi("P");
 
-				utility.writeData("F");
+				inviaComandi("F");
 			}
 		});
 
@@ -452,7 +504,7 @@ public class Main_Activity extends Activity {
 		menu.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 
-				utility.writeData("a");
+				inviaComandi("a");
 
 				try {
 					Thread.sleep(500);
@@ -535,27 +587,40 @@ public class Main_Activity extends Activity {
 			title2.setText(getResources().getString(R.string.title2_physio));
 		}
 
-		utility.config(this);
+		initSerialPort();
 
-		act_string = getIntent().getAction();
-		if (-1 != act_string.indexOf("android.intent.action.MAIN")) {
-			restorePreference();
-		} else if (-1 != act_string
-				.indexOf("android.hardware.usb.action.USB_ACCESSORY_ATTACHED")) {
-			cleanPreference();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 
-		if (false == bConfiged) {
-			bConfiged = true;
-			utility.SetConfig();
+		writeThread = new write_thread();
+		if (!writeThread.isAlive() && writeThread.getState() != State.RUNNABLE) {
+			writeThread.setName("Thread_Scrittura");
+			writeThread.start();
 
-			savePreference();
 		}
 
-		if (2 == utility.ResumeAccessory(bConfiged)) {
-			cleanPreference();
-			restorePreference();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
 		}
+		String commandString = "@";
+		int numBytes = commandString.length();
+		byte[] writeBuffer = new byte[64];
+
+		for (int i = 0; i < numBytes; i++) {
+			writeBuffer[i] = (byte) commandString.charAt(i);
+		}
+
+		SendData(numBytes, writeBuffer);
+
+		inviaComandi("@");
+		inviaComandi("^");
+		inviaComandi("a");
+		inviaComandi("?");
 
 	}
 
@@ -615,4 +680,158 @@ public class Main_Activity extends Activity {
 		Log.d("TCARE", "SONO IN ONSTOP");
 	}
 
+	private class write_thread extends Thread {
+
+		write_thread() {
+		}
+
+		public void run() {
+
+			Log.d("TCARE", "ENTRO NELLO SCRIVO");
+
+			boolean READ_ENABLE = true;
+			int exit = 0;
+
+			while (READ_ENABLE) {
+
+				// Log.d("TCARE", "SONO NELLO SCRIVO");
+
+				inviaComandi("W");
+
+				exit += 1;
+
+				Message aggiorna_tempo_lavoro_db = Main_Activity.aggiorna_tempo_lavoro_db
+						.obtainMessage();
+				Main_Activity.aggiorna_tempo_lavoro_db
+						.sendMessage(aggiorna_tempo_lavoro_db);
+
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
+
+				if (exit > preferences.getInt("timeout", 5)) {
+					READ_ENABLE = false;
+				}
+			}
+
+			READ_ENABLE = false;
+			Log.d("TCARE", "ESCO DALLO SCRIVO");
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+
+			utility.poweroff();
+		}
+	}
+
+	private class ReadThread extends Thread {
+		byte[] buf = new byte[512];
+
+		private ReadThread() {
+		}
+
+		public void run() {
+			super.run();
+
+			Log.d("TCARE", "ENTRO NEL LEGGO");
+
+			Toast.makeText(getApplicationContext(), "ENTRO NEL LEGGO",
+					Toast.LENGTH_LONG).show();
+
+			for (;;) {
+	
+				while (mInputStream == null) {
+					return;
+				}
+				int i = serialPort.readBytes(this.buf);
+				if (i > 0) {
+					byte[] arrayOfByte = new byte[i];
+					System.arraycopy(this.buf, 0, arrayOfByte, 0, i);
+					byteLinkedList.offer(arrayOfByte);
+					onDataReceived();
+				}
+			}
+		}
+	}
+
+	private void inviaComandi(String comando) {
+		int numBytes = comando.length();
+		byte[] writeBuffer = new byte[64];
+
+		for (int i = 0; i < numBytes; i++) {
+			writeBuffer[i] = (byte) comando.charAt(i);
+		}
+
+		SendData(numBytes, writeBuffer);
+	}
+
+	public byte SendData(int numBytes, byte[] buffer) {
+		byte status = 0x00; /* success by default */
+
+		/*
+		 * if num bytes are more than maximum limit
+		 */
+		if (numBytes < 1) {
+			/* return the status with the error in the command */
+			Log.e("TCARE", "SendData: numero di byte nullo o negativo");
+			return status;
+		}
+
+		/* check for maximum limit */
+		if (numBytes > 256) {
+			numBytes = 256;
+			Log.e("TCARE", "SendData: numero di byte superiore a 256byte");
+		}
+
+		/* prepare the packet to be sent */
+		for (int count = 0; count < numBytes; count++) {
+			writeusbdata[count] = buffer[count];
+
+		}
+
+		if (numBytes != 64) {
+			SendPacket(numBytes);
+		} else {
+			byte temp = writeusbdata[63];
+			SendPacket(63);
+			writeusbdata[0] = temp;
+			SendPacket(1);
+		}
+
+		return status;
+	}
+
+	private void SendPacket(int numBytes) {
+
+		try {
+			serialPort.getOutputStream().write(writeusbdata, 0, numBytes);
+
+		} catch (IOException e) {
+
+			Log.d("TCARE", "SendPacket: HO PERSO LA SCHEDA");
+
+		}
+	}
+
+	private void inviaComandiNumerici(int comando) {
+		try {
+			serialPort.getOutputStream().write(comando);
+			serialPort.getOutputStream().flush();
+
+			Log.d("TCARE", "MandaDati: scrittura eseguita= " + comando);
+
+		} catch (IOException e) {
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e1) {
+			}
+
+			utility.poweroff();
+
+		}
+	}
 }
