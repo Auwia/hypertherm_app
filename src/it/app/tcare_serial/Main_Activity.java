@@ -30,7 +30,6 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.dwin.navy.serialportapi.SerialPortOpt;
 
@@ -69,6 +68,8 @@ public class Main_Activity extends Activity {
 	private ReadThread mReadThread;
 
 	private byte[] writeusbdata = new byte[256];
+	private byte[] usbdata = new byte[1024];;
+	private StringBuffer readSB = new StringBuffer();
 
 	public static write_thread writeThread;
 
@@ -76,7 +77,7 @@ public class Main_Activity extends Activity {
 		serialPort = new SerialPortOpt();
 		serialPort.mDevNum = 0;
 		serialPort.mDataBits = 8;
-		serialPort.mSpeed = 115200;
+		serialPort.mSpeed = 9600;
 		serialPort.mStopBits = 1;
 		serialPort.mParity = 'n';
 		serialPort.openDev(serialPort.mDevNum);
@@ -85,26 +86,9 @@ public class Main_Activity extends Activity {
 				serialPort.mStopBits, serialPort.mParity);
 
 		mInputStream = this.serialPort.getInputStream();
-		mReadThread = new ReadThread();
+		mReadThread = new ReadThread(mInputStream);
 		mReadThread.start();
 
-	}
-
-	protected void onDataReceived() {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				byte[] arrayOfByte;
-				int i;
-
-				arrayOfByte = (byte[]) Main_Activity.this.byteLinkedList.poll();
-				i = arrayOfByte.length;
-				Log.i("TCARE", new String(arrayOfByte, 0, i));
-				Toast.makeText(getApplicationContext(),
-						new String(arrayOfByte, 0, i), Toast.LENGTH_LONG)
-						.show();
-
-			}
-		});
 	}
 
 	public static final Handler aggiorna_tempo_lavoro_db = new Handler() {
@@ -607,15 +591,6 @@ public class Main_Activity extends Activity {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 		}
-		String commandString = "@";
-		int numBytes = commandString.length();
-		byte[] writeBuffer = new byte[64];
-
-		for (int i = 0; i < numBytes; i++) {
-			writeBuffer[i] = (byte) commandString.charAt(i);
-		}
-
-		SendData(numBytes, writeBuffer);
 
 		inviaComandi("@");
 		inviaComandi("^");
@@ -711,11 +686,11 @@ public class Main_Activity extends Activity {
 				}
 
 				if (exit > preferences.getInt("timeout", 5)) {
-					READ_ENABLE = false;
+					// READ_ENABLE = false;
 				}
 			}
 
-			READ_ENABLE = false;
+			// READ_ENABLE = false;
 			Log.d("TCARE", "ESCO DALLO SCRIVO");
 
 			try {
@@ -729,35 +704,97 @@ public class Main_Activity extends Activity {
 
 	private class ReadThread extends Thread {
 		byte[] buf = new byte[512];
+		InputStream instream;
 
-		private ReadThread() {
+		private ReadThread(InputStream stream) {
+			instream = stream;
+			this.setPriority(Thread.MAX_PRIORITY);
 		}
 
 		public void run() {
 			super.run();
 
 			Log.d("TCARE", "ENTRO NEL LEGGO");
+			int exit = 0;
 
-			Toast.makeText(getApplicationContext(), "ENTRO NEL LEGGO",
-					Toast.LENGTH_LONG).show();
+			byte[] buf = new byte[1024];
 
-			for (;;) {
-	
-				while (mInputStream == null) {
+			while (!isInterrupted()) {
+
+				int size;
+				if (mInputStream == null)
 					return;
+
+				InputStream input_stream = serialPort.getInputStream();
+
+				int readcount;
+				try {
+					readcount = input_stream.read(buf, 0, 1024);
+
+					if (readcount > 0) {
+						for (int count = 0; count < readcount; count++) {
+
+							if (buf[count] == (byte) '\r') {
+
+								if (!readSB.toString().contains("W")) {
+									Log.d("TCARE",
+											"COMANDO_RICEVUTO="
+													+ readSB.toString());
+								}
+
+								utility.esegui(readSB.toString().trim());
+								readSB.delete(0, readSB.length());
+
+							} else {
+								readSB.append((char) buf[count]);
+								// Log.d("TCARE",
+								// "COMANDO_WIP_2=" + readSB.toString());
+							}
+						}
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-				int i = serialPort.readBytes(this.buf);
-				if (i > 0) {
-					byte[] arrayOfByte = new byte[i];
-					System.arraycopy(this.buf, 0, arrayOfByte, 0, i);
-					byteLinkedList.offer(arrayOfByte);
-					onDataReceived();
-				}
+
 			}
+
+			// Log.d("TCARE", "EXIT=" + exit);
+			if (exit > preferences.getInt("timeout", 5)) {
+				Log.d("TCARE", "AZZERO LA SCHEDA");
+			}
+
+			Log.d("TCARE", "ESCO DAL LEGGO");
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+
+			// utility.poweroff();
 		}
 	}
 
+	public static String bytesToHexString(byte[] src, int size) {
+		String ret = "";
+		if (src == null || size <= 0) {
+			return null;
+		}
+		for (int i = 0; i < size; i++) {
+			String hex = Integer.toHexString(src[i] & 0xFF);
+			// String hex = String.format("%02x", src[i] & 0xFF);
+			Log.i("bytesToHexString", hex);
+			if (hex.length() < 2) {
+				hex = "0" + hex;
+			}
+			hex += " ";
+			ret += hex;
+		}
+		return ret.toUpperCase();
+	}
+
 	private void inviaComandi(String comando) {
+
 		int numBytes = comando.length();
 		byte[] writeBuffer = new byte[64];
 
@@ -830,7 +867,7 @@ public class Main_Activity extends Activity {
 			} catch (InterruptedException e1) {
 			}
 
-			utility.poweroff();
+			// utility.poweroff();
 
 		}
 	}
