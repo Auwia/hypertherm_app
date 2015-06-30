@@ -234,7 +234,7 @@
                     <Button
                         android:id="@+id/reset"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="50dp"
                         android:layout_weight="3"
                         android:background="@drawable/custom_button_energy"
                         android:gravity="center_horizontal|center_vertical"

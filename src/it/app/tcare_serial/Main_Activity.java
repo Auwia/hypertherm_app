@@ -11,6 +11,7 @@ import java.util.Locale;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -473,10 +474,7 @@ public class Main_Activity extends Activity {
 		if (density == 1.5)
 			moltiplicativo = 4;
 
-		title.setTextSize(width * moltiplicativo / 100);
-		title2.setTextSize(width * moltiplicativo / 100);
-
-		final int blocco2_dim = (int) (width * 50 / 100 / 5);
+		final int blocco2_dim = (int) (width * 50 / 100 / 4);
 		label_start.setWidth(blocco2_dim);
 		label_stop.setWidth(blocco2_dim);
 		label_pause.setWidth(blocco2_dim);
