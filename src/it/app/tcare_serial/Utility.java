@@ -1,14 +1,21 @@
 package it.app.tcare_serial;
 
-import it.app.tcare.R;
-
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +36,12 @@ public class Utility {
 
 	private SharedPreferences preferences;
 	private SharedPreferences.Editor editor;
+
+	// VARIABILI DATA BASE
+	private static final String DATABASE_NAME = "TCaReDB.db";
+	private static SQLiteDatabase database;
+	private TCaReDataSource datasource;
+	private Cursor cur;
 
 	public void poweroff() {
 
@@ -737,4 +750,53 @@ public class Utility {
 		return b;
 	}
 
+	public int get_time_out_splash() {
+		database = activity.openOrCreateDatabase(DATABASE_NAME,
+				SQLiteDatabase.CREATE_IF_NECESSARY, null);
+		datasource = new TCaReDataSource(activity.getApplicationContext());
+		datasource.open();
+
+		cur = database.query("SETTINGS", new String[] { "TIMEOUT_SPLASH" },
+				null, null, null, null, null);
+
+		cur.moveToFirst();
+
+		int timeout = 2500;
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			timeout = cur.getInt(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return timeout;
+	}
+
+	public void appendLog(String text) {
+		File logFile = new File(Environment.getExternalStorageDirectory(),
+				"TCaRe/log/log.txt");
+		if (!logFile.exists()) {
+			try {
+				logFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		try {
+			// BufferedWriter for performance, true to set append to file flag
+			BufferedWriter buf = new BufferedWriter(new FileWriter(logFile,
+					true));
+
+			long yourmilliseconds = System.currentTimeMillis();
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",
+					Locale.ITALY);
+
+			buf.append(sdf.format(new Date(yourmilliseconds)) + ": " + text);
+			buf.newLine();
+			buf.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

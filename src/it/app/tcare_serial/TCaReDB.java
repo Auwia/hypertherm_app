@@ -30,6 +30,7 @@ public class TCaReDB extends SQLiteOpenHelper {
 	public static final String COLUMN_SERIAL_NUMBER = "SERIAL_NUMBER";
 	public static final String COLUMN_LANGUAGE = "LANGUAGE";
 	public static final String COLUMN_TIMEOUT = "TIMEOUT";
+	public static final String COLUMN_TIMEOUT_SPLASH = "TIMEOUT_SPLASH";
 
 	private static final String CREATE_TABLE_TABLE_WORK_TIME = "create table "
 			+ TABLE_WORK_TIME + "(" + COLUMN_WORK_FROM
@@ -41,7 +42,8 @@ public class TCaReDB extends SQLiteOpenHelper {
 	private static final String CREATE_TABLE_TABLE_SETTINGS = "create table "
 			+ TABLE_SETTINGS + "(" + COLUMN_SMART + " bit, " + COLUMN_PHYSIO
 			+ " bit, " + COLUMN_SERIAL_NUMBER + " VARCHAR(20), "
-			+ COLUMN_LANGUAGE + " varchar(2), " + COLUMN_TIMEOUT + " integer);";
+			+ COLUMN_LANGUAGE + " varchar(2), " + COLUMN_TIMEOUT + " integer, "
+			+ COLUMN_TIMEOUT_SPLASH + " integer);";
 
 	public TCaReDB(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -68,6 +70,7 @@ public class TCaReDB extends SQLiteOpenHelper {
 		row.put(COLUMN_SERIAL_NUMBER, "SN ");
 		row.put(COLUMN_LANGUAGE, "en");
 		row.put(COLUMN_TIMEOUT, 3);
+		row.put(COLUMN_TIMEOUT_SPLASH, 2500);
 		database.insert(TABLE_SETTINGS, null, row);
 		row.clear();
 

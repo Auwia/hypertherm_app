@@ -1,7 +1,5 @@
 package it.app.tcare_serial;
 
-import it.app.tcare.R;
-
 import java.util.ArrayList;
 import java.util.List;
 

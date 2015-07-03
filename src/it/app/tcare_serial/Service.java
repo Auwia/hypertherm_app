@@ -1,7 +1,5 @@
 package it.app.tcare_serial;
 
-import it.app.tcare.R;
-
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
