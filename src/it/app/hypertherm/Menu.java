@@ -1,5 +1,6 @@
-package it.app.tcare_serial;
+package it.app.hypertherm;
 
+import it.app.hypertherm.R;
 import java.util.ArrayList;
 import java.util.List;
 

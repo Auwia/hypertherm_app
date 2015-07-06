@@ -1,4 +1,4 @@
-package it.app.tcare.util;
+package it.app.hypertherm.util;
 
 import android.app.Activity;
 import android.view.View;

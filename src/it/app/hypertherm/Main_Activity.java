@@ -1,12 +1,14 @@
-package it.app.tcare_serial;
+package it.app.hypertherm;
 
+import it.app.hypertherm.R;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.State;
-import java.util.LinkedList;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -60,13 +62,11 @@ public class Main_Activity extends Activity {
 	private Cursor cur;
 
 	private SerialPortOpt serialPort;
-	private LinkedList<byte[]> byteLinkedList = new LinkedList();
 
 	private InputStream mInputStream;
 	private ReadThread mReadThread;
 
 	private byte[] writeusbdata = new byte[256];
-	private byte[] usbdata = new byte[1024];;
 	private StringBuffer readSB = new StringBuffer();
 
 	public static write_thread writeThread;
@@ -698,11 +698,9 @@ public class Main_Activity extends Activity {
 	}
 
 	private class ReadThread extends Thread {
-		byte[] buf = new byte[512];
-		InputStream instream;
 
 		private ReadThread(InputStream stream) {
-			instream = stream;
+			mInputStream = stream;
 			this.setPriority(Thread.MAX_PRIORITY);
 		}
 
@@ -716,7 +714,6 @@ public class Main_Activity extends Activity {
 
 			while (!isInterrupted()) {
 
-				int size;
 				if (mInputStream == null)
 					return;
 
@@ -864,6 +861,18 @@ public class Main_Activity extends Activity {
 
 			// utility.poweroff();
 
+		}
+	}
+
+	public class StartMyServiceAtBootReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+				Intent serviceIntent = new Intent(context, Main_Activity.class);
+
+				context.startActivity(serviceIntent);
+			}
 		}
 	}
 }

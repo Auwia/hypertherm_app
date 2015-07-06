@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="it.app.tcare_serial.Splash_Screen_Activity" >
+    tools:context="it.app.hypertherm.Splash_Screen_Activity" >
 
     <LinearLayout
         android:layout_width="0dp"

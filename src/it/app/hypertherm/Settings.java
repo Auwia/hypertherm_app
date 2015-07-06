@@ -1,9 +1,10 @@
-package it.app.tcare_serial;
+package it.app.hypertherm;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import it.app.hypertherm.R;
 
 public class Settings extends Activity {
 

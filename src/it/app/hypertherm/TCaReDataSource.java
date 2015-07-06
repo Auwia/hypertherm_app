@@ -1,4 +1,4 @@
-package it.app.tcare_serial;
+package it.app.hypertherm;
 
 import android.content.Context;
 import android.database.SQLException;

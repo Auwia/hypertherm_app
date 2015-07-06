@@ -1,4 +1,4 @@
-package it.app.tcare_serial;
+package it.app.hypertherm;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;

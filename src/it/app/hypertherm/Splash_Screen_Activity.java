@@ -1,5 +1,6 @@
-package it.app.tcare_serial;
+package it.app.hypertherm;
 
+import it.app.hypertherm.R;
 import java.io.File;
 
 import android.app.Activity;

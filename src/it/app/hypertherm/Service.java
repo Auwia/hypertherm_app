@@ -1,5 +1,6 @@
-package it.app.tcare_serial;
+package it.app.hypertherm;
 
+import it.app.hypertherm.R;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
