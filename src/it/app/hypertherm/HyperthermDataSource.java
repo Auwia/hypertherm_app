@@ -3,13 +3,13 @@ package it.app.hypertherm;
 import android.content.Context;
 import android.database.SQLException;
 
-public class TCaReDataSource {
+public class HyperthermDataSource {
 
-	private TCaReDB dbHelper;
+	private HyperthermDB dbHelper;
 	
-	public TCaReDataSource(Context context) 
+	public HyperthermDataSource(Context context) 
 	{
-	    dbHelper = new TCaReDB(context);
+	    dbHelper = new HyperthermDB(context);
 	}
 
 	public void open() throws SQLException 

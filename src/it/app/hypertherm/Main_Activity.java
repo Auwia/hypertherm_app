@@ -58,7 +58,7 @@ public class Main_Activity extends Activity {
 	// VARIABILI DATA BASE
 	private static final String DATABASE_NAME = "TCaReDB.db";
 	private static SQLiteDatabase database;
-	private TCaReDataSource datasource;
+	private HyperthermDataSource datasource;
 	private Cursor cur;
 
 	private SerialPortOpt serialPort;
@@ -219,7 +219,7 @@ public class Main_Activity extends Activity {
 
 		database = openOrCreateDatabase(DATABASE_NAME,
 				SQLiteDatabase.CREATE_IF_NECESSARY, null);
-		datasource = new TCaReDataSource(getApplicationContext());
+		datasource = new HyperthermDataSource(getApplicationContext());
 		datasource.open();
 
 		cur = database.query("SETTINGS", new String[] { "SMART", "PHYSIO",

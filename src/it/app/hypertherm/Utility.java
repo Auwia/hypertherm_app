@@ -41,7 +41,7 @@ public class Utility {
 	// VARIABILI DATA BASE
 	private static final String DATABASE_NAME = "TCaReDB.db";
 	private static SQLiteDatabase database;
-	private TCaReDataSource datasource;
+	private HyperthermDataSource datasource;
 	private Cursor cur;
 
 	public void poweroff() {
@@ -754,7 +754,7 @@ public class Utility {
 	public int get_time_out_splash() {
 		database = activity.openOrCreateDatabase(DATABASE_NAME,
 				SQLiteDatabase.CREATE_IF_NECESSARY, null);
-		datasource = new TCaReDataSource(activity.getApplicationContext());
+		datasource = new HyperthermDataSource(activity.getApplicationContext());
 		datasource.open();
 
 		cur = database.query("SETTINGS", new String[] { "TIMEOUT_SPLASH" },

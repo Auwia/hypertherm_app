@@ -14,7 +14,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-public class TCaReDB extends SQLiteOpenHelper {
+public class HyperthermDB extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "TCaReDB.db";
 	private static final int DATABASE_VERSION = 1;
@@ -45,7 +45,7 @@ public class TCaReDB extends SQLiteOpenHelper {
 			+ COLUMN_LANGUAGE + " varchar(2), " + COLUMN_TIMEOUT + " integer, "
 			+ COLUMN_TIMEOUT_SPLASH + " integer);";
 
-	public TCaReDB(Context context) {
+	public HyperthermDB(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
 	}
