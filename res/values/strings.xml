@@ -1,60 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">TCaRe</string>
-    <string name="title">Thermal Therapy</string>
-    <string name="title2_physio">Physio</string>
-    <string name="title2_smart">Smart</string>
-    <string name="button_play">play button</string>
-    <string name="action_settings">Settings</string>
-    <string name="start">Start</string>
-    <string name="stop">Stop</string>
-    <string name="pause">Pause</string>
-    <string name="duty">Duty</string>
-    <string name="reset">Reset</string>
-    <string name="frequency">Frequency (KHz)</string>
-    <string name="zero">0</string>
-    <string name="dieci">10</string>
-    <string name="venti">20</string>
-    <string name="trenta">30</string>
-    <string name="quaranta">40</string>
-    <string name="cinquanta">50</string>
-    <string name="sessanta">60</string>
-    <string name="settanta">70</string>
-    <string name="ottanta">80</string>
-    <string name="novanta">90</string>
-    <string name="cento">100</string>
-    <string name="percentage">%</string>
-    <string name="freq">Hz</string>
-    <string name="energy">Energy J</string>
-    <string name="setValue">Set Value [J]</string>
-    <string name="linea">decorative bar</string>
-    <string name="title_activity_menu">Menu</string>
-    <string name="menu">MENU</string>
-    <string name="uno">1</string>
-    <string name="due">2</string>
-    <string name="tre">3</string>
-    <string name="quattro">4</string>
-    <string name="cinque">5</string>
-    <string name="min">min</string>
-    <string name="max">max</string>
-    <string name="service">Service</string>
-    <string name="continuos">Continuos</string>
-    <string name="pulsed">Pulsed</string>
-    <string name="time">20\':00\'\'</string>
-    <string name="label_time">Time (min, sec)</string>
-    <string name="title_activity_service">Service</string>
-    <string name="serial_number">Serial Number:</string>
-    <string name="software_version">Software Version:</string>
-    <string name="work_time">Work Time:</string>
-    <string name="model">Model:</string>
-    <string name="language">LANGUAGE</string>
-    <string name="insert_password">Password needed</string>
-    <string name="wrong_password">Password wrong</string>
-    <string name="ok_password">Settings saved</string>
-    <string name="versione_firmware">Versione Firmware:</string>
-    <string name="esc">ESC</string>
+    <string name="app_name">Hypertherm</string>
     <string name="title_activity_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
-
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title">Hypertherm</string>
 </resources>

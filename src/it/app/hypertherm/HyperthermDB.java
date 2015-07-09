@@ -16,12 +16,13 @@ import android.util.Log;
 
 public class HyperthermDB extends SQLiteOpenHelper {
 
-	private static final String DATABASE_NAME = "TCaReDB.db";
+	private static final String DATABASE_NAME = "Hypertherm.db";
 	private static final int DATABASE_VERSION = 1;
 
 	public static final String TABLE_WORK_TIME = "WORK_TIME";
 	public static final String TABLE_PASSWORD = "PASSWORD";
 	public static final String TABLE_SETTINGS = "SETTINGS";
+	public static final String TABLE_MENU = "MENU";
 
 	public static final String COLUMN_WORK_FROM = "WORK_FROM";
 	public static final String COLUMN_PASSWORD = "PWD";
@@ -31,6 +32,10 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	public static final String COLUMN_LANGUAGE = "LANGUAGE";
 	public static final String COLUMN_TIMEOUT = "TIMEOUT";
 	public static final String COLUMN_TIMEOUT_SPLASH = "TIMEOUT_SPLASH";
+	public static final String COLUMN_MENU_ITEM = "MENU_ITEM";
+
+	private static final String CREATE_TABLE_MENU = "create table "
+			+ TABLE_MENU + "(" + COLUMN_MENU_ITEM + " varchar(50));";
 
 	private static final String CREATE_TABLE_TABLE_WORK_TIME = "create table "
 			+ TABLE_WORK_TIME + "(" + COLUMN_WORK_FROM
@@ -54,11 +59,20 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase database) {
 
 		database.execSQL(CREATE_TABLE_TABLE_WORK_TIME);
+		Log.d("HYPERTHERM", "Creo tabella..." + CREATE_TABLE_TABLE_WORK_TIME);
 		database.execSQL(CREATE_TABLE_TABLE_PASSWORD);
-
-		Log.d("TCARE", "CREO TABELLA: " + CREATE_TABLE_TABLE_SETTINGS);
-
+		Log.d("HYPERTHERM", "Creo tabella..." + CREATE_TABLE_TABLE_PASSWORD);
+		database.execSQL(CREATE_TABLE_MENU);
+		Log.d("HYPERTHERM", "Creo tabella..." + CREATE_TABLE_MENU);
 		database.execSQL(CREATE_TABLE_TABLE_SETTINGS);
+		Log.d("HYPERTHERM", "Creo tabella..." + CREATE_TABLE_TABLE_SETTINGS);
+
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		ContentValues row = new ContentValues();
 		row.put(COLUMN_WORK_FROM, 1);
@@ -72,6 +86,22 @@ public class HyperthermDB extends SQLiteOpenHelper {
 		row.put(COLUMN_TIMEOUT, 3);
 		row.put(COLUMN_TIMEOUT_SPLASH, 2500);
 		database.insert(TABLE_SETTINGS, null, row);
+		row.clear();
+		row.put(COLUMN_MENU_ITEM, "Selezione trattamento per patologia");
+		database.insert(TABLE_MENU, null, row);
+		row.clear();
+		row.put(COLUMN_MENU_ITEM,
+				"Selezione trattamento per struttura e profondita'");
+		database.insert(TABLE_MENU, null, row);
+		row.clear();
+		row.put(COLUMN_MENU_ITEM, "Selezione manuale parametri trattamento");
+		database.insert(TABLE_MENU, null, row);
+		row.clear();
+		row.put(COLUMN_MENU_ITEM, "Demo -Training");
+		database.insert(TABLE_MENU, null, row);
+		row.clear();
+		row.put(COLUMN_MENU_ITEM, "Manuale utente");
+		database.insert(TABLE_MENU, null, row);
 		row.clear();
 
 		byte[] salt = new byte[16];
@@ -93,6 +123,12 @@ public class HyperthermDB extends SQLiteOpenHelper {
 		database.setTransactionSuccessful();
 		database.endTransaction();
 
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

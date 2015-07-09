@@ -1,78 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="it.app.hypertherm"
-    android:versionCode="1000"
-    android:versionName="1.00.0" >
+    android:versionCode="1010"
+    android:versionName="1.01.0" >
 
     <uses-sdk
-        android:minSdkVersion="14"
+        android:minSdkVersion="16"
         android:targetSdkVersion="22" />
 
-    <uses-feature android:name="android.hardware.usb.accessory" />
-
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:manageSpaceActivity="it.app.hypertherm.Main_Activity"
+        android:manageSpaceActivity="it.app.hypertherm.MainActivity"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        <service
+            android:name=".Service_boot"
+            android:enabled="true" />
+
+        <activity
+            android:name=".Splash_Screen_Activity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:screenOrientation="landscape" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Settings"
+            android:label="@string/title_activity_settings" >
+        </activity>
+
         <receiver
-            android:name="it.app.tcare_serial.receiver.StartMyServiceAtBootReceiver"
-            android:label="StartMyServiceAtBootReceiver" >
+            android:name=".autostart"
+            android:enabled="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
 
         <activity
-            android:name="it.app.hypertherm.Main_Activity"
-            android:label="@string/app_name"
-            android:screenOrientation="landscape" >
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
-                android:resource="@xml/accessory_filter" >
-            </meta-data>
-        </activity>
-        <activity
-            android:name="it.app.hypertherm.Menu"
-            android:label="@string/title_activity_menu"
-            android:screenOrientation="landscape" >
-        </activity>
-        <activity
-            android:name="it.app.hypertherm.Service"
-            android:label="@string/title_activity_service"
-            android:screenOrientation="landscape" >
-        </activity>
-        <activity
-            android:name="it.app.hypertherm.Splash_Screen_Activity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name"
-            android:screenOrientation="landscape"
-            android:theme="@style/FullscreenTheme" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
-                android:resource="@xml/accessory_filter" >
-            </meta-data>
-        </activity>
-        <activity
-            android:name="it.app.hypertherm.Settings"
-            android:label="@string/title_activity_settings" >
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main" >
         </activity>
     </application>
 

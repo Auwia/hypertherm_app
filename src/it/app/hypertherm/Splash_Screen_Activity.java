@@ -22,19 +22,25 @@ public class Splash_Screen_Activity extends Activity {
 	private Button settings;
 
 	@Override
+	public void onPause() {
+		super.onPause();
+		utility.appendLog("sono in PAUSA...");
+		finish();
+	}
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_splash_screen);
 
-		settings = (Button) findViewById(R.id.settings);
-
 		utility = new Utility(this);
+		utility.appendLog("splash screen start...");
+
+		settings = (Button) findViewById(R.id.settings);
 
 		new import_configuration_thread().execute();
 
-		carica_configurazione_logo();
-
-		new conteggio_time_out().execute();
+		new carica_configurazione_logo().execute();
 
 		settings.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -47,13 +53,50 @@ public class Splash_Screen_Activity extends Activity {
 			}
 		});
 
+		utility.appendLog("splash screen start...OK");
+
+		new conteggio_time_out().execute();
+
 	}
 
-	private void carica_configurazione_logo() {
-		File root = Environment.getExternalStorageDirectory();
-		ImageView logo = (ImageView) findViewById(R.id.logo);
-		Bitmap bMap = BitmapFactory.decodeFile(root + "/TCaRe/images/logo.jpg");
-		logo.setImageBitmap(bMap);
+	private class carica_configurazione_logo extends
+			AsyncTask<Void, Void, Void> {
+		// ProgressDialog pdLoading = new ProgressDialog(
+		// Splash_Screen_Activity.this);
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+
+			utility.appendLog("upload logo...");
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+
+					File root = Environment.getExternalStorageDirectory();
+					ImageView logo = (ImageView) findViewById(R.id.logo);
+					Bitmap bMap = BitmapFactory.decodeFile(root
+							+ "/TCaRe/images/logo.jpg");
+					logo.setImageBitmap(bMap);
+
+				}
+			});
+
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+
+			utility.appendLog("upload logo...OK");
+
+		}
 
 	}
 
@@ -80,15 +123,11 @@ public class Splash_Screen_Activity extends Activity {
 			super.onPostExecute(result);
 
 			utility.appendLog("import file configuration...OK");
-
-			// pdLoading.dismiss();
 		}
 
 	}
 
 	private class conteggio_time_out extends AsyncTask<Void, Void, Void> {
-		// ProgressDialog pdLoading = new ProgressDialog(
-		// Splash_Screen_Activity.this);
 
 		@Override
 		protected void onPreExecute() {
@@ -109,7 +148,7 @@ public class Splash_Screen_Activity extends Activity {
 				if (!settings_click) {
 
 					Intent intent = new Intent(Splash_Screen_Activity.this,
-							Main_Activity.class);
+							MainActivity.class);
 					startActivity(intent);
 				}
 
