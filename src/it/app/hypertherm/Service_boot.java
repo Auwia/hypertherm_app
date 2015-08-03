@@ -1,5 +1,6 @@
 package it.app.hypertherm;
 
+import it.app.hypertherm.activity.Splash_Screen_Activity;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;

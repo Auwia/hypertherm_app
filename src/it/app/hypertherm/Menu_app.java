@@ -1,10 +1,13 @@
 package it.app.hypertherm;
 
 public class Menu_app {
-	private String item;
 
-	public Menu_app(String item) {
+	private String item;
+	private boolean menuFlaggato;
+
+	public Menu_app(String item, boolean flaggato) {
 		this.item = item;
+		this.menuFlaggato = flaggato;
 	}
 
 	public Menu_app() {
@@ -17,5 +20,9 @@ public class Menu_app {
 
 	public void setItem(String item) {
 		this.item = item;
+	}
+
+	public Boolean getMenuFlaggato() {
+		return menuFlaggato;
 	}
 }

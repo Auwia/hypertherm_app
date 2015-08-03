@@ -5,7 +5,7 @@
     android:layout_gravity="center_vertical|center_horizontal"
     android:background="#8ed9e3"
     android:gravity="center_vertical|center_horizontal"
-    tools:context="it.app.hypertherm.Splash_Screen_Activity" >
+    tools:context="it.app.hypertherm.activity.Splash_Screen_Activity" >
 
     <LinearLayout
         android:layout_width="0dp"

@@ -1,9 +1,11 @@
-package it.app.hypertherm;
+package it.app.hypertherm.activity;
 
+import it.app.hypertherm.R;
+import it.app.hypertherm.R.layout;
 import android.app.Activity;
 import android.os.Bundle;
 
-public class Settings extends Activity {
+public class SettingsActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

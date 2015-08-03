@@ -1,4 +1,6 @@
-package it.app.hypertherm;
+package it.app.hypertherm.db;
+
+import it.app.hypertherm.Utility;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -12,18 +14,30 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class HyperthermDB extends SQLiteOpenHelper {
+
+	private Utility utility;
 
 	private static final String DATABASE_NAME = "Hypertherm.db";
 	private static final int DATABASE_VERSION = 1;
 
 	public static final String TABLE_WORK_TIME = "WORK_TIME";
+	public static final String TABLE_STAGE = "STAGE";
+	public static final String TABLE_DISTURBO = "DISTURBI";
 	public static final String TABLE_PASSWORD = "PASSWORD";
 	public static final String TABLE_SETTINGS = "SETTINGS";
 	public static final String TABLE_MENU = "MENU";
+	public static final String TRATTAMENTI_MENU = "TRATTAMENTI";
+	public static final String PATOLOGIE_MENU = "PATOLOGIE";
+	public static final String DISTURBI_MENU = "DISTURBI";
+	public static final String RIFERIMENTI_MENU = "RIFERIMENTI";
+	public static final String TEMPO_MENU = "TEMPO";
+	public static final String PMAXRF_MENU = "PMAXRF";
+	public static final String TACQUA_MENU = "TACQUA";
+	public static final String DTEMPERATURA_MENU = "DTEMPERATURA";
 
+	public static final String COLUMN_ID = "ID";
 	public static final String COLUMN_WORK_FROM = "WORK_FROM";
 	public static final String COLUMN_PASSWORD = "PWD";
 	public static final String COLUMN_SMART = "SMART";
@@ -33,9 +47,39 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	public static final String COLUMN_TIMEOUT = "TIMEOUT";
 	public static final String COLUMN_TIMEOUT_SPLASH = "TIMEOUT_SPLASH";
 	public static final String COLUMN_MENU_ITEM = "MENU_ITEM";
+	public static final String COLUMN_MENU_CLICCABILE = "MENU_CLICCABILE";
+	public static final String COLUMN_MENU_ID_TRATTAMENTO = "ID_TRATTAMENTO";
+	public static final String COLUMN_MENU_ID_PATOLOGIA = "ID_PATOLOGIA";
+
+	private static final String CREATE_TABLE_STAGE = "create table "
+			+ TABLE_STAGE + "(" + TRATTAMENTI_MENU + " varchar(50), "
+			+ PATOLOGIE_MENU + " varchar(50), " + DISTURBI_MENU
+			+ " varchar(50), " + COLUMN_MENU_CLICCABILE + " bit, "
+			+ RIFERIMENTI_MENU + " varchar(50), " + TEMPO_MENU + " integer, "
+			+ PMAXRF_MENU + " integer, " + TACQUA_MENU + " FLOAT, "
+			+ DTEMPERATURA_MENU + " FLOAT" + ");";
+
+	private static final String CREATE_TABLE_DISTURBI = "create table "
+			+ DISTURBI_MENU + "(COLUMN_ID"
+			+ " integer primary key autoincrement NOT NULL, "
+			+ COLUMN_MENU_ITEM + " varchar(50), " + COLUMN_MENU_ID_TRATTAMENTO
+			+ " integer, " + COLUMN_MENU_ID_PATOLOGIA + " integer );";
+
+	private static final String CREATE_TABLE_TRATTAMENTI = "create table "
+			+ TRATTAMENTI_MENU + "(COLUMN_ID"
+			+ " integer primary key autoincrement NOT NULL, "
+			+ COLUMN_MENU_ITEM + " varchar(50), " + COLUMN_MENU_CLICCABILE
+			+ " bit);";
+
+	private static final String CREATE_TABLE_PATOLOGIE = "create table "
+			+ PATOLOGIE_MENU + "(" + COLUMN_ID
+			+ " integer primary key autoincrement NOT NULL, "
+			+ COLUMN_MENU_ITEM + " varchar(50), " + COLUMN_MENU_CLICCABILE
+			+ " bit);";
 
 	private static final String CREATE_TABLE_MENU = "create table "
-			+ TABLE_MENU + "(" + COLUMN_MENU_ITEM + " varchar(50));";
+			+ TABLE_MENU + "(" + COLUMN_MENU_ITEM + " varchar(50), "
+			+ COLUMN_MENU_CLICCABILE + " bit);";
 
 	private static final String CREATE_TABLE_TABLE_WORK_TIME = "create table "
 			+ TABLE_WORK_TIME + "(" + COLUMN_WORK_FROM
@@ -58,14 +102,24 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase database) {
 
+		utility = new Utility();
+
+		database.execSQL(CREATE_TABLE_STAGE);
+		utility.appendLog("Creo tabella..." + CREATE_TABLE_STAGE);
+		database.execSQL(CREATE_TABLE_DISTURBI);
+		utility.appendLog("Creo tabella..." + CREATE_TABLE_DISTURBI);
 		database.execSQL(CREATE_TABLE_TABLE_WORK_TIME);
-		Log.d("HYPERTHERM", "Creo tabella..." + CREATE_TABLE_TABLE_WORK_TIME);
+		utility.appendLog("Creo tabella..." + CREATE_TABLE_TABLE_WORK_TIME);
 		database.execSQL(CREATE_TABLE_TABLE_PASSWORD);
-		Log.d("HYPERTHERM", "Creo tabella..." + CREATE_TABLE_TABLE_PASSWORD);
+		utility.appendLog("Creo tabella..." + CREATE_TABLE_TABLE_PASSWORD);
 		database.execSQL(CREATE_TABLE_MENU);
-		Log.d("HYPERTHERM", "Creo tabella..." + CREATE_TABLE_MENU);
+		utility.appendLog("Creo tabella..." + CREATE_TABLE_MENU);
 		database.execSQL(CREATE_TABLE_TABLE_SETTINGS);
-		Log.d("HYPERTHERM", "Creo tabella..." + CREATE_TABLE_TABLE_SETTINGS);
+		utility.appendLog("Creo tabella..." + CREATE_TABLE_TABLE_SETTINGS);
+		database.execSQL(CREATE_TABLE_TRATTAMENTI);
+		utility.appendLog("Creo tabella..." + CREATE_TABLE_TRATTAMENTI);
+		database.execSQL(CREATE_TABLE_PATOLOGIE);
+		utility.appendLog("Creo tabella..." + CREATE_TABLE_PATOLOGIE);
 
 		try {
 			Thread.sleep(500);
@@ -82,25 +136,30 @@ public class HyperthermDB extends SQLiteOpenHelper {
 		row.put(COLUMN_SMART, 1);
 		row.put(COLUMN_PHYSIO, 0);
 		row.put(COLUMN_SERIAL_NUMBER, "SN ");
-		row.put(COLUMN_LANGUAGE, "en");
+		row.put(COLUMN_LANGUAGE, "Ita");
 		row.put(COLUMN_TIMEOUT, 3);
 		row.put(COLUMN_TIMEOUT_SPLASH, 2500);
 		database.insert(TABLE_SETTINGS, null, row);
 		row.clear();
 		row.put(COLUMN_MENU_ITEM, "Selezione trattamento per patologia");
+		row.put(COLUMN_MENU_CLICCABILE, 1);
 		database.insert(TABLE_MENU, null, row);
 		row.clear();
 		row.put(COLUMN_MENU_ITEM,
 				"Selezione trattamento per struttura e profondita'");
+		row.put(COLUMN_MENU_CLICCABILE, 1);
 		database.insert(TABLE_MENU, null, row);
 		row.clear();
 		row.put(COLUMN_MENU_ITEM, "Selezione manuale parametri trattamento");
+		row.put(COLUMN_MENU_CLICCABILE, 1);
 		database.insert(TABLE_MENU, null, row);
 		row.clear();
 		row.put(COLUMN_MENU_ITEM, "Demo -Training");
+		row.put(COLUMN_MENU_CLICCABILE, 1);
 		database.insert(TABLE_MENU, null, row);
 		row.clear();
 		row.put(COLUMN_MENU_ITEM, "Manuale utente");
+		row.put(COLUMN_MENU_CLICCABILE, 1);
 		database.insert(TABLE_MENU, null, row);
 		row.clear();
 

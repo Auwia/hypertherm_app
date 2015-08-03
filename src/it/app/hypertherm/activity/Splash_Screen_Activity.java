@@ -1,6 +1,13 @@
-package it.app.hypertherm;
+package it.app.hypertherm.activity;
 
+import it.app.hypertherm.R;
+import it.app.hypertherm.Utility;
+
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -42,13 +49,15 @@ public class Splash_Screen_Activity extends Activity {
 
 		new carica_configurazione_logo().execute();
 
+		new carica_dati_macchina().execute();
+
 		settings.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 
 				settings_click = true;
 
 				Intent intent = new Intent(Splash_Screen_Activity.this,
-						Settings.class);
+						SettingsActivity.class);
 				startActivity(intent);
 			}
 		});
@@ -59,10 +68,68 @@ public class Splash_Screen_Activity extends Activity {
 
 	}
 
+	private class carica_dati_macchina extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+
+			utility.appendLog("upload dati macchina...");
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+
+			try {
+
+				File root = Environment.getExternalStorageDirectory();
+				FileInputStream fstream = new FileInputStream(root
+						+ "/Hypertherm/conf/ParaPatologie"
+						+ utility.getLanguage() + ".txt");
+				DataInputStream in = new DataInputStream(fstream);
+				BufferedReader br = new BufferedReader(
+						new InputStreamReader(in));
+
+				String strLine = br.readLine().replace('\n', ' ');
+				String[] splitted = null;
+
+				// Caricamento caricamento = new Caricamento(
+				// getApplicationContext(), splitted);
+				// caricamento.caricaTrattamenti();
+
+				utility.cancellaStage();
+
+				while ((strLine = br.readLine()) != null) {
+					utility.appendLog(strLine);
+					utility.caricaStage(strLine.split("\\|"));
+				}
+
+				utility.caricaTrattamenti();
+
+				utility.caricaPatologia();
+
+				utility.caricaDisturbi();
+
+				in.close();
+			} catch (Exception e) {// Catch exception if any
+				utility.appendLog("Error: " + e.getMessage());
+			}
+
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+
+			utility.appendLog("upload dati macchina...OK");
+
+		}
+
+	}
+
 	private class carica_configurazione_logo extends
 			AsyncTask<Void, Void, Void> {
-		// ProgressDialog pdLoading = new ProgressDialog(
-		// Splash_Screen_Activity.this);
 
 		@Override
 		protected void onPreExecute() {
@@ -81,7 +148,7 @@ public class Splash_Screen_Activity extends Activity {
 					File root = Environment.getExternalStorageDirectory();
 					ImageView logo = (ImageView) findViewById(R.id.logo);
 					Bitmap bMap = BitmapFactory.decodeFile(root
-							+ "/TCaRe/images/logo.jpg");
+							+ "/Hypertherm/images/logo.jpg");
 					logo.setImageBitmap(bMap);
 
 				}

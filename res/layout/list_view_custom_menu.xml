@@ -26,7 +26,7 @@
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:gravity="left"
-            android:textColor="@drawable/my_row_selector"
+            android:textColor="@drawable/my_row_selector_menu"
             android:textIsSelectable="false"
             android:textSize="30sp"
             android:textStyle="bold" />

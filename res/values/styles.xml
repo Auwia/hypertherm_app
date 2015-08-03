@@ -1,0 +1,10 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="scroll">
+        <item name="android:scrollbarThumbVertical">@drawable/seek_bar_thumb</item>
+        <item name="android:scrollbarTrackVertical">@drawable/scroll</item>
+        <item name="android:scrollbarFadeDuration">0</item>
+        <item name="android:scrollbarAlwaysDrawVerticalTrack">true</item>
+    </style>
+
+</resources>

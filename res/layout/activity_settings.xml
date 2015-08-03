@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="it.app.hypertherm.Settings" >
+    tools:context="it.app.hypertherm.activity.SettingsActivity" >
 
     <TextView
         android:layout_width="wrap_content"

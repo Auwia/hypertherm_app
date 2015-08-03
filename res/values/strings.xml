@@ -5,4 +5,37 @@
     <string name="title_activity_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title">Hypertherm</string>
+    <string name="title_activity_work">Work</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="zero">0</string>
+    <string name="uno">1</string>
+    <string name="due">2</string>
+    <string name="tre">3</string>
+    <string name="quattro">4</string>
+    <string name="dieci">10</string>
+    <string name="venti">20</string>
+    <string name="trenta">30</string>
+    <string name="quaranta">40</string>
+    <string name="cinquanta">50</string>
+    <string name="sessanta">60</string>
+    <string name="settanta">70</string>
+    <string name="ottanta">80</string>
+    <string name="novanta">90</string>
+    <string name="sottozero">-00.0</string>
+    <string name="zerozero">0:00</string>
+    <string name="gradicentigradi">°C</string>
+    <string name="watt">W</string>
+    <string name="title_activity_tessuto">TessutoActivity</string>
+    <string name="title_activity_tessuto2">Tessuto2Activity</string>
+    <string name="tessuto">Selezionare tessuto sede da trattare</string>
+    <string name="title_activity_patologia">PatologiaActivity</string>
+    <string name="patologia">Tessuto muscolare: selezionare patologia</string>
+    <string name="title_activity_struttura_profondita">StrutturaProfonditaActivity</string>
+    <string name="struttura">Struttura</string>
+    <string name="profondita">Profondità</string>
+    <string name="muscolare">Muscolare</string>
+    <string name="mix">Mix</string>
+    <string name="articolare">Articolare</string>
+
 </resources>
