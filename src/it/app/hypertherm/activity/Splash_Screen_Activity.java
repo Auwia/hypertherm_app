@@ -49,7 +49,9 @@ public class Splash_Screen_Activity extends Activity {
 
 		new carica_configurazione_logo().execute();
 
-		new carica_dati_macchina().execute();
+		// new Thread(new carica_dati_macchina()).start();
+
+		import_dati();
 
 		settings.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -68,18 +70,48 @@ public class Splash_Screen_Activity extends Activity {
 
 	}
 
-	private class carica_dati_macchina extends AsyncTask<Void, Void, Void> {
+	private void import_dati() {
 
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
+		utility.appendLog("upload dati macchina...");
+		try {
 
-			utility.appendLog("upload dati macchina...");
+			File root = Environment.getExternalStorageDirectory();
+			FileInputStream fstream = new FileInputStream(root
+					+ "/Hypertherm/conf/ParaPatologie" + utility.getLanguage()
+					+ ".txt");
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+			String strLine = br.readLine().replace('\n', ' ');
+			String[] splitted = null;
+
+			utility.cancellaStage();
+
+			while ((strLine = br.readLine()) != null) {
+				utility.appendLog(strLine);
+				utility.caricaStage(strLine.split("\\|"));
+			}
+
+			utility.caricaTrattamenti();
+			utility.caricaPatologia();
+			utility.caricaDisturbi();
+
+			in.close();
+
+			utility.appendLog("upload dati macchina...OK");
+
+		} catch (Exception e) {// Catch exception if any
+			utility.appendLog("upload dati macchina...ERROR: " + e.getMessage());
 		}
 
-		@Override
-		protected Void doInBackground(Void... params) {
+	}
 
+	private class carica_dati_macchina implements Runnable {
+
+		@Override
+		public void run() {
+
+			utility.appendLog("upload dati macchina...");
 			try {
 
 				File root = Environment.getExternalStorageDirectory();
@@ -93,10 +125,6 @@ public class Splash_Screen_Activity extends Activity {
 				String strLine = br.readLine().replace('\n', ' ');
 				String[] splitted = null;
 
-				// Caricamento caricamento = new Caricamento(
-				// getApplicationContext(), splitted);
-				// caricamento.caricaTrattamenti();
-
 				utility.cancellaStage();
 
 				while ((strLine = br.readLine()) != null) {
@@ -104,25 +132,32 @@ public class Splash_Screen_Activity extends Activity {
 					utility.caricaStage(strLine.split("\\|"));
 				}
 
-				utility.caricaTrattamenti();
+				new Thread(new Runnable() {
+					public void run() {
+						utility.caricaTrattamenti();
+					}
+				}).start();
 
-				utility.caricaPatologia();
+				new Thread(new Runnable() {
+					public void run() {
+						utility.caricaPatologia();
+					}
+				}).start();
 
-				utility.caricaDisturbi();
+				new Thread(new Runnable() {
+					public void run() {
+						utility.caricaDisturbi();
+					}
+				}).start();
 
 				in.close();
+
+				utility.appendLog("upload dati macchina...OK");
+
 			} catch (Exception e) {// Catch exception if any
-				utility.appendLog("Error: " + e.getMessage());
+				utility.appendLog("upload dati macchina...ERROR: "
+						+ e.getMessage());
 			}
-
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-
-			utility.appendLog("upload dati macchina...OK");
 
 		}
 

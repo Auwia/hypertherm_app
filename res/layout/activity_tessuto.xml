@@ -20,7 +20,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical"
-            android:layout_weight="90"
+            android:layout_weight="88"
             android:background="#c6ecf1"
             android:gravity="center_vertical" >
 
@@ -32,15 +32,16 @@
                 android:text="@string/tessuto"
                 android:textColor="@android:color/black"
                 android:textSize="40sp" />
+
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="10"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:layout_weight="12"
             android:background="#c6ecf1"
-            android:gravity="center_vertical" >
+            android:gravity="center_vertical|center_horizontal" >
 
             <Button
                 android:id="@+id/button_home"
@@ -62,7 +63,7 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_weight="20"
+            android:layout_weight="10"
             android:background="#00aac0" >
         </LinearLayout>
 
@@ -70,7 +71,7 @@
             android:id="@+id/row_lista_item"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_weight="50"
+            android:layout_weight="60"
             android:background="#00aac0" >
 
             <ListView

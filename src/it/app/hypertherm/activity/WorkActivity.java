@@ -3,8 +3,10 @@ package it.app.hypertherm.activity;
 import it.app.hypertherm.R;
 import it.app.hypertherm.Utility;
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,7 +22,7 @@ public class WorkActivity extends Activity {
 			button_deltat_right, button_time_left, button_time_right,
 			button_home;
 	private TextView antenna_black_label_down, water_label_down,
-			deltat_label_down, time_label_down;
+			deltat_label_down, time_label_down, disturbo_label;
 
 	private boolean mAutoIncrement = false;
 	private boolean mAutoDecrement = false;
@@ -33,12 +35,16 @@ public class WorkActivity extends Activity {
 
 	private int funzionalita;
 
+	private SharedPreferences preferences;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_work);
 
 		utility = new Utility(this);
+
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		seek_bar = (SeekBar) findViewById(R.id.seek_bar);
 		seek_bar.setMax(100);
@@ -54,6 +60,31 @@ public class WorkActivity extends Activity {
 		def_variable_components();
 
 		def_bottun_click();
+
+		def_value_defaults();
+	}
+
+	private void def_value_defaults() {
+
+		water_label_down.setText(String.valueOf(preferences.getFloat("WATER",
+				35)));
+
+		if (preferences.getFloat("DELTAT", 1) >= 0) {
+			deltat_label_down.setText("+"
+					+ String.valueOf(preferences.getFloat("DELTAT", 1)));
+		} else {
+			deltat_label_down.setText("-"
+					+ String.valueOf(preferences.getFloat("DELTAT", 1)));
+		}
+
+		antenna_black_label_down.setText(String.valueOf(preferences.getInt(
+				"ANTENNA", 0)));
+		time_label_down.setText(String.valueOf(preferences.getInt("TIME", 0))
+				+ ":00");
+
+		disturbo_label.setText(String.valueOf(preferences.getString(
+				"MENU_ITEM", "Defect")));
+
 	}
 
 	private void def_bottun_click() {
@@ -426,6 +457,7 @@ public class WorkActivity extends Activity {
 		water_label_down = (TextView) findViewById(R.id.water_label_down);
 		deltat_label_down = (TextView) findViewById(R.id.deltat_label_down);
 		time_label_down = (TextView) findViewById(R.id.time_label_down);
+		disturbo_label = (TextView) findViewById(R.id.disturbo_label);
 
 	}
 

@@ -17,9 +17,11 @@ public class Service_boot extends Service {
 
 	@Override
 	public void onStart(Intent intent, int startid) {
+
 		Intent intents = new Intent(getBaseContext(),
 				Splash_Screen_Activity.class);
 		intents.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(intents);
 	}
+
 }

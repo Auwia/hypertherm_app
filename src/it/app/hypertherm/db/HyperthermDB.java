@@ -63,7 +63,9 @@ public class HyperthermDB extends SQLiteOpenHelper {
 			+ DISTURBI_MENU + "(COLUMN_ID"
 			+ " integer primary key autoincrement NOT NULL, "
 			+ COLUMN_MENU_ITEM + " varchar(50), " + COLUMN_MENU_ID_TRATTAMENTO
-			+ " integer, " + COLUMN_MENU_ID_PATOLOGIA + " integer );";
+			+ " integer, " + COLUMN_MENU_ID_PATOLOGIA + " integer, "
+			+ TEMPO_MENU + " integer, " + PMAXRF_MENU + " integer, "
+			+ TACQUA_MENU + " FLOAT, " + DTEMPERATURA_MENU + " FLOAT );";
 
 	private static final String CREATE_TABLE_TRATTAMENTI = "create table "
 			+ TRATTAMENTI_MENU + "(COLUMN_ID"

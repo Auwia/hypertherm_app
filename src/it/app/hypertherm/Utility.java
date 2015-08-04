@@ -3,7 +3,6 @@ package it.app.hypertherm;
 import it.app.hypertherm.db.HyperthermDataSource;
 
 import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -56,6 +55,66 @@ public class Utility {
 	public Utility() {
 	}
 
+	public float getWaterTemperature(String disturbo) {
+
+		cur = database.query("DISTURBI", new String[] { "TACQUA" },
+				"MENU_ITEM=?", new String[] { disturbo }, null, null, null);
+
+		cur.moveToFirst();
+
+		float result = cur.getFloat(0);
+
+		cur.close();
+
+		return result;
+
+	}
+
+	public float getDeltaT(String disturbo) {
+
+		cur = database.query("DISTURBI", new String[] { "DTEMPERATURA" },
+				"MENU_ITEM=?", new String[] { disturbo }, null, null, null);
+
+		cur.moveToFirst();
+
+		float result = cur.getFloat(0);
+
+		cur.close();
+
+		return result;
+
+	}
+
+	public int getAntenna(String disturbo) {
+
+		cur = database.query("DISTURBI", new String[] { "PMAXRF" },
+				"MENU_ITEM=?", new String[] { disturbo }, null, null, null);
+
+		cur.moveToFirst();
+
+		int result = cur.getInt(0);
+
+		cur.close();
+
+		return result;
+
+	}
+
+	public int getTime(String disturbo) {
+
+		cur = database.query("DISTURBI", new String[] { "TEMPO" },
+				"MENU_ITEM=?", new String[] { disturbo }, null, null, null);
+
+		cur.moveToFirst();
+
+		int result = cur.getInt(0);
+
+		cur.close();
+
+		return result;
+
+	}
+
 	public void caricaDisturbi() {
 
 		appendLog("upload Disturbi...");
@@ -64,7 +123,7 @@ public class Utility {
 
 		database.delete("DISTURBI", null, null);
 
-		database.execSQL("insert into disturbi select null, a.disturbi, c.COLUMN_ID id_trattamento, b.ID id_patologia from stage a inner join patologie b on (a.PATOLOGIE=b.menu_item) inner join trattamenti c on (c.MENU_ITEM=a.trattamenti);");
+		database.execSQL("insert into disturbi select null, a.disturbi, c.COLUMN_ID id_trattamento, b.ID id_patologia, a.TEMPO, a.PMAXRF, a.TACQUA, a.DTEMPERATURA from stage a inner join patologie b on (a.PATOLOGIE=b.menu_item) inner join trattamenti c on (c.MENU_ITEM=a.trattamenti);");
 
 		database.setTransactionSuccessful();
 		database.endTransaction();
@@ -142,27 +201,6 @@ public class Utility {
 
 	}
 
-	public void poweroff() {
-
-		try {
-
-			Process p = Runtime.getRuntime().exec("su");
-			DataOutputStream os = new DataOutputStream(p.getOutputStream());
-
-			appendLog("shoutdown...");
-
-			os.writeBytes("reboot -p" + "\n");
-			os.writeBytes("exit\n");
-			os.flush();
-
-			appendLog("shoutdown...OK");
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-
 	public boolean isInteger(String str) {
 		try {
 			Integer.parseInt(str);
@@ -200,22 +238,46 @@ public class Utility {
 		return timeout;
 	}
 
-	public void set_menu_items(String[] array_items) {
-
-		return;
-	}
-
 	public ArrayList<Menu_app> get_menu_items(String table_name) {
 
 		cur = database.query(table_name, new String[] { "MENU_ITEM",
-				"MENU_CLICCABILE" }, null, null, null, null, null);
+				"MENU_CLICCABILE" }, "MENU_ITEM != ?", new String[] { "NULL" },
+				null, null, null);
+
+		if (table_name == "PATOLOGIE") {
+
+			cur = database
+					.query("trattamenti a inner join disturbi b on (a.COLUMN_ID = b.ID_TRATTAMENTO) inner join  patologie c on (b.ID_PATOLOGIA=c.id)",
+							new String[] { "b.MENU_ITEM", "c.MENU_ITEM" },
+							"a.MENU_ITEM = ?", new String[] { preferences
+									.getString("TRATTAMENTO", "") },
+							"b.MENU_ITEM,c.MENU_ITEM", null, "c.MENU_ITEM");
+		}
 
 		cur.moveToFirst();
 
 		ArrayList<Menu_app> menu_list = new ArrayList<Menu_app>();
 
 		while (cur.getCount() > 0 && !cur.isAfterLast()) {
-			menu_list.add(new Menu_app(cur.getString(0), cur.getInt(1) > 0));
+
+			if (table_name == "PATOLOGIE") {
+				boolean trovato = false;
+
+				for (int i = 0; i < menu_list.size(); i++) {
+
+					if (cur.getString(1).equals(menu_list.get(i).getItem())) {
+						trovato = true;
+					}
+				}
+
+				if (!trovato) {
+					if (!cur.getString(1).toString().equals("NULL")) {
+						menu_list.add(new Menu_app(cur.getString(1), false));
+					}
+				}
+			}
+
+			menu_list.add(new Menu_app(cur.getString(0), true));
 			cur.moveToNext();
 		}
 		cur.close();

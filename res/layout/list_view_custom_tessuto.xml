@@ -11,7 +11,6 @@
         android:id="@+id/item"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:paddingLeft="30dp"
         android:textColor="@drawable/my_row_selector_tessuto"
         android:textSize="35sp"
         android:textStyle="bold" />

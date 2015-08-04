@@ -89,12 +89,23 @@ public class TessutoActivity extends Activity {
 
 			public void onClick(View v) {
 
-				load_menu_item(listaMenuItem.getCheckedItemPosition());
+				preferences
+						.edit()
+						.putString(
+								"TRATTAMENTO",
+								myAdapter.getItem(
+										listaMenuItem.getCheckedItemPosition())
+										.getItem()).commit();
+
+				Intent intent = new Intent(TessutoActivity.this,
+						PatologiaActivity.class);
+				startActivity(intent);
 			}
 		});
 
 		new carica_configurazione_logo().execute();
 
+		listaMenuItem.setItemChecked(0, true);
 	}
 
 	private void import_menu_items() {
@@ -102,33 +113,6 @@ public class TessutoActivity extends Activity {
 		myAdapter = new TessutoListViewAdapter(this,
 				utility.get_menu_items("TRATTAMENTI"));
 		listaMenuItem.setAdapter(myAdapter);
-	}
-
-	protected void load_menu_item(int position) {
-
-		Intent intent;
-
-		intent = new Intent(TessutoActivity.this, PatologiaActivity.class);
-		startActivity(intent);
-
-		switch (position) {
-		case 0:
-
-			break;
-		case 1:
-			break;
-		case 2:
-
-			// intent = new Intent(MainActivity.this, WorkActivity.class);
-			// startActivity(intent);
-
-			break;
-		case 3:
-			break;
-		case 4:
-			break;
-		}
-
 	}
 
 	private class carica_configurazione_logo extends

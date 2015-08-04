@@ -20,7 +20,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical"
-            android:layout_weight="90"
+            android:layout_weight="88"
             android:background="#c6ecf1"
             android:gravity="center_vertical" >
 
@@ -38,7 +38,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|right"
-            android:layout_weight="10"
+            android:layout_weight="12"
             android:background="#c6ecf1"
             android:gravity="center_vertical|right"
             android:paddingRight="30sp" >

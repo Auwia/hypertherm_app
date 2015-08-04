@@ -36,7 +36,7 @@ public class PatologiaActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_patologia);
 
-		utility = new Utility();
+		utility = new Utility(this);
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -59,7 +59,6 @@ public class PatologiaActivity extends Activity {
 			public void onClick(View v) {
 
 				int position = listaMenuItem.getCheckedItemPosition();
-				utility.appendLog("CIAO: " + position);
 
 				if (position == -1) {
 					position = 0;
@@ -74,18 +73,32 @@ public class PatologiaActivity extends Activity {
 							.getMenuFlaggato()) {
 
 						if (position - 2 >= 0) {
+
 							listaMenuItem.setItemChecked(
 									listaMenuItem.getCheckedItemPosition() - 2,
 									true);
+
+							listaMenuItem.setSelection(listaMenuItem
+									.getCheckedItemPosition() - 2);
+
+							return;
+
 						} else {
 							return;
 						}
 					} else {
 
 						if (position - 1 >= 0) {
+
 							listaMenuItem.setItemChecked(
 									listaMenuItem.getCheckedItemPosition() - 1,
 									true);
+
+							listaMenuItem.setSelection(listaMenuItem
+									.getCheckedItemPosition() - 1);
+
+							return;
+
 						} else {
 							return;
 						}
@@ -93,9 +106,6 @@ public class PatologiaActivity extends Activity {
 				} else {
 					return;
 				}
-
-				listaMenuItem.setSelection(listaMenuItem
-						.getCheckedItemPosition() - 5);
 
 			}
 		});
@@ -104,32 +114,46 @@ public class PatologiaActivity extends Activity {
 			public void onClick(View v) {
 
 				int position = listaMenuItem.getCheckedItemPosition();
-				utility.appendLog("CIAO: " + position);
 
 				if (position == -1) {
-					position = 0;
+					// position = 0;
 				} else if (position >= listaMenuItem.getCount()) {
 					position = listaMenuItem.getCount() - 1;
 				}
 
 				if (listaMenuItem.getCheckedItemPosition() < listaMenuItem
 						.getCount() - 1) {
+
 					if (!myAdapter.getItem(
 							listaMenuItem.getCheckedItemPosition() + 1)
 							.getMenuFlaggato()) {
 
 						if (position + 2 <= listaMenuItem.getCount() - 1) {
+
 							listaMenuItem.setItemChecked(
 									listaMenuItem.getCheckedItemPosition() + 2,
 									true);
+
+							listaMenuItem.setSelection(listaMenuItem
+									.getCheckedItemPosition());
+
+							return;
+
 						} else {
 							return;
 						}
 					} else {
 						if (position + 1 <= listaMenuItem.getCount() - 1) {
+
 							listaMenuItem.setItemChecked(
 									listaMenuItem.getCheckedItemPosition() + 1,
 									true);
+
+							listaMenuItem.setSelection(listaMenuItem
+									.getCheckedItemPosition());
+
+							return;
+
 						} else {
 							return;
 						}
@@ -137,10 +161,6 @@ public class PatologiaActivity extends Activity {
 				} else {
 					return;
 				}
-
-				listaMenuItem.setSelection(listaMenuItem
-						.getCheckedItemPosition());
-
 			}
 		});
 
@@ -148,38 +168,51 @@ public class PatologiaActivity extends Activity {
 
 			public void onClick(View v) {
 
-				load_menu_item(listaMenuItem.getCheckedItemPosition());
+				preferences
+						.edit()
+						.putFloat(
+								"WATER",
+								utility.getWaterTemperature(myAdapter.getItem(
+										listaMenuItem.getCheckedItemPosition())
+										.getItem())).commit();
+				preferences
+						.edit()
+						.putFloat(
+								"DELTAT",
+								utility.getDeltaT(myAdapter.getItem(
+										listaMenuItem.getCheckedItemPosition())
+										.getItem())).commit();
+				preferences
+						.edit()
+						.putInt("ANTENNA",
+								utility.getAntenna(myAdapter.getItem(
+										listaMenuItem.getCheckedItemPosition())
+										.getItem())).commit();
+				preferences
+						.edit()
+						.putInt("TIME",
+								utility.getTime(myAdapter.getItem(
+										listaMenuItem.getCheckedItemPosition())
+										.getItem())).commit();
+
+				preferences
+						.edit()
+						.putString(
+								"MENU_ITEM",
+								myAdapter.getItem(
+										listaMenuItem.getCheckedItemPosition())
+										.getItem()).commit();
+
+				Intent intent = new Intent(PatologiaActivity.this,
+						WorkActivity.class);
+				startActivity(intent);
 			}
 		});
 
 		new carica_configurazione_logo().execute();
 
-	}
-
-	protected void load_menu_item(int position) {
-
-		Intent intent;
-
-		intent = new Intent(PatologiaActivity.this, WorkActivity.class);
-		startActivity(intent);
-
-		switch (position) {
-		case 0:
-
-			break;
-		case 1:
-			break;
-		case 2:
-
-			// intent = new Intent(MainActivity.this, WorkActivity.class);
-			// startActivity(intent);
-
-			break;
-		case 3:
-			break;
-		case 4:
-			break;
-		}
+		listaMenuItem.setItemChecked(myAdapter.getItem(0).getMenuFlaggato() ? 0
+				: 1, true);
 
 	}
 
