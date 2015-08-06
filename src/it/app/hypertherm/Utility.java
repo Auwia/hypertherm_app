@@ -1,11 +1,16 @@
 package it.app.hypertherm;
 
+import it.app.hypertherm.db.HyperthermDB;
 import it.app.hypertherm.db.HyperthermDataSource;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,24 +27,18 @@ import android.util.Log;
 
 public class Utility {
 
-	private Activity activity;
-
-	private ContentValues row = new ContentValues();
-
 	private static String TAG = "HYPERTHERM";
 
 	private SharedPreferences preferences;
-	private SharedPreferences.Editor editor;
 
 	// VARIABILI DATA BASE
 	private static final String DATABASE_NAME = "Hypertherm.db";
 	private static SQLiteDatabase database;
 	private HyperthermDataSource datasource;
 	private Cursor cur;
+	private ContentValues row = new ContentValues();
 
 	public Utility(Activity activity) {
-
-		this.activity = activity;
 
 		datasource = new HyperthermDataSource(activity.getApplicationContext());
 		datasource.open();
@@ -48,21 +47,95 @@ public class Utility {
 				SQLiteDatabase.CREATE_IF_NECESSARY, null);
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(activity);
-		editor = preferences.edit();
 
 	}
 
 	public Utility() {
 	}
 
-	public float getWaterTemperature(String disturbo) {
+	public double getPmaxRF(double deltat, double twater) {
 
-		cur = database.query("DISTURBI", new String[] { "TACQUA" },
-				"MENU_ITEM=?", new String[] { disturbo }, null, null, null);
+		return Math.round(4.3 * (5.4 * deltat + twater - 37));
+
+	}
+
+	public String[] getStrutturaItems() {
+
+		cur = database.query(true, "STAGE_STRUTTURA",
+				new String[] { "STRUTTURA" }, null, null, null, null, null,
+				null);
 
 		cur.moveToFirst();
 
-		float result = cur.getFloat(0);
+		String[] struttura = new String[cur.getCount()];
+		int i = 0;
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			struttura[i] = cur.getString(0);
+			i += 1;
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return struttura;
+	}
+
+	public float getWaterTemperature(String disturbo) {
+
+		float result = 0;
+
+		if (disturbo.equals("DEFAULT")) {
+
+			try {
+
+				File root = Environment.getExternalStorageDirectory();
+				FileInputStream fstream = new FileInputStream(root
+						+ "/Hypertherm/conf/ParaDefault" + getLanguage()
+						+ ".txt");
+
+				DataInputStream in = new DataInputStream(fstream);
+				BufferedReader br = new BufferedReader(
+						new InputStreamReader(in));
+
+				String strLine = br.readLine().replace('\n', ' ');
+
+				appendLog(strLine);
+
+				result = Float.parseFloat(strLine.split("\\|")[3]);
+
+				in.close();
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		} else {
+
+			cur = database.query("DISTURBI", new String[] { "TACQUA" },
+					"MENU_ITEM=?", new String[] { disturbo }, null, null, null);
+
+			cur.moveToFirst();
+
+			result = cur.getFloat(0);
+
+			cur.close();
+		}
+
+		return result;
+
+	}
+
+	public float getWaterTemperature(String struttura, String profondita) {
+
+		float result = 0;
+
+		cur = database.query("STAGE_STRUTTURA", new String[] { "TACQUA" },
+				"STRUTTURA=? AND PROFONDITA=?", new String[] { struttura,
+						profondita }, null, null, null);
+
+		cur.moveToFirst();
+
+		result = cur.getFloat(0);
 
 		cur.close();
 
@@ -72,12 +145,61 @@ public class Utility {
 
 	public float getDeltaT(String disturbo) {
 
-		cur = database.query("DISTURBI", new String[] { "DTEMPERATURA" },
-				"MENU_ITEM=?", new String[] { disturbo }, null, null, null);
+		float result = 0;
+
+		if (disturbo.equals("DEFAULT")) {
+
+			try {
+
+				File root = Environment.getExternalStorageDirectory();
+				FileInputStream fstream = new FileInputStream(root
+						+ "/Hypertherm/conf/ParaDefault" + getLanguage()
+						+ ".txt");
+
+				DataInputStream in = new DataInputStream(fstream);
+				BufferedReader br = new BufferedReader(
+						new InputStreamReader(in));
+
+				String strLine = br.readLine().replace('\n', ' ');
+
+				appendLog(strLine);
+
+				result = Float.parseFloat(strLine.split("\\|")[4]);
+
+				in.close();
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		} else {
+
+			cur = database.query("DISTURBI", new String[] { "DTEMPERATURA" },
+					"MENU_ITEM=?", new String[] { disturbo }, null, null, null);
+
+			cur.moveToFirst();
+
+			result = cur.getFloat(0);
+
+			cur.close();
+		}
+
+		return result;
+
+	}
+
+	public float getDeltaT(String struttura, String profondita) {
+
+		float result = 0;
+
+		cur = database.query("STAGE_STRUTTURA",
+				new String[] { "DTEMPERATURA" },
+				"STRUTTURA=? AND PROFONDITA=?", new String[] { struttura,
+						profondita }, null, null, null);
 
 		cur.moveToFirst();
 
-		float result = cur.getFloat(0);
+		result = cur.getFloat(0);
 
 		cur.close();
 
@@ -87,12 +209,79 @@ public class Utility {
 
 	public int getAntenna(String disturbo) {
 
-		cur = database.query("DISTURBI", new String[] { "PMAXRF" },
-				"MENU_ITEM=?", new String[] { disturbo }, null, null, null);
+		int result = 0;
+
+		if (disturbo.equals("DEFAULT")) {
+
+			try {
+
+				File root = Environment.getExternalStorageDirectory();
+				FileInputStream fstream = new FileInputStream(root
+						+ "/Hypertherm/conf/ParaDefault" + getLanguage()
+						+ ".txt");
+
+				DataInputStream in = new DataInputStream(fstream);
+				BufferedReader br = new BufferedReader(
+						new InputStreamReader(in));
+
+				String strLine = br.readLine().replace('\n', ' ');
+
+				appendLog(strLine);
+
+				result = Integer.parseInt(strLine.split("\\|")[2]);
+
+				in.close();
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		} else {
+
+			cur = database.query("DISTURBI", new String[] { "PMAXRF" },
+					"MENU_ITEM=?", new String[] { disturbo }, null, null, null);
+
+			cur.moveToFirst();
+
+			result = cur.getInt(0);
+
+			cur.close();
+		}
+
+		return result;
+
+	}
+
+	public String getProfonditaLabel(String struttura, String profondita) {
+
+		String result = "";
+
+		cur = database.query("STAGE_STRUTTURA",
+				new String[] { "PROFONDITA_LABEL" },
+				"STRUTTURA=? AND PROFONDITA=?", new String[] { struttura,
+						profondita }, null, null, null);
 
 		cur.moveToFirst();
 
-		int result = cur.getInt(0);
+		result = cur.getString(0);
+
+		cur.close();
+
+		return result;
+
+	}
+
+	public int getAntenna(String struttura, String profondita) {
+
+		int result = 0;
+
+		cur = database.query("STAGE_STRUTTURA", new String[] { "PMAXRF" },
+				"STRUTTURA=? AND PROFONDITA=?", new String[] { struttura,
+						profondita }, null, null, null);
+
+		cur.moveToFirst();
+
+		result = cur.getInt(0);
 
 		cur.close();
 
@@ -102,12 +291,61 @@ public class Utility {
 
 	public int getTime(String disturbo) {
 
-		cur = database.query("DISTURBI", new String[] { "TEMPO" },
-				"MENU_ITEM=?", new String[] { disturbo }, null, null, null);
+		int result = 0;
+
+		if (disturbo.equals("DEFAULT")) {
+
+			try {
+
+				File root = Environment.getExternalStorageDirectory();
+				FileInputStream fstream = new FileInputStream(root
+						+ "/Hypertherm/conf/ParaDefault" + getLanguage()
+						+ ".txt");
+
+				DataInputStream in = new DataInputStream(fstream);
+				BufferedReader br = new BufferedReader(
+						new InputStreamReader(in));
+
+				String strLine = br.readLine().replace('\n', ' ');
+
+				appendLog(strLine);
+
+				result = Integer.parseInt(strLine.split("\\|")[1]);
+
+				in.close();
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		} else {
+
+			cur = database.query("DISTURBI", new String[] { "TEMPO" },
+					"MENU_ITEM=?", new String[] { disturbo }, null, null, null);
+
+			cur.moveToFirst();
+
+			result = cur.getInt(0);
+
+			cur.close();
+
+		}
+
+		return result;
+
+	}
+
+	public int getTime(String struttura, String profondita) {
+
+		int result = 0;
+
+		cur = database.query("STAGE_STRUTTURA", new String[] { "TEMPO" },
+				"STRUTTURA=? AND PROFONDITA=?", new String[] { struttura,
+						profondita }, null, null, null);
 
 		cur.moveToFirst();
 
-		int result = cur.getInt(0);
+		result = cur.getInt(0);
 
 		cur.close();
 
@@ -115,89 +353,20 @@ public class Utility {
 
 	}
 
-	public void caricaDisturbi() {
+	public String getMenuItemDefault() {
 
-		appendLog("upload Disturbi...");
+		String result = "";
 
-		database.beginTransaction();
+		cur = database.query("STAGE_DEFAULT", new String[] { "MENU_ITEM" },
+				null, null, null, null, null);
 
-		database.delete("DISTURBI", null, null);
+		cur.moveToFirst();
 
-		database.execSQL("insert into disturbi select null, a.disturbi, c.COLUMN_ID id_trattamento, b.ID id_patologia, a.TEMPO, a.PMAXRF, a.TACQUA, a.DTEMPERATURA from stage a inner join patologie b on (a.PATOLOGIE=b.menu_item) inner join trattamenti c on (c.MENU_ITEM=a.trattamenti);");
+		result = cur.getString(0);
 
-		database.setTransactionSuccessful();
-		database.endTransaction();
+		cur.close();
 
-		appendLog("upload Disturbi...OK");
-	}
-
-	public void caricaPatologia() {
-
-		appendLog("upload Patologie...");
-
-		database.beginTransaction();
-
-		database.delete("PATOLOGIE", null, null);
-
-		database.execSQL("insert into patologie select distinct null, patologie, 0 from stage;");
-
-		database.setTransactionSuccessful();
-		database.endTransaction();
-
-		appendLog("upload Patologie...OK");
-	}
-
-	public void caricaTrattamenti() {
-
-		appendLog("upload Trattamenti...");
-
-		database.beginTransaction();
-
-		database.delete("TRATTAMENTI", null, null);
-
-		database.execSQL("insert into trattamenti select distinct null, trattamenti, 1 from stage;");
-
-		database.setTransactionSuccessful();
-		database.endTransaction();
-
-		appendLog("upload Trattamenti...OK");
-	}
-
-	public void cancellaStage() {
-		appendLog("delete Stage Area...");
-
-		database.beginTransaction();
-		database.delete("STAGE", null, null);
-		database.setTransactionSuccessful();
-		database.endTransaction();
-
-		appendLog("delete Stage Area...OK");
-	}
-
-	public void caricaStage(String[] array_items) {
-
-		appendLog("upload Stage Area...");
-
-		database.beginTransaction();
-
-		row.clear();
-
-		row.put("TRATTAMENTI", array_items[0]);
-		row.put("PATOLOGIE", array_items[1]);
-		row.put("DISTURBI", array_items[2]);
-		row.put("MENU_CLICCABILE", array_items[3]);
-		row.put("RIFERIMENTI", array_items[4]);
-		row.put("TEMPO", array_items[5]);
-		row.put("PMAXRF", array_items[6]);
-		row.put("TACQUA", array_items[7]);
-		row.put("DTEMPERATURA", array_items[8]);
-
-		database.insert("STAGE", null, row);
-
-		database.setTransactionSuccessful();
-		database.endTransaction();
-
-		appendLog("upload Stage Area...OK");
+		return result;
 
 	}
 
@@ -218,6 +387,211 @@ public class Utility {
 			b[i] = (byte) str.charAt(i);
 		}
 		return b;
+	}
+
+	public String get_menu_item_patologia() {
+
+		cur = database.query(HyperthermDB.TABLE_STAGE_STRING,
+				new String[] { HyperthermDB.COLUMN_MENU_ITEM },
+				HyperthermDB.COLUMN_MENU_ITEM + "=?",
+				new String[] { "menu_item_patologia" }, null, null, null);
+
+		cur.moveToFirst();
+
+		String result = "";
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			result = cur.getString(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return result;
+	}
+
+	public String get_menu_item_struttura_profondita() {
+
+		cur = database.query(HyperthermDB.TABLE_STAGE_STRING,
+				new String[] { HyperthermDB.COLUMN_MENU_ITEM },
+				HyperthermDB.COLUMN_MENU_ITEM + "=?",
+				new String[] { "menu_item_struttura_profondita" }, null, null,
+				null);
+
+		cur.moveToFirst();
+
+		String result = "";
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			result = cur.getString(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return result;
+	}
+
+	public String get_menu_item_manual_selection() {
+
+		cur = database
+				.query(HyperthermDB.TABLE_STAGE_STRING,
+						new String[] { HyperthermDB.COLUMN_MENU_ITEM },
+						HyperthermDB.COLUMN_MENU_ITEM + "=?",
+						new String[] { "menu_item_manual_selection" }, null,
+						null, null);
+
+		cur.moveToFirst();
+
+		String result = "";
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			result = cur.getString(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return result;
+	}
+
+	public String get_menu_item_demo_training() {
+
+		cur = database.query(HyperthermDB.TABLE_STAGE_STRING,
+				new String[] { HyperthermDB.COLUMN_MENU_ITEM },
+				HyperthermDB.COLUMN_MENU_ITEM + "=?",
+				new String[] { "menu_item_demo_training" }, null, null, null);
+
+		cur.moveToFirst();
+
+		String result = "";
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			result = cur.getString(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return result;
+	}
+
+	public String get_menu_item_user_manual() {
+
+		cur = database.query(HyperthermDB.TABLE_STAGE_STRING,
+				new String[] { HyperthermDB.COLUMN_MENU_ITEM },
+				HyperthermDB.COLUMN_MENU_ITEM + "=?",
+				new String[] { "menu_item_user_manual" }, null, null, null);
+
+		cur.moveToFirst();
+
+		String result = "";
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			result = cur.getString(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return result;
+	}
+
+	public String get_label_struttura() {
+
+		cur = database.query(HyperthermDB.TABLE_STAGE_STRING,
+				new String[] { HyperthermDB.COLUMN_MENU_VALUE },
+				HyperthermDB.COLUMN_MENU_ITEM + "=?",
+				new String[] { "label_struttura" }, null, null, null);
+
+		cur.moveToFirst();
+
+		String result = "";
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			result = cur.getString(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return result;
+	}
+
+	public String get_title_tessuto() {
+
+		cur = database.query(HyperthermDB.TABLE_STAGE_STRING,
+				new String[] { HyperthermDB.COLUMN_MENU_VALUE },
+				HyperthermDB.COLUMN_MENU_ITEM + "=?",
+				new String[] { "title_tessuto" }, null, null, null);
+
+		cur.moveToFirst();
+
+		String result = "";
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			result = cur.getString(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return result;
+	}
+
+	public String get_title_patologia() {
+
+		cur = database.query(HyperthermDB.TABLE_STAGE_STRING,
+				new String[] { HyperthermDB.COLUMN_MENU_VALUE },
+				HyperthermDB.COLUMN_MENU_ITEM + "=?",
+				new String[] { "title_patologia" }, null, null, null);
+
+		cur.moveToFirst();
+
+		String result = "";
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			result = cur.getString(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return result;
+	}
+
+	public String get_title_struttura_profondita() {
+
+		cur = database
+				.query(HyperthermDB.TABLE_STAGE_STRING,
+						new String[] { HyperthermDB.COLUMN_MENU_VALUE },
+						HyperthermDB.COLUMN_MENU_ITEM + "=?",
+						new String[] { "title_struttura_profondita" }, null,
+						null, null);
+
+		cur.moveToFirst();
+
+		String result = "";
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			result = cur.getString(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return result;
+	}
+
+	public String get_label_profondita() {
+
+		cur = database.query(HyperthermDB.TABLE_STAGE_STRING,
+				new String[] { HyperthermDB.COLUMN_MENU_VALUE },
+				HyperthermDB.COLUMN_MENU_ITEM + "=?",
+				new String[] { "label_profondita" }, null, null, null);
+
+		cur.moveToFirst();
+
+		String result = "";
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			result = cur.getString(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return result;
 	}
 
 	public int get_time_out_splash() {
@@ -251,7 +625,7 @@ public class Utility {
 							new String[] { "b.MENU_ITEM", "c.MENU_ITEM" },
 							"a.MENU_ITEM = ?", new String[] { preferences
 									.getString("TRATTAMENTO", "") },
-							"b.MENU_ITEM,c.MENU_ITEM", null, "c.MENU_ITEM");
+							"b.MENU_ITEM,c.MENU_ITEM", null, "c.MENU_ITEM desc");
 		}
 
 		cur.moveToFirst();
@@ -331,5 +705,17 @@ public class Utility {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void cancellaStage(String table_name) {
+
+		appendLog("delete Stage Area (" + table_name + ")...");
+
+		database.beginTransaction();
+		database.delete(table_name, null, null);
+		database.setTransactionSuccessful();
+		database.endTransaction();
+
+		appendLog("delete Stage Area (" + table_name + ")...OK");
 	}
 }

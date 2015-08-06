@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class PatologiaActivity extends Activity {
 
@@ -28,6 +29,7 @@ public class PatologiaActivity extends Activity {
 
 	private ListView listaMenuItem;
 	private Button button_up, button_down, button_ok, button_home;
+	private TextView tessuto;
 
 	private SharedPreferences preferences;
 
@@ -47,11 +49,16 @@ public class PatologiaActivity extends Activity {
 		button_ok = (Button) findViewById(R.id.button_ok);
 		button_home = (Button) findViewById(R.id.button_home);
 
+		tessuto = (TextView) findViewById(R.id.tessuto);
+		tessuto.setText(utility.get_title_patologia());
+
 		import_menu_items();
 
 		button_home.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				finish();
+				Intent intent = new Intent(PatologiaActivity.this,
+						MainActivity.class);
+				startActivity(intent);
 			}
 		});
 
@@ -261,6 +268,14 @@ public class PatologiaActivity extends Activity {
 			utility.appendLog("upload logo...OK");
 
 		}
+
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+
+		finish();
 
 	}
 

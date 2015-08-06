@@ -3,6 +3,7 @@ package it.app.hypertherm.activity;
 import it.app.hypertherm.R;
 import it.app.hypertherm.Utility;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -103,6 +104,8 @@ public class WorkActivity extends Activity {
 									.toString()) - 1));
 				}
 
+				disturbo_label.setText(utility.getMenuItemDefault());
+
 			}
 		});
 
@@ -119,6 +122,9 @@ public class WorkActivity extends Activity {
 							.parseInt(antenna_black_label_down.getText()
 									.toString()) + 1));
 				}
+
+				disturbo_label.setText(utility.getMenuItemDefault());
+
 			}
 		});
 
@@ -137,6 +143,9 @@ public class WorkActivity extends Activity {
 					water_label_down.setText(String.valueOf(tot));
 
 				}
+
+				disturbo_label.setText(utility.getMenuItemDefault());
+
 			}
 		});
 
@@ -154,6 +163,9 @@ public class WorkActivity extends Activity {
 
 					water_label_down.setText(String.valueOf(tot));
 				}
+
+				disturbo_label.setText(utility.getMenuItemDefault());
+
 			}
 		});
 
@@ -176,6 +188,9 @@ public class WorkActivity extends Activity {
 					}
 
 				}
+
+				disturbo_label.setText(utility.getMenuItemDefault());
+
 			}
 		});
 
@@ -198,6 +213,9 @@ public class WorkActivity extends Activity {
 					}
 
 				}
+
+				disturbo_label.setText(utility.getMenuItemDefault());
+
 			}
 		});
 
@@ -218,6 +236,9 @@ public class WorkActivity extends Activity {
 					time_label_down.setText("" + (time - 1) + ":00");
 
 				}
+
+				disturbo_label.setText(utility.getMenuItemDefault());
+
 			}
 		});
 
@@ -238,6 +259,9 @@ public class WorkActivity extends Activity {
 					time_label_down.setText("" + (time + 1) + ":00");
 
 				}
+
+				disturbo_label.setText(utility.getMenuItemDefault());
+
 			}
 		});
 
@@ -245,7 +269,10 @@ public class WorkActivity extends Activity {
 
 		button_home.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				finish();
+				Intent intent = new Intent(WorkActivity.this,
+						MainActivity.class);
+				startActivity(intent);
+
 			}
 		});
 

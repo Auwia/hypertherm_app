@@ -3,6 +3,7 @@ package it.app.hypertherm.activity;
 import it.app.hypertherm.MenuListViewAdapter;
 import it.app.hypertherm.R;
 import it.app.hypertherm.Utility;
+import it.app.hypertherm.db.HyperthermDB;
 
 import java.io.File;
 
@@ -122,6 +123,23 @@ public class MainActivity extends Activity {
 			break;
 		case 2:
 
+			preferences.edit().putInt("ANTENNA", utility.getAntenna("DEFAULT"))
+					.commit();
+
+			preferences.edit()
+					.putFloat("WATER", utility.getWaterTemperature("DEFAULT"))
+					.commit();
+
+			preferences.edit().putFloat("DELTAT", utility.getDeltaT("DEFAULT"))
+					.commit();
+
+			preferences.edit().putInt("TIME", utility.getTime("DEFAULT"))
+					.commit();
+
+			preferences.edit()
+					.putString("MENU_ITEM", utility.getMenuItemDefault())
+					.commit();
+
 			intent = new Intent(MainActivity.this, WorkActivity.class);
 			startActivity(intent);
 
@@ -141,7 +159,7 @@ public class MainActivity extends Activity {
 	private void import_menu_items() {
 
 		myAdapter = new MenuListViewAdapter(this,
-				utility.get_menu_items("MENU"));
+				utility.get_menu_items(HyperthermDB.TABLE_MENU));
 		listaMenuItem = (ListView) findViewById(R.id.listaMenuItem);
 		listaMenuItem.setAdapter(myAdapter);
 	}

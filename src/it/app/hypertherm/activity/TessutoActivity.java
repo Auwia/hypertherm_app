@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class TessutoActivity extends Activity {
 
@@ -28,6 +29,7 @@ public class TessutoActivity extends Activity {
 
 	private ListView listaMenuItem;
 	private Button button_up, button_down, button_ok, button_home;
+	private TextView tessuto_label;
 
 	private SharedPreferences preferences;
 
@@ -46,6 +48,9 @@ public class TessutoActivity extends Activity {
 		button_down = (Button) findViewById(R.id.button_down);
 		button_ok = (Button) findViewById(R.id.button_ok);
 		button_home = (Button) findViewById(R.id.button_home);
+
+		tessuto_label = (TextView) findViewById(R.id.tessuto);
+		tessuto_label.setText(utility.get_title_tessuto());
 
 		import_menu_items();
 

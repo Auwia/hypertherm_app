@@ -1,13 +1,10 @@
 package it.app.hypertherm.activity;
 
+import it.app.hypertherm.Caricamento;
 import it.app.hypertherm.R;
 import it.app.hypertherm.Utility;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -31,7 +28,7 @@ public class Splash_Screen_Activity extends Activity {
 	@Override
 	public void onPause() {
 		super.onPause();
-		utility.appendLog("sono in PAUSA...");
+
 		finish();
 	}
 
@@ -49,9 +46,7 @@ public class Splash_Screen_Activity extends Activity {
 
 		new carica_configurazione_logo().execute();
 
-		// new Thread(new carica_dati_macchina()).start();
-
-		import_dati();
+		new Caricamento(this);
 
 		settings.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -67,99 +62,6 @@ public class Splash_Screen_Activity extends Activity {
 		utility.appendLog("splash screen start...OK");
 
 		new conteggio_time_out().execute();
-
-	}
-
-	private void import_dati() {
-
-		utility.appendLog("upload dati macchina...");
-		try {
-
-			File root = Environment.getExternalStorageDirectory();
-			FileInputStream fstream = new FileInputStream(root
-					+ "/Hypertherm/conf/ParaPatologie" + utility.getLanguage()
-					+ ".txt");
-			DataInputStream in = new DataInputStream(fstream);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
-			String strLine = br.readLine().replace('\n', ' ');
-			String[] splitted = null;
-
-			utility.cancellaStage();
-
-			while ((strLine = br.readLine()) != null) {
-				utility.appendLog(strLine);
-				utility.caricaStage(strLine.split("\\|"));
-			}
-
-			utility.caricaTrattamenti();
-			utility.caricaPatologia();
-			utility.caricaDisturbi();
-
-			in.close();
-
-			utility.appendLog("upload dati macchina...OK");
-
-		} catch (Exception e) {// Catch exception if any
-			utility.appendLog("upload dati macchina...ERROR: " + e.getMessage());
-		}
-
-	}
-
-	private class carica_dati_macchina implements Runnable {
-
-		@Override
-		public void run() {
-
-			utility.appendLog("upload dati macchina...");
-			try {
-
-				File root = Environment.getExternalStorageDirectory();
-				FileInputStream fstream = new FileInputStream(root
-						+ "/Hypertherm/conf/ParaPatologie"
-						+ utility.getLanguage() + ".txt");
-				DataInputStream in = new DataInputStream(fstream);
-				BufferedReader br = new BufferedReader(
-						new InputStreamReader(in));
-
-				String strLine = br.readLine().replace('\n', ' ');
-				String[] splitted = null;
-
-				utility.cancellaStage();
-
-				while ((strLine = br.readLine()) != null) {
-					utility.appendLog(strLine);
-					utility.caricaStage(strLine.split("\\|"));
-				}
-
-				new Thread(new Runnable() {
-					public void run() {
-						utility.caricaTrattamenti();
-					}
-				}).start();
-
-				new Thread(new Runnable() {
-					public void run() {
-						utility.caricaPatologia();
-					}
-				}).start();
-
-				new Thread(new Runnable() {
-					public void run() {
-						utility.caricaDisturbi();
-					}
-				}).start();
-
-				in.close();
-
-				utility.appendLog("upload dati macchina...OK");
-
-			} catch (Exception e) {// Catch exception if any
-				utility.appendLog("upload dati macchina...ERROR: "
-						+ e.getMessage());
-			}
-
-		}
 
 	}
 

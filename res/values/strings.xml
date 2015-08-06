@@ -28,14 +28,7 @@
     <string name="watt">W</string>
     <string name="title_activity_tessuto">TessutoActivity</string>
     <string name="title_activity_tessuto2">Tessuto2Activity</string>
-    <string name="tessuto">Selezionare tessuto sede da trattare</string>
     <string name="title_activity_patologia">PatologiaActivity</string>
-    <string name="patologia">Tessuto muscolare: selezionare patologia</string>
     <string name="title_activity_struttura_profondita">StrutturaProfonditaActivity</string>
-    <string name="struttura">Struttura</string>
-    <string name="profondita">Profondità</string>
-    <string name="muscolare">Muscolare</string>
-    <string name="mix">Mix</string>
-    <string name="articolare">Articolare</string>
 
 </resources>

@@ -23,12 +23,19 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	private static final int DATABASE_VERSION = 1;
 
 	public static final String TABLE_WORK_TIME = "WORK_TIME";
-	public static final String TABLE_STAGE = "STAGE";
+	public static final String TABLE_STAGE_STRING = "STAGE_STRING";
+	public static final String TABLE_STAGE_PATOLOGIE = "STAGE_PATALOGIE";
+	public static final String TABLE_STAGE_STRUTTURA = "STAGE_STRUTTURA";
+	public static final String TABLE_STAGE_DEFAULT = "STAGE_DEFAULT";
 	public static final String TABLE_DISTURBO = "DISTURBI";
 	public static final String TABLE_PASSWORD = "PASSWORD";
 	public static final String TABLE_SETTINGS = "SETTINGS";
 	public static final String TABLE_MENU = "MENU";
+
+	public static final String STRUTTURA_MENU = "STRUTTURA";
 	public static final String TRATTAMENTI_MENU = "TRATTAMENTI";
+	public static final String PROFONDITA_MENU = "PROFONDITA";
+	public static final String PROFONDITA_LABEL_MENU = "PROFONDITA_LABEL";
 	public static final String PATOLOGIE_MENU = "PATOLOGIE";
 	public static final String DISTURBI_MENU = "DISTURBI";
 	public static final String RIFERIMENTI_MENU = "RIFERIMENTI";
@@ -47,12 +54,29 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	public static final String COLUMN_TIMEOUT = "TIMEOUT";
 	public static final String COLUMN_TIMEOUT_SPLASH = "TIMEOUT_SPLASH";
 	public static final String COLUMN_MENU_ITEM = "MENU_ITEM";
+	public static final String COLUMN_MENU_VALUE = "VALUE";
 	public static final String COLUMN_MENU_CLICCABILE = "MENU_CLICCABILE";
 	public static final String COLUMN_MENU_ID_TRATTAMENTO = "ID_TRATTAMENTO";
 	public static final String COLUMN_MENU_ID_PATOLOGIA = "ID_PATOLOGIA";
 
-	private static final String CREATE_TABLE_STAGE = "create table "
-			+ TABLE_STAGE + "(" + TRATTAMENTI_MENU + " varchar(50), "
+	private static final String CREATE_TABLE_STAGE_STRING = "create table "
+			+ TABLE_STAGE_STRING + "(" + COLUMN_MENU_ITEM + " varchar(50), "
+			+ COLUMN_MENU_VALUE + " varchar(50));";
+
+	private static final String CREATE_TABLE_STAGE_DEFAULT = "create table "
+			+ TABLE_STAGE_DEFAULT + "(" + COLUMN_MENU_ITEM + " varchar(50), "
+			+ TEMPO_MENU + " integer, " + PMAXRF_MENU + " integer, "
+			+ TACQUA_MENU + " FLOAT, " + DTEMPERATURA_MENU + " FLOAT" + ");";
+
+	private static final String CREATE_TABLE_STAGE_STRUTTURA = "create table "
+			+ TABLE_STAGE_STRUTTURA + "(" + STRUTTURA_MENU + " varchar(50), "
+			+ PROFONDITA_MENU + " varchar(1), " + PROFONDITA_LABEL_MENU
+			+ " varchar(50), " + RIFERIMENTI_MENU + " varchar(50), "
+			+ TEMPO_MENU + " integer, " + PMAXRF_MENU + " integer, "
+			+ TACQUA_MENU + " FLOAT, " + DTEMPERATURA_MENU + " FLOAT" + ");";
+
+	private static final String CREATE_TABLE_STAGE_PATALOGIE = "create table "
+			+ TABLE_STAGE_PATOLOGIE + "(" + TRATTAMENTI_MENU + " varchar(50), "
 			+ PATOLOGIE_MENU + " varchar(50), " + DISTURBI_MENU
 			+ " varchar(50), " + COLUMN_MENU_CLICCABILE + " bit, "
 			+ RIFERIMENTI_MENU + " varchar(50), " + TEMPO_MENU + " integer, "
@@ -91,9 +115,8 @@ public class HyperthermDB extends SQLiteOpenHelper {
 			+ TABLE_PASSWORD + "(" + COLUMN_PASSWORD + " VARCHAR(20));";
 
 	private static final String CREATE_TABLE_TABLE_SETTINGS = "create table "
-			+ TABLE_SETTINGS + "(" + COLUMN_SMART + " bit, " + COLUMN_PHYSIO
-			+ " bit, " + COLUMN_SERIAL_NUMBER + " VARCHAR(20), "
-			+ COLUMN_LANGUAGE + " varchar(2), " + COLUMN_TIMEOUT + " integer, "
+			+ TABLE_SETTINGS + "(" + COLUMN_SERIAL_NUMBER + " VARCHAR(20), "
+			+ COLUMN_LANGUAGE + " varchar(3), " + COLUMN_TIMEOUT + " integer, "
 			+ COLUMN_TIMEOUT_SPLASH + " integer);";
 
 	public HyperthermDB(Context context) {
@@ -106,8 +129,14 @@ public class HyperthermDB extends SQLiteOpenHelper {
 
 		utility = new Utility();
 
-		database.execSQL(CREATE_TABLE_STAGE);
-		utility.appendLog("Creo tabella..." + CREATE_TABLE_STAGE);
+		database.execSQL(CREATE_TABLE_STAGE_PATALOGIE);
+		utility.appendLog("Creo tabella..." + CREATE_TABLE_STAGE_PATALOGIE);
+		database.execSQL(CREATE_TABLE_STAGE_STRUTTURA);
+		utility.appendLog("Creo tabella..." + CREATE_TABLE_STAGE_STRUTTURA);
+		database.execSQL(CREATE_TABLE_STAGE_DEFAULT);
+		utility.appendLog("Creo tabella..." + CREATE_TABLE_STAGE_DEFAULT);
+		database.execSQL(CREATE_TABLE_STAGE_STRING);
+		utility.appendLog("Creo tabella..." + CREATE_TABLE_STAGE_STRING);
 		database.execSQL(CREATE_TABLE_DISTURBI);
 		utility.appendLog("Creo tabella..." + CREATE_TABLE_DISTURBI);
 		database.execSQL(CREATE_TABLE_TABLE_WORK_TIME);
@@ -135,12 +164,9 @@ public class HyperthermDB extends SQLiteOpenHelper {
 		database.beginTransaction();
 		database.insert(TABLE_WORK_TIME, null, row);
 		row.clear();
-		row.put(COLUMN_SMART, 1);
-		row.put(COLUMN_PHYSIO, 0);
 		row.put(COLUMN_SERIAL_NUMBER, "SN ");
 		row.put(COLUMN_LANGUAGE, "Ita");
 		row.put(COLUMN_TIMEOUT, 3);
-		row.put(COLUMN_TIMEOUT_SPLASH, 2500);
 		database.insert(TABLE_SETTINGS, null, row);
 		row.clear();
 		row.put(COLUMN_MENU_ITEM, "Selezione trattamento per patologia");

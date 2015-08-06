@@ -24,7 +24,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="20sp"
-                android:text="@string/tessuto"
                 android:textColor="@android:color/black"
                 android:textSize="40sp" />
         </LinearLayout>
@@ -75,7 +74,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingRight="40sp"
-                android:text="@string/struttura"
                 android:textColor="@android:color/black"
                 android:textSize="40sp" />
         </LinearLayout>
@@ -91,7 +89,9 @@
                 android:id="@+id/button_muscolare"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_muscolare" />
+                android:background="@drawable/button_chiaro"
+                android:textColor="@drawable/color"
+                android:textSize="35sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -105,7 +105,9 @@
                 android:id="@+id/button_mix"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_mix" />
+                android:background="@drawable/button_scuro"
+                android:textColor="@drawable/color"
+                android:textSize="35sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -119,7 +121,9 @@
                 android:id="@+id/button_articolare"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_articolare" />
+                android:background="@drawable/button_chiaro"
+                android:textColor="@drawable/color"
+                android:textSize="35sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -180,7 +184,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingRight="40sp"
-                android:text="@string/profondita"
                 android:textColor="@android:color/black"
                 android:textSize="40sp" />
         </LinearLayout>

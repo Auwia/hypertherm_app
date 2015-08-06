@@ -29,7 +29,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="20sp"
-                android:text="@string/patologia"
                 android:textColor="@android:color/black"
                 android:textSize="40sp" />
         </LinearLayout>

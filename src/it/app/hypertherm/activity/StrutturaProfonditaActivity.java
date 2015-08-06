@@ -1,13 +1,17 @@
 package it.app.hypertherm.activity;
 
 import it.app.hypertherm.R;
+import it.app.hypertherm.Utility;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class StrutturaProfonditaActivity extends Activity {
 
@@ -15,10 +19,22 @@ public class StrutturaProfonditaActivity extends Activity {
 			button_articolare, button_uno, button_due, button_tre,
 			button_quattro, button_ok;
 
+	private TextView struttura_label, profondita_label, tessuto_label;
+
+	private String struttura, profondita;
+
+	private Utility utility;
+
+	private SharedPreferences preferences;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_struttura_profondita);
+
+		utility = new Utility();
+
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		button_home = (Button) findViewById(R.id.button_home);
 		button_muscolare = (Button) findViewById(R.id.button_muscolare);
@@ -30,8 +46,19 @@ public class StrutturaProfonditaActivity extends Activity {
 		button_quattro = (Button) findViewById(R.id.button_quattro);
 		button_ok = (Button) findViewById(R.id.button_ok);
 
-		button_muscolare.setPressed(true);
-		button_uno.setPressed(true);
+		String[] struttura_array = utility.getStrutturaItems();
+
+		button_muscolare.setText(struttura_array[0]);
+		button_mix.setText(struttura_array[1]);
+		button_articolare.setText(struttura_array[2]);
+
+		struttura_label = (TextView) findViewById(R.id.struttura);
+		profondita_label = (TextView) findViewById(R.id.profondita);
+		tessuto_label = (TextView) findViewById(R.id.tessuto);
+
+		struttura_label.setText(utility.get_label_struttura());
+		profondita_label.setText(utility.get_label_profondita());
+		tessuto_label.setText(utility.get_title_struttura_profondita());
 
 		button_home.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -56,6 +83,9 @@ public class StrutturaProfonditaActivity extends Activity {
 							button_muscolare.setPressed(true);
 							button_mix.setPressed(false);
 							button_articolare.setPressed(false);
+							utility.appendLog("CIAO:"
+									+ button_muscolare.getText().toString());
+							struttura = button_muscolare.getText().toString();
 						}
 					}
 				}
@@ -81,6 +111,7 @@ public class StrutturaProfonditaActivity extends Activity {
 							button_mix.setPressed(true);
 							button_muscolare.setPressed(false);
 							button_articolare.setPressed(false);
+							struttura = button_mix.getText().toString();
 						}
 					}
 				}
@@ -105,6 +136,7 @@ public class StrutturaProfonditaActivity extends Activity {
 							button_articolare.setPressed(true);
 							button_mix.setPressed(false);
 							button_muscolare.setPressed(false);
+							struttura = button_articolare.getText().toString();
 						}
 					}
 				}
@@ -133,6 +165,7 @@ public class StrutturaProfonditaActivity extends Activity {
 							button_due.setPressed(false);
 							button_tre.setPressed(false);
 							button_quattro.setPressed(false);
+							profondita = "1";
 						}
 					}
 				}
@@ -160,6 +193,7 @@ public class StrutturaProfonditaActivity extends Activity {
 							button_uno.setPressed(false);
 							button_tre.setPressed(false);
 							button_quattro.setPressed(false);
+							profondita = "2";
 						}
 					}
 				}
@@ -187,6 +221,7 @@ public class StrutturaProfonditaActivity extends Activity {
 							button_uno.setPressed(false);
 							button_due.setPressed(false);
 							button_quattro.setPressed(false);
+							profondita = "2";
 						}
 					}
 				}
@@ -214,6 +249,7 @@ public class StrutturaProfonditaActivity extends Activity {
 							button_uno.setPressed(false);
 							button_due.setPressed(false);
 							button_tre.setPressed(false);
+							profondita = "4";
 						}
 					}
 				}
@@ -225,38 +261,52 @@ public class StrutturaProfonditaActivity extends Activity {
 
 			public void onClick(View v) {
 
-				load_menu_item(0);
+				preferences
+						.edit()
+						.putFloat(
+								"WATER",
+								utility.getWaterTemperature(struttura,
+										profondita)).commit();
+				preferences
+						.edit()
+						.putFloat("DELTAT",
+								utility.getDeltaT(struttura, profondita))
+						.commit();
+				preferences
+						.edit()
+						.putInt("ANTENNA",
+								utility.getAntenna(struttura, profondita))
+						.commit();
+				preferences.edit()
+						.putInt("TIME", utility.getTime(struttura, profondita))
+						.commit();
+
+				preferences
+						.edit()
+						.putString(
+								"MENU_ITEM",
+								struttura
+										+ " - "
+										+ utility.getProfonditaLabel(struttura,
+												profondita)).commit();
+
+				Intent intent = new Intent(StrutturaProfonditaActivity.this,
+						WorkActivity.class);
+				startActivity(intent);
 			}
 		});
 
 	}
 
-	protected void load_menu_item(int position) {
+	@Override
+	public void onResume() {
+		super.onResume();
 
-		Intent intent;
+		struttura = button_mix.getText().toString();
+		profondita = "1";
 
-		intent = new Intent(StrutturaProfonditaActivity.this,
-				WorkActivity.class);
-		startActivity(intent);
-
-		switch (position) {
-		case 0:
-
-			break;
-		case 1:
-			break;
-		case 2:
-
-			// intent = new Intent(MainActivity.this, WorkActivity.class);
-			// startActivity(intent);
-
-			break;
-		case 3:
-			break;
-		case 4:
-			break;
-		}
+		button_mix.setPressed(true);
+		button_uno.setPressed(true);
 
 	}
-
 }
