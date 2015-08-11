@@ -40,6 +40,13 @@ public class Splash_Screen_Activity extends Activity {
 		utility = new Utility(this);
 		utility.appendLog("splash screen start...");
 
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 		settings = (Button) findViewById(R.id.settings);
 
 		new import_configuration_thread().execute();

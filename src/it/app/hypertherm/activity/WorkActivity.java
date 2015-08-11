@@ -2,6 +2,11 @@ package it.app.hypertherm.activity;
 
 import it.app.hypertherm.R;
 import it.app.hypertherm.Utility;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.DecimalFormat;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +19,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.dwin.navy.serialportapi.SerialPortOpt;
 
 public class WorkActivity extends Activity {
 
@@ -38,6 +45,357 @@ public class WorkActivity extends Activity {
 
 	private SharedPreferences preferences;
 
+	private SerialPortOpt serialPort;
+
+	private InputStream mInputStream;
+	private ReadThread mReadThread;
+
+	private byte[] writeusbdata = new byte[256];
+	private StringBuffer readSB = new StringBuffer();
+
+	public static write_thread writeThread;
+
+	private void inviaComandi(String comando) {
+
+		int numBytes = comando.length();
+		byte[] writeBuffer = new byte[64];
+
+		for (int i = 0; i < numBytes; i++) {
+			writeBuffer[i] = (byte) comando.charAt(i);
+		}
+
+		SendData(numBytes, writeBuffer);
+	}
+
+	public byte SendData(int numBytes, byte[] buffer) {
+		byte status = 0x00; /* success by default */
+
+		/*
+		 * if num bytes are more than maximum limit
+		 */
+		if (numBytes < 1) {
+			/* return the status with the error in the command */
+			utility.appendLog("SendData: numero di byte nullo o negativo");
+			return status;
+		}
+
+		/* check for maximum limit */
+		if (numBytes > 256) {
+			numBytes = 256;
+			utility.appendLog("SendData: numero di byte superiore a 256byte");
+		}
+
+		/* prepare the packet to be sent */
+		for (int count = 0; count < numBytes; count++) {
+			writeusbdata[count] = buffer[count];
+
+		}
+
+		if (numBytes != 64) {
+			SendPacket(numBytes);
+		} else {
+			byte temp = writeusbdata[63];
+			SendPacket(63);
+			writeusbdata[0] = temp;
+			SendPacket(1);
+		}
+
+		return status;
+	}
+
+	private void SendPacket(int numBytes) {
+
+		try {
+			serialPort.getOutputStream().write(writeusbdata, 0, numBytes);
+
+		} catch (IOException e) {
+
+			utility.appendLog("SendPacket: HO PERSO LA SCHEDA");
+
+			e.printStackTrace();
+
+		}
+	}
+
+	private class write_thread extends Thread {
+
+		write_thread() {
+		}
+
+		public void run() {
+
+			utility.appendLog("ENTRO NELLO SCRIVO");
+
+			boolean READ_ENABLE = true;
+			int exit = 0;
+
+			while (READ_ENABLE) {
+
+				// utility.appendLog("SONO NELLO SCRIVO");
+
+				inviaComandi("W");
+
+				exit += 1;
+
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
+
+			}
+
+			// READ_ENABLE = false;
+			utility.appendLog("ESCO DALLO SCRIVO");
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+
+		}
+	}
+
+	private class ReadThread extends Thread {
+
+		private ReadThread(InputStream stream) {
+			mInputStream = stream;
+			this.setPriority(Thread.MAX_PRIORITY);
+		}
+
+		public void run() {
+			super.run();
+
+			utility.appendLog("ENTRO NEL LEGGO");
+
+			byte[] buf = new byte[64];
+
+			while (!isInterrupted()) {
+
+				if (mInputStream == null)
+					return;
+
+				InputStream input_stream = serialPort.getInputStream();
+
+				int readcount;
+				try {
+
+					Thread.sleep(1000);
+
+					readcount = input_stream.read(buf, 0, 64);
+
+					if (readcount > 0) {
+
+						utility.appendLog("LETTO BUFFER NON NULLO:" + readcount);
+
+						if (readSB.toString().length() != 8) {
+
+							int CheckSum = ((int) buf[0]) & 0xFF;
+							CheckSum |= (((int) buf[1]) & 0xFF) << 8;
+							int Ver = ((int) buf[2]) & 0xFF;
+							int TimStmp = ((int) buf[3]) & 0xFF;
+							// int Msk = ((int) buf[4]) & 0xFF;
+							// Msk |= (((int) buf[5]) & 0xFF) << 8;
+							// Msk |= (((int) buf[6]) & 0xFF) << 16;
+							// Msk |= (((int) buf[7]) & 0xFF) << 24;
+
+							byte[] msk = new byte[4];
+
+							msk[0] = buf[4];
+							msk[1] = buf[5];
+							msk[2] = buf[6];
+							msk[3] = buf[7];
+
+							String msk_binary = utility.toBinary(msk);
+
+							int In_Output = ((int) buf[8]) & 0xFF;
+							In_Output |= (((int) buf[9]) & 0xFF) << 8;
+							In_Output |= (((int) buf[10]) & 0xFF) << 16;
+							In_Output |= (((int) buf[11]) & 0xFF) << 24;
+							int Cmd = ((int) buf[12]) & 0xFF;
+							Cmd |= (((int) buf[13]) & 0xFF) << 8;
+							int iTime = ((int) buf[14]) & 0xFF;
+							iTime |= (((int) buf[15]) & 0xFF) << 8;
+							int iD_temp = ((int) buf[16]) & 0xFF;
+							iD_temp |= (((int) buf[17]) & 0xFF) << 8;
+							int iH2o_temp = ((int) buf[18]) & 0xFF;
+							iH2o_temp |= (((int) buf[19]) & 0xFF) << 8;
+							int iColdHp_temp = ((int) buf[20]) & 0xFF;
+							iColdHp_temp |= (((int) buf[21]) & 0xFF) << 8;
+							int iPower = ((int) buf[22]) & 0xFF;
+							iPower |= (((int) buf[23]) & 0xFF) << 8;
+							int Gain_D_temp = ((int) buf[24]) & 0xFF;
+							Gain_D_temp |= (((int) buf[25]) & 0xFF) << 8;
+							int Offset_D_temp = ((int) buf[26]) & 0xFF;
+							Offset_D_temp |= (((int) buf[27]) & 0xFF) << 8;
+							int Gain_H2o_temp = ((int) buf[28]) & 0xFF;
+							Gain_H2o_temp |= (((int) buf[29]) & 0xFF) << 8;
+							int Offset_H2o_temp = ((int) buf[30]) & 0xFF;
+							Offset_H2o_temp |= (((int) buf[31]) & 0xFF) << 8;
+							int Gain_Cold_temp = ((int) buf[32]) & 0xFF;
+							Gain_Cold_temp |= (((int) buf[33]) & 0xFF) << 8;
+							int Offset_Cold_temp = ((int) buf[34]) & 0xFF;
+							Offset_Cold_temp |= (((int) buf[35]) & 0xFF) << 8;
+							int Gain_Boil_temp = ((int) buf[36]) & 0xFF;
+							Gain_Boil_temp |= (((int) buf[37]) & 0xFF) << 8;
+							int Offset_Boil_temp = ((int) buf[38]) & 0xFF;
+							Offset_Boil_temp |= (((int) buf[39]) & 0xFF) << 8;
+							int Req_power = ((int) buf[40]) & 0xFF;
+							Req_power |= (((int) buf[41]) & 0xFF) << 8;
+							int Dir_power = ((int) buf[42]) & 0xFF;
+							Dir_power |= (((int) buf[43]) & 0xFF) << 8;
+							int Ref_power = ((int) buf[44]) & 0xFF;
+							Ref_power |= (((int) buf[45]) & 0xFF) << 8;
+							int D_temp = ((int) buf[46]) & 0xFF;
+							D_temp |= (((int) buf[47]) & 0xFF) << 8;
+							int H2o_temp = ((int) buf[48]) & 0xFF;
+							H2o_temp |= (((int) buf[49]) & 0xFF) << 8;
+							int ColdHp_temp = ((int) buf[50]) & 0xFF;
+							ColdHp_temp |= (((int) buf[51]) & 0xFF) << 8;
+							int Boil_temp = ((int) buf[52]) & 0xFF;
+							Boil_temp |= (((int) buf[53]) & 0xFF) << 8;
+							int runningTime = ((int) buf[54]) & 0xFF;
+							runningTime |= (((int) buf[55]) & 0xFF) << 8;
+							int pwmRes = ((int) buf[56]) & 0xFF;
+							int pwmPomp = ((int) buf[57]) & 0xFF;
+							int pwmFan = ((int) buf[58]) & 0xFF;
+							int[] Buf = new int[5];
+							Buf[0] = ((int) buf[59]) & 0xFF;
+							Buf[1] = ((int) buf[60]) & 0xFF;
+							Buf[2] = ((int) buf[61]) & 0xFF;
+							Buf[3] = ((int) buf[62]) & 0xFF;
+							Buf[4] = ((int) buf[63]) & 0xFF;
+
+							utility.appendLog("COMANDO_RICEVUTO:" + "CheckSum="
+									+ CheckSum + " Ver=" + Ver + " TimStmp="
+									+ TimStmp + " Msk=" + msk_binary
+									+ " In_Output=" + In_Output + " Cmd=" + Cmd
+									+ " iTime=" + iTime + " iD_temp=" + iD_temp
+									+ " iH2o_temp=" + iH2o_temp
+									+ " iColdHp_temp=" + iColdHp_temp
+									+ " iPower=" + iPower + " Gain_D_temp="
+									+ Gain_D_temp + " Gain_D_temp="
+									+ Offset_D_temp + " Gain_H2o_temp="
+									+ Gain_H2o_temp + " Offset_H2o_temp="
+									+ Offset_H2o_temp + " Gain_Cold_temp="
+									+ Gain_Cold_temp + " Offset_Cold_temp="
+									+ Offset_Cold_temp + " Gain_Boil_temp="
+									+ Gain_Boil_temp + " Offset_Boil_temp="
+									+ Offset_Boil_temp + " Req_power="
+									+ Req_power + " Dir_power=" + Dir_power
+									+ " Ref_power=" + Ref_power + " D_temp="
+									+ D_temp + " H2o_temp=" + H2o_temp
+									+ " ColdHp_temp=" + ColdHp_temp
+									+ " Boil_temp=" + Boil_temp
+									+ " runningTime=" + runningTime
+									+ " pwmRes=" + pwmRes + " pwmPomp="
+									+ pwmPomp + " pwmFan=" + pwmFan
+									+ " Buf[0]=" + Buf[0] + " Buf[1]=" + Buf[1]
+									+ " Buf[2]=" + Buf[2] + " Buf[3]=" + Buf[3]
+									+ " Buf[4]=" + Buf[4]);
+
+							int cmd = msk_binary.indexOf("1");
+
+							switch (cmd) {
+							case 1: // COMANDO
+								utility.esegui(Cmd);
+								break;
+
+							case 2: // TEMPO
+								utility.SetTime(iTime / 60 + ":00");
+								break;
+
+							case 3: // DELTAT
+								utility.setDeltaT(due_cifre(iD_temp).replace(
+										",", "."));
+								break;
+
+							case 4: // WATER
+								utility.setWaterTemperature(due_cifre(iH2o_temp)
+										.replace(",", "."));
+								break;
+
+							case 6: // ANTENNA
+								utility.setAntenna(due_cifre(iPower).replace(
+										",", "."));
+								break;
+							}
+
+							utility.esegui(Cmd);
+
+							utility.SetTime(iTime / 60 + ":00");
+
+							utility.setDeltaT(due_cifre(iD_temp).replace(",",
+									"."));
+
+							utility.setWaterTemperature(due_cifre(iH2o_temp)
+									.replace(",", "."));
+
+							utility.setAntenna(due_cifre(iPower).replace(",",
+									"."));
+						}
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+
+			utility.appendLog("ESCO DAL LEGGO");
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+
+		}
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+
+	}
+
+	private String due_cifre(int number) {
+		double numer_job = (double) number / 100;
+		DecimalFormat df = new DecimalFormat("0.0#");
+		return df.format(numer_job);
+	}
+
+	private String una_cifra(int number) {
+		number /= 10;
+		DecimalFormat df = new DecimalFormat("0.0#");
+		return df.format(number);
+	}
+
+	private void initSerialPort() {
+		serialPort = new SerialPortOpt();
+		serialPort.mDevNum = 0;
+		serialPort.mDataBits = 8;
+		serialPort.mSpeed = 38400;
+		serialPort.mStopBits = 1;
+		serialPort.mParity = 'n';
+		serialPort.openDev(serialPort.mDevNum);
+		serialPort.setSpeed(serialPort.mFd, serialPort.mSpeed);
+		serialPort.setParity(serialPort.mFd, serialPort.mDataBits,
+				serialPort.mStopBits, serialPort.mParity);
+
+		mInputStream = this.serialPort.getInputStream();
+		mReadThread = new ReadThread(mInputStream);
+		mReadThread.start();
+
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -46,6 +404,8 @@ public class WorkActivity extends Activity {
 		utility = new Utility(this);
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+		initSerialPort();
 
 		seek_bar = (SeekBar) findViewById(R.id.seek_bar);
 		seek_bar.setMax(100);
@@ -63,6 +423,25 @@ public class WorkActivity extends Activity {
 		def_bottun_click();
 
 		def_value_defaults();
+
+		// writeThread = new write_thread();
+		// if (!writeThread.isAlive() && writeThread.getState() !=
+		// State.RUNNABLE) {
+		// writeThread.setName("Thread_Scrittura");
+		// writeThread.start();
+		//
+		// }
+		//
+		// try {
+		// Thread.sleep(1000);
+		// } catch (InterruptedException e) {
+		// }
+		//
+		// inviaComandi("@");
+		// inviaComandi("^");
+		// inviaComandi("a");
+		// inviaComandi("?");
+
 	}
 
 	private void def_value_defaults() {

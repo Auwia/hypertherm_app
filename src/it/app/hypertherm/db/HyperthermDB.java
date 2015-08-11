@@ -1,15 +1,6 @@
 package it.app.hypertherm.db;
 
 import it.app.hypertherm.Utility;
-
-import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
-
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -27,7 +18,7 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	public static final String TABLE_STAGE_PATOLOGIE = "STAGE_PATALOGIE";
 	public static final String TABLE_STAGE_STRUTTURA = "STAGE_STRUTTURA";
 	public static final String TABLE_STAGE_DEFAULT = "STAGE_DEFAULT";
-	public static final String TABLE_DISTURBO = "DISTURBI";
+	public static final String TABLE_DISTURBI = "DISTURBI";
 	public static final String TABLE_PASSWORD = "PASSWORD";
 	public static final String TABLE_SETTINGS = "SETTINGS";
 	public static final String TABLE_MENU = "MENU";
@@ -78,10 +69,9 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	private static final String CREATE_TABLE_STAGE_PATALOGIE = "create table "
 			+ TABLE_STAGE_PATOLOGIE + "(" + TRATTAMENTI_MENU + " varchar(50), "
 			+ PATOLOGIE_MENU + " varchar(50), " + DISTURBI_MENU
-			+ " varchar(50), " + COLUMN_MENU_CLICCABILE + " bit, "
-			+ RIFERIMENTI_MENU + " varchar(50), " + TEMPO_MENU + " integer, "
-			+ PMAXRF_MENU + " integer, " + TACQUA_MENU + " FLOAT, "
-			+ DTEMPERATURA_MENU + " FLOAT" + ");";
+			+ " varchar(50), " + RIFERIMENTI_MENU + " varchar(50), "
+			+ TEMPO_MENU + " integer, " + PMAXRF_MENU + " integer, "
+			+ TACQUA_MENU + " FLOAT, " + DTEMPERATURA_MENU + " FLOAT" + ");";
 
 	private static final String CREATE_TABLE_DISTURBI = "create table "
 			+ DISTURBI_MENU + "(COLUMN_ID"
@@ -111,8 +101,8 @@ public class HyperthermDB extends SQLiteOpenHelper {
 			+ TABLE_WORK_TIME + "(" + COLUMN_WORK_FROM
 			+ " integer primary key NOT NULL DEFAULT 1 " + " );";
 
-	private static final String CREATE_TABLE_TABLE_PASSWORD = "create table "
-			+ TABLE_PASSWORD + "(" + COLUMN_PASSWORD + " VARCHAR(20));";
+	// private static final String CREATE_TABLE_TABLE_PASSWORD = "create table "
+	// + TABLE_PASSWORD + "(" + COLUMN_PASSWORD + " VARCHAR(20));";
 
 	private static final String CREATE_TABLE_TABLE_SETTINGS = "create table "
 			+ TABLE_SETTINGS + "(" + COLUMN_SERIAL_NUMBER + " VARCHAR(20), "
@@ -141,8 +131,8 @@ public class HyperthermDB extends SQLiteOpenHelper {
 		utility.appendLog("Creo tabella..." + CREATE_TABLE_DISTURBI);
 		database.execSQL(CREATE_TABLE_TABLE_WORK_TIME);
 		utility.appendLog("Creo tabella..." + CREATE_TABLE_TABLE_WORK_TIME);
-		database.execSQL(CREATE_TABLE_TABLE_PASSWORD);
-		utility.appendLog("Creo tabella..." + CREATE_TABLE_TABLE_PASSWORD);
+		// database.execSQL(CREATE_TABLE_TABLE_PASSWORD);
+		// utility.appendLog("Creo tabella..." + CREATE_TABLE_TABLE_PASSWORD);
 		database.execSQL(CREATE_TABLE_MENU);
 		utility.appendLog("Creo tabella..." + CREATE_TABLE_MENU);
 		database.execSQL(CREATE_TABLE_TABLE_SETTINGS);
@@ -169,44 +159,25 @@ public class HyperthermDB extends SQLiteOpenHelper {
 		row.put(COLUMN_TIMEOUT, 3);
 		database.insert(TABLE_SETTINGS, null, row);
 		row.clear();
-		row.put(COLUMN_MENU_ITEM, "Selezione trattamento per patologia");
-		row.put(COLUMN_MENU_CLICCABILE, 1);
-		database.insert(TABLE_MENU, null, row);
-		row.clear();
-		row.put(COLUMN_MENU_ITEM,
-				"Selezione trattamento per struttura e profondita'");
-		row.put(COLUMN_MENU_CLICCABILE, 1);
-		database.insert(TABLE_MENU, null, row);
-		row.clear();
-		row.put(COLUMN_MENU_ITEM, "Selezione manuale parametri trattamento");
-		row.put(COLUMN_MENU_CLICCABILE, 1);
-		database.insert(TABLE_MENU, null, row);
-		row.clear();
-		row.put(COLUMN_MENU_ITEM, "Demo -Training");
-		row.put(COLUMN_MENU_CLICCABILE, 1);
-		database.insert(TABLE_MENU, null, row);
-		row.clear();
-		row.put(COLUMN_MENU_ITEM, "Manuale utente");
-		row.put(COLUMN_MENU_CLICCABILE, 1);
-		database.insert(TABLE_MENU, null, row);
-		row.clear();
 
-		byte[] salt = new byte[16];
-		KeySpec spec = new PBEKeySpec("240776".toCharArray(), salt, 65536, 128);
-		SecretKeyFactory f;
-		byte[] hash = null;
+		// byte[] salt = new byte[16];
+		// KeySpec spec = new PBEKeySpec("240776".toCharArray(), salt, 65536,
+		// 128);
+		// SecretKeyFactory f;
+		// byte[] hash = null;
+		//
+		// try {
+		// f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+		// hash = f.generateSecret(spec).getEncoded();
+		// } catch (NoSuchAlgorithmException e) {
+		// e.printStackTrace();
+		// } catch (InvalidKeySpecException e) {
+		// e.printStackTrace();
+		// }
+		//
+		// row.put("PWD", new BigInteger(1, hash).toString(16));
+		// database.insert(TABLE_PASSWORD, null, row);
 
-		try {
-			f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-			hash = f.generateSecret(spec).getEncoded();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (InvalidKeySpecException e) {
-			e.printStackTrace();
-		}
-
-		row.put("PWD", new BigInteger(1, hash).toString(16));
-		database.insert(TABLE_PASSWORD, null, row);
 		database.setTransactionSuccessful();
 		database.endTransaction();
 

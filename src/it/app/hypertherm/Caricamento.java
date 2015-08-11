@@ -71,9 +71,9 @@ public class Caricamento {
 
 				utility.appendLog("upload dati macchina (ParaPatologie)...OK");
 
-				utility.appendLog("delete file (ParaPatologie)...");
-				file.delete();
-				utility.appendLog("delete file (ParaPatologie)...OK");
+				utility.appendLog("move file (ParaPatologie)...");
+				utility.spostaFile(file);
+				utility.appendLog("move file (ParaPatologie)...OK");
 
 				caricaTrattamenti();
 				caricaPatologia();
@@ -114,9 +114,9 @@ public class Caricamento {
 
 				utility.appendLog("upload dati macchina (ParaStruttura)...OK");
 
-				utility.appendLog("delete file (ParaStruttura)...");
-				file.delete();
-				utility.appendLog("delete file (ParaStruttura)...OK");
+				utility.appendLog("move file (ParaStruttura)...");
+				utility.spostaFile(file);
+				utility.appendLog("move file (ParaStruttura)...OK");
 			}
 
 		} catch (Exception e) {
@@ -152,9 +152,9 @@ public class Caricamento {
 
 				utility.appendLog("upload dati macchina (ParaDefault)...OK");
 
-				utility.appendLog("delete file (ParaDefault)...");
-				file.delete();
-				utility.appendLog("delete file (ParaDefault)...OK");
+				utility.appendLog("move file (ParaDefault)...");
+				utility.spostaFile(file);
+				utility.appendLog("move file (ParaDefault)...OK");
 			}
 
 		} catch (Exception e) {
@@ -210,9 +210,9 @@ public class Caricamento {
 
 				utility.appendLog("upload dati macchina (ParaString)...OK");
 
-				utility.appendLog("delete file (ParaString)...");
-				file.delete();
-				utility.appendLog("delete file (ParaString)...OK");
+				utility.appendLog("move file (ParaString)...");
+				utility.spostaFile(file);
+				utility.appendLog("move file (ParaString)...OK");
 
 			}
 
@@ -250,9 +250,9 @@ public class Caricamento {
 
 				utility.appendLog("upload dati macchina (ParaConfig)...OK");
 
-				utility.appendLog("delete file (ParaConfig)...");
-				file.delete();
-				utility.appendLog("delete file (ParaConfig)...OK");
+				utility.appendLog("move file (ParaConfig)...");
+				utility.spostaFile(file);
+				utility.appendLog("move file (ParaConfig)...OK");
 
 			}
 
@@ -317,12 +317,11 @@ public class Caricamento {
 			row.put(HyperthermDB.TRATTAMENTI_MENU, array_items[0]);
 			row.put(HyperthermDB.PATOLOGIE_MENU, array_items[1]);
 			row.put(HyperthermDB.DISTURBI_MENU, array_items[2]);
-			row.put(HyperthermDB.COLUMN_MENU_CLICCABILE, array_items[3]);
-			row.put(HyperthermDB.RIFERIMENTI_MENU, array_items[4]);
-			row.put(HyperthermDB.TEMPO_MENU, array_items[5]);
-			row.put(HyperthermDB.PMAXRF_MENU, array_items[6]);
-			row.put(HyperthermDB.TACQUA_MENU, array_items[7]);
-			row.put(HyperthermDB.DTEMPERATURA_MENU, array_items[8]);
+			row.put(HyperthermDB.RIFERIMENTI_MENU, array_items[3]);
+			row.put(HyperthermDB.TEMPO_MENU, array_items[4]);
+			row.put(HyperthermDB.PMAXRF_MENU, array_items[5]);
+			row.put(HyperthermDB.TACQUA_MENU, array_items[6]);
+			row.put(HyperthermDB.DTEMPERATURA_MENU, array_items[7]);
 
 			database.insert(HyperthermDB.TABLE_STAGE_PATOLOGIE, null, row);
 
