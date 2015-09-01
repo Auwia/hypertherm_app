@@ -104,10 +104,10 @@
                 android:gravity="center_horizontal|bottom" >
 
                 <Button
-                    android:id="@+id/button_bottle_high"
+                    android:id="@+id/button_bolus_up"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_bottle_high" />
+                    android:background="@drawable/button_bolus_up" />
             </LinearLayout>
 
             <LinearLayout
@@ -124,10 +124,10 @@
                 android:gravity="center_horizontal|top" >
 
                 <Button
-                    android:id="@+id/button_bottle_low"
+                    android:id="@+id/button_bolus_down"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_bottle_low" />
+                    android:background="@drawable/button_bolus_down" />
             </LinearLayout>
         </LinearLayout>
 

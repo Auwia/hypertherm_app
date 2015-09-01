@@ -1,5 +1,6 @@
 package it.app.hypertherm.activity;
 
+import it.app.hypertherm.PC_TO_CY;
 import it.app.hypertherm.R;
 import it.app.hypertherm.Utility;
 
@@ -28,7 +29,8 @@ public class WorkActivity extends Activity {
 	private Button button_antenna_left, button_antenna_right,
 			button_water_left, button_water_right, button_deltat_left,
 			button_deltat_right, button_time_left, button_time_right,
-			button_home;
+			button_home, button_play, button_pause, button_stop,
+			button_bolus_up, button_bolus_down;
 	private TextView antenna_black_label_down, water_label_down,
 			deltat_label_down, time_label_down, disturbo_label;
 
@@ -57,14 +59,16 @@ public class WorkActivity extends Activity {
 
 	private void inviaComandi(String comando) {
 
-		int numBytes = comando.length();
-		byte[] writeBuffer = new byte[64];
+		PC_TO_CY pctocy = new PC_TO_CY();
+		pctocy.setPSoCData();
 
-		for (int i = 0; i < numBytes; i++) {
-			writeBuffer[i] = (byte) comando.charAt(i);
-		}
+		pctocy.PSoCData[2] = 0;
+		pctocy.PSoCData[3] = 0;
+		pctocy.PSoCData[4] = 64;
+		pctocy.PSoCData[12] = 0;
+		pctocy.PSoCData[13] = (byte) Integer.parseInt(comando);
 
-		SendData(numBytes, writeBuffer);
+		SendData(PC_TO_CY.PACKET_SIZE, pctocy.PSoCData);
 	}
 
 	public byte SendData(int numBytes, byte[] buffer) {
@@ -133,7 +137,7 @@ public class WorkActivity extends Activity {
 
 				// utility.appendLog("SONO NELLO SCRIVO");
 
-				inviaComandi("W");
+				// inviaComandi("W");
 
 				exit += 1;
 
@@ -185,7 +189,8 @@ public class WorkActivity extends Activity {
 
 					if (readcount > 0) {
 
-						utility.appendLog("LETTO BUFFER NON NULLO:" + readcount);
+						utility.appendLog("LETTO BUFFER NON NULLO:" + readcount
+								+ buf.toString());
 
 						if (readSB.toString().length() != 8) {
 
@@ -469,6 +474,56 @@ public class WorkActivity extends Activity {
 
 	private void def_bottun_click() {
 
+		button_play.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+
+				utility.appendLog("Inviato comando: PLAY");
+				inviaComandi("1");
+			}
+		});
+
+		button_pause.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+
+				utility.appendLog("Inviato comando: PAUSE");
+				inviaComandi("2");
+			}
+		});
+
+		button_stop.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+
+				utility.appendLog("Inviato comando: STOP");
+				inviaComandi("3");
+			}
+		});
+
+		button_bolus_down.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+
+				// if (button_bolus_down.isPressed()) {
+				// utility.appendLog("Inviato comando: BOLUS-STOP");
+				// inviaComandi("6");
+				// } else {
+				utility.appendLog("Inviato comando: BOLUS-DOWN");
+				inviaComandi("5");
+				// }
+			}
+		});
+
+		button_bolus_up.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+
+				// if (button_bolus_up.isPressed()) {
+				// utility.appendLog("Inviato comando: BOLUS-STOP");
+				// inviaComandi("6");
+				// } else {
+				utility.appendLog("Inviato comando: BOLUS-UP");
+				inviaComandi("4");
+				// }
+			}
+		});
+
 		button_antenna_left.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 
@@ -484,6 +539,9 @@ public class WorkActivity extends Activity {
 				}
 
 				disturbo_label.setText(utility.getMenuItemDefault());
+
+				utility.appendLog("Inviato comando: ANTENNA-LEFT");
+				invia_trattamenti();
 
 			}
 		});
@@ -503,6 +561,9 @@ public class WorkActivity extends Activity {
 				}
 
 				disturbo_label.setText(utility.getMenuItemDefault());
+
+				utility.appendLog("Inviato comando: ANTENNA-RIGHT");
+				invia_trattamenti();
 
 			}
 		});
@@ -525,6 +586,9 @@ public class WorkActivity extends Activity {
 
 				disturbo_label.setText(utility.getMenuItemDefault());
 
+				utility.appendLog("Inviato comando: WATER-LEFT");
+				invia_trattamenti();
+
 			}
 		});
 
@@ -544,6 +608,9 @@ public class WorkActivity extends Activity {
 				}
 
 				disturbo_label.setText(utility.getMenuItemDefault());
+
+				utility.appendLog("Inviato comando: WATER-RIGHT");
+				invia_trattamenti();
 
 			}
 		});
@@ -570,6 +637,9 @@ public class WorkActivity extends Activity {
 
 				disturbo_label.setText(utility.getMenuItemDefault());
 
+				utility.appendLog("Inviato comando: DELTAt-LEFT");
+				invia_trattamenti();
+
 			}
 		});
 
@@ -595,6 +665,9 @@ public class WorkActivity extends Activity {
 
 				disturbo_label.setText(utility.getMenuItemDefault());
 
+				utility.appendLog("Inviato comando: DELTAT-RIGHT");
+				invia_trattamenti();
+
 			}
 		});
 
@@ -618,6 +691,9 @@ public class WorkActivity extends Activity {
 
 				disturbo_label.setText(utility.getMenuItemDefault());
 
+				utility.appendLog("Inviato comando: TIMER-LEFT");
+				invia_trattamenti();
+
 			}
 		});
 
@@ -640,6 +716,9 @@ public class WorkActivity extends Activity {
 				}
 
 				disturbo_label.setText(utility.getMenuItemDefault());
+
+				utility.appendLog("Inviato comando: TIMER-RIGHT");
+				invia_trattamenti();
 
 			}
 		});
@@ -848,6 +927,41 @@ public class WorkActivity extends Activity {
 
 	}
 
+	protected void invia_trattamenti() {
+
+		PC_TO_CY pctocy = new PC_TO_CY();
+
+		utility.appendLog("Setto trattamento: TIMER:"
+				+ Integer
+						.parseInt(time_label_down
+								.getText()
+								.toString()
+								.substring(
+										0,
+										time_label_down.getText().toString()
+												.length() - 3)) + " - ANTENNA:"
+				+ antenna_black_label_down.getText().toString() + " WATER:"
+				+ water_label_down.getText().toString() + " - DELTAT:"
+				+ deltat_label_down.getText().toString());
+
+		pctocy.setTreatParms(
+				String.valueOf(Integer
+						.parseInt(time_label_down
+								.getText()
+								.toString()
+								.substring(
+										0,
+										time_label_down.getText().toString()
+												.length() - 3)) * 60),
+				antenna_black_label_down.getText().toString(), water_label_down
+						.getText().toString(), deltat_label_down.getText()
+						.toString());
+		pctocy.setPSoCData();
+
+		SendData(PC_TO_CY.PACKET_SIZE, pctocy.PSoCData);
+
+	}
+
 	private void def_variable_components() {
 		button_antenna_left = (Button) findViewById(R.id.button_antenna_left);
 		button_antenna_right = (Button) findViewById(R.id.button_antenna_right);
@@ -858,6 +972,11 @@ public class WorkActivity extends Activity {
 		button_time_left = (Button) findViewById(R.id.button_time_left);
 		button_time_right = (Button) findViewById(R.id.button_time_right);
 		button_home = (Button) findViewById(R.id.button_home);
+		button_play = (Button) findViewById(R.id.button_play);
+		button_pause = (Button) findViewById(R.id.button_pause);
+		button_stop = (Button) findViewById(R.id.button_stop);
+		button_bolus_down = (Button) findViewById(R.id.button_bolus_down);
+		button_bolus_up = (Button) findViewById(R.id.button_bolus_up);
 
 		antenna_black_label_down = (TextView) findViewById(R.id.antenna_black_label_down);
 		water_label_down = (TextView) findViewById(R.id.water_label_down);

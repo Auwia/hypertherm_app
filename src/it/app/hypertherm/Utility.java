@@ -38,7 +38,8 @@ public class Utility {
 	private TextView antenna_black_label_up, water_label_up, deltat_label_up,
 			time_label_up;
 
-	private Button button_play, button_stop, button_pause;
+	private Button button_play, button_stop, button_pause, button_bolus_down,
+			button_bolus_up;
 
 	private int comando;
 
@@ -78,6 +79,9 @@ public class Utility {
 		button_play = (Button) activity.findViewById(R.id.button_play);
 		button_pause = (Button) activity.findViewById(R.id.button_pause);
 		button_stop = (Button) activity.findViewById(R.id.button_stop);
+		button_bolus_down = (Button) activity
+				.findViewById(R.id.button_bolus_down);
+		button_bolus_up = (Button) activity.findViewById(R.id.button_bolus_up);
 
 	}
 
@@ -112,7 +116,27 @@ public class Utility {
 					button_stop.setPressed(true);
 					break;
 
+				case 1024: // BOOL-UP
+					button_bolus_up.setPressed(true);
+					button_bolus_down.setPressed(false);
+					break;
+
+				case 1536: // BOOL-UP-STOP
+					button_bolus_up.setPressed(false);
+					button_bolus_down.setPressed(false);
+					break;
+
+				case 1280: // BOOL-DOWN
+					button_bolus_up.setPressed(false);
+					button_bolus_down.setPressed(true);
+					break;
+
+				case 2816: // RESET
+
+					break;
+
 				}
+
 			}
 		});
 	}
