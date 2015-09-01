@@ -52,7 +52,7 @@ public class HyperthermDB extends SQLiteOpenHelper {
 
 	private static final String CREATE_TABLE_STAGE_STRING = "create table "
 			+ TABLE_STAGE_STRING + "(" + COLUMN_MENU_ITEM + " varchar(50), "
-			+ COLUMN_MENU_VALUE + " varchar(50));";
+			+ COLUMN_MENU_VALUE + " varchar(270));";
 
 	private static final String CREATE_TABLE_STAGE_DEFAULT = "create table "
 			+ TABLE_STAGE_DEFAULT + "(" + COLUMN_MENU_ITEM + " varchar(50), "

@@ -39,7 +39,7 @@ public class Utility {
 			time_label_up;
 
 	private Button button_play, button_stop, button_pause, button_bolus_down,
-			button_bolus_up;
+			button_bolus_up, button_home;
 
 	private int comando;
 
@@ -82,6 +82,7 @@ public class Utility {
 		button_bolus_down = (Button) activity
 				.findViewById(R.id.button_bolus_down);
 		button_bolus_up = (Button) activity.findViewById(R.id.button_bolus_up);
+		button_home = (Button) activity.findViewById(R.id.button_home);
 
 	}
 
@@ -102,6 +103,7 @@ public class Utility {
 					button_play.setPressed(true);
 					button_pause.setPressed(false);
 					button_stop.setPressed(false);
+					button_home.setEnabled(false);
 					break;
 
 				case 512: // PAUSE
@@ -114,6 +116,7 @@ public class Utility {
 					button_play.setPressed(false);
 					button_pause.setPressed(false);
 					button_stop.setPressed(true);
+					button_home.setEnabled(true);
 					break;
 
 				case 1024: // BOOL-UP
@@ -511,6 +514,26 @@ public class Utility {
 						HyperthermDB.COLUMN_MENU_ITEM + "=?",
 						new String[] { "menu_item_manual_selection" }, null,
 						null, null);
+
+		cur.moveToFirst();
+
+		String result = "";
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			result = cur.getString(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return result;
+	}
+
+	public String get_suggerimento_trattamento() {
+
+		cur = database.query(HyperthermDB.TABLE_STAGE_STRING,
+				new String[] { HyperthermDB.COLUMN_MENU_VALUE },
+				HyperthermDB.COLUMN_MENU_ITEM + "=?",
+				new String[] { "suggerimento_trattamento" }, null, null, null);
 
 		cur.moveToFirst();
 

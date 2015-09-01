@@ -12,11 +12,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -30,9 +32,10 @@ public class WorkActivity extends Activity {
 			button_water_left, button_water_right, button_deltat_left,
 			button_deltat_right, button_time_left, button_time_right,
 			button_home, button_play, button_pause, button_stop,
-			button_bolus_up, button_bolus_down;
+			button_bolus_up, button_bolus_down, button_power,
+			button_temperature_positive, button_temperature_negative;
 	private TextView antenna_black_label_down, water_label_down,
-			deltat_label_down, time_label_down, disturbo_label;
+			deltat_label_down, time_label_down, disturbo_label, suggerimenti;
 
 	private boolean mAutoIncrement = false;
 	private boolean mAutoDecrement = false;
@@ -56,6 +59,9 @@ public class WorkActivity extends Activity {
 	private StringBuffer readSB = new StringBuffer();
 
 	public static write_thread writeThread;
+
+	private CountDownTimer waitTimerBolusUp = null;
+	private CountDownTimer waitTimerBolusDown = null;
 
 	private void inviaComandi(String comando) {
 
@@ -429,6 +435,8 @@ public class WorkActivity extends Activity {
 
 		def_value_defaults();
 
+		suggerimenti.setText(utility.get_suggerimento_trattamento());
+
 		// writeThread = new write_thread();
 		// if (!writeThread.isAlive() && writeThread.getState() !=
 		// State.RUNNABLE) {
@@ -474,6 +482,62 @@ public class WorkActivity extends Activity {
 
 	private void def_bottun_click() {
 
+		button_power.setOnTouchListener(new OnTouchListener() {
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					seek_bar.setProgress(50);
+
+					if (button_power.isPressed()) {
+
+						button_power.setPressed(false);
+
+						button_temperature_negative.setEnabled(true);
+						button_temperature_positive.setEnabled(true);
+
+						return true;
+
+					} else {
+
+						button_power.setPressed(true);
+
+						button_temperature_negative.setEnabled(false);
+						button_temperature_positive.setEnabled(false);
+
+						return false;
+
+					}
+
+				}
+
+				return true;
+			}
+		});
+
+		button_temperature_negative
+				.setOnClickListener(new View.OnClickListener() {
+					public void onClick(View v) {
+
+						if (!button_power.isPressed()) {
+
+						}
+
+					}
+				});
+
+		button_temperature_positive
+				.setOnClickListener(new View.OnClickListener() {
+					public void onClick(View v) {
+
+						if (!button_power.isPressed()) {
+
+						}
+
+					}
+				});
 		button_play.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 
@@ -498,29 +562,138 @@ public class WorkActivity extends Activity {
 			}
 		});
 
-		button_bolus_down.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
+		button_bolus_down.setOnTouchListener(new OnTouchListener() {
 
-				// if (button_bolus_down.isPressed()) {
-				// utility.appendLog("Inviato comando: BOLUS-STOP");
-				// inviaComandi("6");
-				// } else {
-				utility.appendLog("Inviato comando: BOLUS-DOWN");
-				inviaComandi("5");
-				// }
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (button_bolus_up.isPressed()) {
+						button_bolus_up.setPressed(false);
+						if (waitTimerBolusUp != null) {
+							waitTimerBolusUp.cancel();
+							waitTimerBolusUp = null;
+						}
+
+						utility.appendLog("Inviato comando: BOLUS-STOP");
+						inviaComandi("6");
+
+						return true;
+
+					} else {
+
+						if (!button_bolus_down.isPressed()) {
+
+							button_bolus_down.setPressed(true);
+							utility.appendLog("Setto pressed true");
+
+							utility.appendLog("Inviato comando: BOLUS-DOWN");
+							inviaComandi("5");
+
+							waitTimerBolusDown = new CountDownTimer(30000,
+									30000) {
+
+								public void onTick(long millisUntilFinished) {
+
+								}
+
+								public void onFinish() {
+									button_bolus_down.setPressed(false);
+									utility.appendLog("Setto pressed false");
+								}
+							}.start();
+
+							return false;
+
+						} else {
+
+							if (waitTimerBolusDown != null) {
+								waitTimerBolusDown.cancel();
+								waitTimerBolusDown = null;
+							}
+
+							utility.appendLog("Inviato comando: BOLUS-STOP");
+							inviaComandi("6");
+
+							utility.appendLog("Setto pressed false");
+							button_bolus_down.setPressed(false);
+
+							return true;
+						}
+					}
+				}
+
+				return true;
+
 			}
 		});
 
-		button_bolus_up.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
+		button_bolus_up.setOnTouchListener(new OnTouchListener() {
 
-				// if (button_bolus_up.isPressed()) {
-				// utility.appendLog("Inviato comando: BOLUS-STOP");
-				// inviaComandi("6");
-				// } else {
-				utility.appendLog("Inviato comando: BOLUS-UP");
-				inviaComandi("4");
-				// }
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (button_bolus_down.isPressed()) {
+						button_bolus_down.setPressed(false);
+
+						if (waitTimerBolusDown != null) {
+							waitTimerBolusDown.cancel();
+							waitTimerBolusDown = null;
+						}
+
+						utility.appendLog("Inviato comando: BOLUS-STOP");
+						inviaComandi("6");
+
+						return true;
+
+					} else {
+
+						if (!button_bolus_up.isPressed()) {
+
+							button_bolus_up.setPressed(true);
+							utility.appendLog("Setto pressed true");
+
+							utility.appendLog("Inviato comando: BOLUS-UP");
+							inviaComandi("4");
+
+							waitTimerBolusUp = new CountDownTimer(30000, 30000) {
+
+								public void onTick(long millisUntilFinished) {
+
+								}
+
+								public void onFinish() {
+									button_bolus_up.setPressed(false);
+									utility.appendLog("Setto pressed false");
+								}
+							}.start();
+
+							return false;
+
+						} else {
+
+							if (waitTimerBolusUp != null) {
+								waitTimerBolusUp.cancel();
+								waitTimerBolusUp = null;
+							}
+
+							utility.appendLog("Inviato comando: BOLUS-STOP");
+							inviaComandi("6");
+
+							utility.appendLog("Setto pressed false");
+							button_bolus_up.setPressed(false);
+
+							return true;
+						}
+
+					}
+				}
+
+				return true;
+
 			}
 		});
 
@@ -977,12 +1150,16 @@ public class WorkActivity extends Activity {
 		button_stop = (Button) findViewById(R.id.button_stop);
 		button_bolus_down = (Button) findViewById(R.id.button_bolus_down);
 		button_bolus_up = (Button) findViewById(R.id.button_bolus_up);
+		button_power = (Button) findViewById(R.id.button_power);
+		button_temperature_negative = (Button) findViewById(R.id.button_temperature_negative);
+		button_temperature_positive = (Button) findViewById(R.id.button_temperature_positive);
 
 		antenna_black_label_down = (TextView) findViewById(R.id.antenna_black_label_down);
 		water_label_down = (TextView) findViewById(R.id.water_label_down);
 		deltat_label_down = (TextView) findViewById(R.id.deltat_label_down);
 		time_label_down = (TextView) findViewById(R.id.time_label_down);
 		disturbo_label = (TextView) findViewById(R.id.disturbo_label);
+		suggerimenti = (TextView) findViewById(R.id.suggerimenti);
 
 	}
 
