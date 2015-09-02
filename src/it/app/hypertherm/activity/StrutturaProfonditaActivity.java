@@ -16,8 +16,8 @@ import android.widget.TextView;
 public class StrutturaProfonditaActivity extends Activity {
 
 	private Button button_home, button_muscolare, button_mix,
-			button_articolare, button_uno, button_due, button_tre,
-			button_quattro, button_ok;
+			button_articolare, button_superficiale, button_intermedio,
+			button_profondo, button_dinamico, button_ok;
 
 	private TextView struttura_label, profondita_label, tessuto_label;
 
@@ -40,10 +40,10 @@ public class StrutturaProfonditaActivity extends Activity {
 		button_muscolare = (Button) findViewById(R.id.button_muscolare);
 		button_mix = (Button) findViewById(R.id.button_mix);
 		button_articolare = (Button) findViewById(R.id.button_articolare);
-		button_uno = (Button) findViewById(R.id.button_uno);
-		button_due = (Button) findViewById(R.id.button_due);
-		button_tre = (Button) findViewById(R.id.button_tre);
-		button_quattro = (Button) findViewById(R.id.button_quattro);
+		button_superficiale = (Button) findViewById(R.id.button_superficiale);
+		button_intermedio = (Button) findViewById(R.id.button_intermedio);
+		button_profondo = (Button) findViewById(R.id.button_profondo);
+		button_dinamico = (Button) findViewById(R.id.button_dinamico);
 		button_ok = (Button) findViewById(R.id.button_ok);
 
 		String[] struttura_array = utility.getStrutturaItems();
@@ -145,26 +145,27 @@ public class StrutturaProfonditaActivity extends Activity {
 			}
 		});
 
-		button_uno.setOnTouchListener(new OnTouchListener() {
+		button_superficiale.setOnTouchListener(new OnTouchListener() {
 
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 
 				if (event.getAction() == MotionEvent.ACTION_UP) {
 
-					if (button_due.isPressed() || button_tre.isPressed()
-							|| button_quattro.isPressed()) {
+					if (button_intermedio.isPressed()
+							|| button_profondo.isPressed()
+							|| button_dinamico.isPressed()) {
 
-						if (button_uno.isPressed()) {
-							button_uno.setPressed(false);
-							button_due.setPressed(true);
-							button_tre.setPressed(true);
-							button_quattro.setPressed(true);
+						if (button_superficiale.isPressed()) {
+							button_superficiale.setPressed(false);
+							button_intermedio.setPressed(true);
+							button_profondo.setPressed(true);
+							button_dinamico.setPressed(true);
 						} else {
-							button_uno.setPressed(true);
-							button_due.setPressed(false);
-							button_tre.setPressed(false);
-							button_quattro.setPressed(false);
+							button_superficiale.setPressed(true);
+							button_intermedio.setPressed(false);
+							button_profondo.setPressed(false);
+							button_dinamico.setPressed(false);
 							profondita = "1";
 						}
 					}
@@ -173,26 +174,27 @@ public class StrutturaProfonditaActivity extends Activity {
 			}
 		});
 
-		button_due.setOnTouchListener(new OnTouchListener() {
+		button_intermedio.setOnTouchListener(new OnTouchListener() {
 
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 
 				if (event.getAction() == MotionEvent.ACTION_UP) {
 
-					if (button_uno.isPressed() || button_tre.isPressed()
-							|| button_quattro.isPressed()) {
+					if (button_superficiale.isPressed()
+							|| button_profondo.isPressed()
+							|| button_dinamico.isPressed()) {
 
-						if (button_due.isPressed()) {
-							button_due.setPressed(false);
-							button_uno.setPressed(true);
-							button_tre.setPressed(true);
-							button_quattro.setPressed(true);
+						if (button_intermedio.isPressed()) {
+							button_intermedio.setPressed(false);
+							button_superficiale.setPressed(true);
+							button_profondo.setPressed(true);
+							button_dinamico.setPressed(true);
 						} else {
-							button_due.setPressed(true);
-							button_uno.setPressed(false);
-							button_tre.setPressed(false);
-							button_quattro.setPressed(false);
+							button_intermedio.setPressed(true);
+							button_superficiale.setPressed(false);
+							button_profondo.setPressed(false);
+							button_dinamico.setPressed(false);
 							profondita = "2";
 						}
 					}
@@ -201,27 +203,28 @@ public class StrutturaProfonditaActivity extends Activity {
 			}
 		});
 
-		button_tre.setOnTouchListener(new OnTouchListener() {
+		button_profondo.setOnTouchListener(new OnTouchListener() {
 
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 
 				if (event.getAction() == MotionEvent.ACTION_UP) {
 
-					if (button_uno.isPressed() || button_due.isPressed()
-							|| button_quattro.isPressed()) {
+					if (button_superficiale.isPressed()
+							|| button_intermedio.isPressed()
+							|| button_dinamico.isPressed()) {
 
-						if (button_tre.isPressed()) {
-							button_tre.setPressed(false);
-							button_uno.setPressed(true);
-							button_due.setPressed(true);
-							button_quattro.setPressed(true);
+						if (button_profondo.isPressed()) {
+							button_profondo.setPressed(false);
+							button_superficiale.setPressed(true);
+							button_intermedio.setPressed(true);
+							button_dinamico.setPressed(true);
 						} else {
-							button_tre.setPressed(true);
-							button_uno.setPressed(false);
-							button_due.setPressed(false);
-							button_quattro.setPressed(false);
-							profondita = "2";
+							button_profondo.setPressed(true);
+							button_superficiale.setPressed(false);
+							button_intermedio.setPressed(false);
+							button_dinamico.setPressed(false);
+							profondita = "3";
 						}
 					}
 				}
@@ -229,26 +232,27 @@ public class StrutturaProfonditaActivity extends Activity {
 			}
 		});
 
-		button_quattro.setOnTouchListener(new OnTouchListener() {
+		button_dinamico.setOnTouchListener(new OnTouchListener() {
 
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 
 				if (event.getAction() == MotionEvent.ACTION_UP) {
 
-					if (button_uno.isPressed() || button_due.isPressed()
-							|| button_tre.isPressed()) {
+					if (button_superficiale.isPressed()
+							|| button_intermedio.isPressed()
+							|| button_profondo.isPressed()) {
 
-						if (button_quattro.isPressed()) {
-							button_quattro.setPressed(false);
-							button_uno.setPressed(true);
-							button_due.setPressed(true);
-							button_tre.setPressed(true);
+						if (button_dinamico.isPressed()) {
+							button_dinamico.setPressed(false);
+							button_superficiale.setPressed(true);
+							button_intermedio.setPressed(true);
+							button_profondo.setPressed(true);
 						} else {
-							button_quattro.setPressed(true);
-							button_uno.setPressed(false);
-							button_due.setPressed(false);
-							button_tre.setPressed(false);
+							button_dinamico.setPressed(true);
+							button_superficiale.setPressed(false);
+							button_intermedio.setPressed(false);
+							button_profondo.setPressed(false);
 							profondita = "4";
 						}
 					}
@@ -261,25 +265,8 @@ public class StrutturaProfonditaActivity extends Activity {
 
 			public void onClick(View v) {
 
-				preferences
-						.edit()
-						.putFloat(
-								"WATER",
-								utility.getWaterTemperature(struttura,
-										profondita)).commit();
-				preferences
-						.edit()
-						.putFloat("DELTAT",
-								utility.getDeltaT(struttura, profondita))
-						.commit();
-				preferences
-						.edit()
-						.putInt("ANTENNA",
-								utility.getAntenna(struttura, profondita))
-						.commit();
-				preferences.edit()
-						.putInt("TIME", utility.getTime(struttura, profondita))
-						.commit();
+				preferences.edit().putString("PROFONDITA", profondita).commit();
+				preferences.edit().putString("STRUTTURA", struttura).commit();
 
 				preferences
 						.edit()
@@ -289,6 +276,52 @@ public class StrutturaProfonditaActivity extends Activity {
 										+ " - "
 										+ utility.getProfonditaLabel(struttura,
 												profondita)).commit();
+
+				if (profondita.equals("4")) {
+
+					preferences
+							.edit()
+							.putFloat("WATER",
+									utility.getWaterTemperature(struttura, "1"))
+							.commit();
+					preferences
+							.edit()
+							.putFloat("DELTAT",
+									utility.getDeltaT(struttura, "1")).commit();
+					preferences
+							.edit()
+							.putInt("ANTENNA",
+									utility.getAntenna(struttura, "1"))
+							.commit();
+					preferences.edit()
+							.putInt("TIME", utility.getTime(struttura, "1"))
+							.commit();
+
+				} else {
+
+					preferences
+							.edit()
+							.putFloat(
+									"WATER",
+									utility.getWaterTemperature(struttura,
+											profondita)).commit();
+					preferences
+							.edit()
+							.putFloat("DELTAT",
+									utility.getDeltaT(struttura, profondita))
+							.commit();
+					preferences
+							.edit()
+							.putInt("ANTENNA",
+									utility.getAntenna(struttura, profondita))
+							.commit();
+					preferences
+							.edit()
+							.putInt("TIME",
+									utility.getTime(struttura, profondita))
+							.commit();
+
+				}
 
 				Intent intent = new Intent(StrutturaProfonditaActivity.this,
 						WorkActivity.class);
@@ -306,7 +339,7 @@ public class StrutturaProfonditaActivity extends Activity {
 		profondita = "1";
 
 		button_mix.setPressed(true);
-		button_uno.setPressed(true);
+		button_intermedio.setPressed(true);
 
 	}
 }

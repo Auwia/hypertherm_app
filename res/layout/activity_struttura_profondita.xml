@@ -196,10 +196,10 @@
             android:gravity="center_vertical|center_horizontal" >
 
             <Button
-                android:id="@+id/button_uno"
+                android:id="@+id/button_superficiale"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_uno" />
+                android:background="@drawable/button_superficiale" />
         </LinearLayout>
 
         <LinearLayout
@@ -210,10 +210,10 @@
             android:gravity="center_vertical|center_horizontal" >
 
             <Button
-                android:id="@+id/button_due"
+                android:id="@+id/button_intermedio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_due" />
+                android:background="@drawable/button_intermedio" />
         </LinearLayout>
 
         <LinearLayout
@@ -224,10 +224,10 @@
             android:gravity="center_vertical|center_horizontal" >
 
             <Button
-                android:id="@+id/button_tre"
+                android:id="@+id/button_profondo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_tre" />
+                android:background="@drawable/button_profondo" />
         </LinearLayout>
 
         <LinearLayout
@@ -238,10 +238,10 @@
             android:gravity="center_vertical|center_horizontal" >
 
             <Button
-                android:id="@+id/button_quattro"
+                android:id="@+id/button_dinamico"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_quattro" />
+                android:background="@drawable/button_dinamico" />
         </LinearLayout>
 
         <LinearLayout

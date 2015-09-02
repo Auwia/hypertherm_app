@@ -179,7 +179,6 @@
                 android:gravity="right|bottom" >
 
                 <TextView
-                    android:id="@+id/novanta"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/novanta"
@@ -196,7 +195,6 @@
                 android:gravity="right|bottom" >
 
                 <TextView
-                    android:id="@+id/ottanta"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/ottanta"
@@ -213,7 +211,6 @@
                 android:gravity="right|bottom" >
 
                 <TextView
-                    android:id="@+id/sessanta"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/sessanta"
@@ -230,7 +227,6 @@
                 android:gravity="right|bottom" >
 
                 <TextView
-                    android:id="@+id/settanta"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/settanta"
@@ -247,7 +243,6 @@
                 android:gravity="right|bottom" >
 
                 <TextView
-                    android:id="@+id/cinquanta"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/cinquanta"
@@ -264,7 +259,6 @@
                 android:gravity="right|bottom" >
 
                 <TextView
-                    android:id="@+id/quaranta"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/quaranta"
@@ -281,7 +275,6 @@
                 android:gravity="right|bottom" >
 
                 <TextView
-                    android:id="@+id/trenta"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/trenta"
@@ -298,7 +291,6 @@
                 android:gravity="right|bottom" >
 
                 <TextView
-                    android:id="@+id/venti"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/venti"
@@ -315,7 +307,6 @@
                 android:gravity="right|bottom" >
 
                 <TextView
-                    android:id="@+id/dieci"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/dieci"
@@ -332,7 +323,6 @@
                 android:gravity="right|bottom" >
 
                 <TextView
-                    android:id="@+id/zero"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/zero"
@@ -469,93 +459,113 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/novanta"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="center_horizontal|top"
                 android:layout_weight="8"
                 android:background="@drawable/cell_shape_bottom_white"
-                android:gravity="center_horizontal|top" >
+                android:gravity="center_horizontal|top"
+                android:orientation="vertical" >
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/ottanta"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="center_horizontal|top"
                 android:layout_weight="8"
                 android:background="@drawable/cell_shape_bottom_white"
-                android:gravity="center_horizontal|top" >
+                android:gravity="center_horizontal|top"
+                android:orientation="vertical" >
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/settanta"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="center_horizontal|top"
                 android:layout_weight="8"
                 android:background="@drawable/cell_shape_bottom_white"
-                android:gravity="center_horizontal|top" >
+                android:gravity="center_horizontal|top"
+                android:orientation="vertical" >
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/sessanta"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="center_horizontal|top"
                 android:layout_weight="8"
                 android:background="@drawable/cell_shape_bottom_white"
-                android:gravity="center_horizontal|top" >
+                android:gravity="center_horizontal|top"
+                android:orientation="vertical" >
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/cinquanta"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="center_horizontal|top"
                 android:layout_weight="8"
                 android:background="@drawable/cell_shape_bottom_white"
-                android:gravity="center_horizontal|top" >
+                android:gravity="center_horizontal|top"
+                android:orientation="vertical" >
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/quaranta"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="center_horizontal|top"
                 android:layout_weight="8"
                 android:background="@drawable/cell_shape_bottom_white"
-                android:gravity="center_horizontal|top" >
+                android:gravity="center_horizontal|top"
+                android:orientation="vertical" >
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/trenta"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="center_horizontal|top"
                 android:layout_weight="8"
                 android:background="@drawable/cell_shape_bottom_white"
-                android:gravity="center_horizontal|top" >
+                android:gravity="center_horizontal|top"
+                android:orientation="vertical" >
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/venti"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="center_horizontal|top"
                 android:layout_weight="8"
                 android:background="@drawable/cell_shape_bottom_white"
-                android:gravity="center_horizontal|top" >
+                android:gravity="center_horizontal|top"
+                android:orientation="vertical" >
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/dieci"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="center_horizontal|top"
                 android:layout_weight="8"
                 android:background="@drawable/cell_shape_bottom_white"
-                android:gravity="center_horizontal|top" >
+                android:gravity="center_horizontal|top"
+                android:orientation="vertical" >
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/zero"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="center_horizontal|top"
                 android:layout_weight="8"
                 android:background="@drawable/cell_shape_bottom_white"
-                android:gravity="center_horizontal|top" >
+                android:gravity="center_horizontal|top"
+                android:orientation="vertical" >
             </LinearLayout>
         </LinearLayout>
 
@@ -716,7 +726,6 @@
                         android:id="@+id/water_label_up"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/sottozero"
                         android:textColor="@android:color/black"
                         android:textSize="50sp"
                         android:textStyle="bold" />

@@ -11,6 +11,7 @@ import java.text.DecimalFormat;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -20,6 +21,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -36,6 +38,8 @@ public class WorkActivity extends Activity {
 			button_temperature_positive, button_temperature_negative;
 	private TextView antenna_black_label_down, water_label_down,
 			deltat_label_down, time_label_down, disturbo_label, suggerimenti;
+	private LinearLayout zero, dieci, venti, trenta, quaranta, cinquanta,
+			sessanta, settanta, ottanta, novanta;
 
 	private boolean mAutoIncrement = false;
 	private boolean mAutoDecrement = false;
@@ -46,7 +50,7 @@ public class WorkActivity extends Activity {
 
 	private Utility utility;
 
-	private int funzionalita;
+	private int funzionalita, Ref_power;
 
 	private SharedPreferences preferences;
 
@@ -254,7 +258,7 @@ public class WorkActivity extends Activity {
 							Req_power |= (((int) buf[41]) & 0xFF) << 8;
 							int Dir_power = ((int) buf[42]) & 0xFF;
 							Dir_power |= (((int) buf[43]) & 0xFF) << 8;
-							int Ref_power = ((int) buf[44]) & 0xFF;
+							Ref_power = ((int) buf[44]) & 0xFF;
 							Ref_power |= (((int) buf[45]) & 0xFF) << 8;
 							int D_temp = ((int) buf[46]) & 0xFF;
 							D_temp |= (((int) buf[47]) & 0xFF) << 8;
@@ -304,32 +308,41 @@ public class WorkActivity extends Activity {
 									+ " Buf[2]=" + Buf[2] + " Buf[3]=" + Buf[3]
 									+ " Buf[4]=" + Buf[4]);
 
-							int cmd = msk_binary.indexOf("1");
+							// int cmd = msk_binary.indexOf("1");
+							//
+							// switch (cmd) {
+							// case 1: // COMANDO
+							// utility.esegui(Cmd);
+							// break;
+							//
+							// case 2: // TEMPO
+							// utility.SetTime(iTime / 60 + ":00");
+							// break;
+							//
+							// case 3: // DELTAT
+							// utility.setDeltaT(due_cifre(iD_temp).replace(
+							// ",", "."));
+							// break;
+							//
+							// case 4: // WATER
+							// utility.setWaterTemperature(due_cifre(iH2o_temp)
+							// .replace(",", "."));
+							// break;
+							//
+							// case 6: // ANTENNA
+							// utility.setAntenna(due_cifre(iPower).replace(
+							// ",", "."));
+							// break;
+							// }
 
-							switch (cmd) {
-							case 1: // COMANDO
-								utility.esegui(Cmd);
-								break;
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
 
-							case 2: // TEMPO
-								utility.SetTime(iTime / 60 + ":00");
-								break;
+									setColoriPiramide(Ref_power / 100);
 
-							case 3: // DELTAT
-								utility.setDeltaT(due_cifre(iD_temp).replace(
-										",", "."));
-								break;
-
-							case 4: // WATER
-								utility.setWaterTemperature(due_cifre(iH2o_temp)
-										.replace(",", "."));
-								break;
-
-							case 6: // ANTENNA
-								utility.setAntenna(due_cifre(iPower).replace(
-										",", "."));
-								break;
-							}
+								}
+							});
 
 							utility.esegui(Cmd);
 
@@ -360,6 +373,250 @@ public class WorkActivity extends Activity {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
+			}
+
+		}
+
+		private void setColoriPiramide(int Ref_power) {
+
+			if (Ref_power < 10) {
+
+				zero.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				dieci.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				venti.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				trenta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				quaranta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				cinquanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				sessanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				settanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				ottanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				novanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+			}
+
+			if (Ref_power < 20 && Ref_power > 10) {
+
+				zero.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				dieci.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				venti.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				trenta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				quaranta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				cinquanta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				sessanta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				settanta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				ottanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				novanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+			}
+
+			if (Ref_power < 30 && Ref_power > 20) {
+
+				zero.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				dieci.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				venti.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				trenta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				quaranta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				cinquanta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				sessanta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				settanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				ottanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				novanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+			}
+
+			if (Ref_power < 40 && Ref_power > 30) {
+
+				zero.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				dieci.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				venti.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				trenta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				quaranta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				cinquanta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				sessanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				settanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				ottanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				novanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+			}
+
+			if (Ref_power < 50 && Ref_power > 40) {
+
+				zero.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				dieci.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				venti.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				trenta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				quaranta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				cinquanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				sessanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				settanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				ottanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				novanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+			}
+
+			if (Ref_power < 60 && Ref_power > 50) {
+
+				zero.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				dieci.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				venti.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				trenta.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				quaranta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				cinquanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				sessanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				settanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				ottanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				novanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+			}
+
+			if (Ref_power < 70 && Ref_power > 60) {
+
+				zero.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				dieci.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				venti.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				trenta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				quaranta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				cinquanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				sessanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				settanta.setBackgroundColor(Color.parseColor("0000cc"));
+
+				ottanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				novanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+			}
+
+			if (Ref_power < 80 && Ref_power > 70) {
+
+				zero.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				dieci.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				venti.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				trenta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				quaranta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				cinquanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				sessanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				settanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				ottanta.setBackgroundColor(Color.parseColor("0000cc"));
+
+				novanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+			}
+
+			if (Ref_power < 90 && Ref_power > 80) {
+
+				zero.setBackgroundColor(Color.parseColor("#ccff00"));
+
+				dieci.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				venti.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				trenta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				quaranta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				cinquanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				sessanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				settanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				ottanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				novanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+			}
+
+			if (Ref_power < 100 && Ref_power > 90) {
+
+				zero.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				dieci.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				venti.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				trenta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				quaranta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				cinquanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				sessanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				settanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				ottanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
+				novanta.setBackgroundColor(Color.parseColor("#0000cc"));
+
 			}
 
 		}
@@ -538,11 +795,178 @@ public class WorkActivity extends Activity {
 
 					}
 				});
+
 		button_play.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 
-				utility.appendLog("Inviato comando: PLAY");
-				inviaComandi("1");
+				if (preferences.getString("PROFONDITA", "1").equals("4")) {
+
+					inviaComandi("1");
+
+					invia_trattamenti();
+
+					utility.appendLog("Lancio programma DINAMICO");
+
+					runOnUiThread(new Runnable() {
+
+						@Override
+						public void run() {
+
+							utility.appendLog("Attendo 5 minuti");
+
+							waitTimerBolusDown = new CountDownTimer(30000,
+									30000) {
+
+								public void onTick(long millisUntilFinished) {
+
+								}
+
+								public void onFinish() {
+									utility.appendLog("Setto il valore della temperatura dell'acqua al livello intermedio");
+
+									water_label_down.setText(String.valueOf(utility
+											.getWaterTemperature(preferences
+													.getString("STRUTTURA",
+															"Mix"), "2")));
+
+									invia_trattamenti();
+
+									utility.appendLog("Attendo 1 minuto");
+
+									waitTimerBolusDown = new CountDownTimer(
+											6000, 6000) {
+
+										public void onTick(
+												long millisUntilFinished) {
+
+										}
+
+										public void onFinish() {
+
+											utility.appendLog("Setto i 3 parametri al livello intermedio");
+
+											deltat_label_down.setText(String.valueOf(utility.getDeltaT(
+													preferences.getString(
+															"STRUTTURA", "Mix"),
+													"2")));
+
+											antenna_black_label_down.setText(String.valueOf(utility.getAntenna(
+													preferences.getString(
+															"STRUTTURA", "Mix"),
+													"2")));
+
+											time_label_down.setText(String.valueOf(utility.getTime(
+													preferences.getString(
+															"STRUTTURA", "Mix"),
+													"2")));
+
+											invia_trattamenti();
+
+											utility.appendLog("Attendo 6 minuti");
+
+											waitTimerBolusDown = new CountDownTimer(
+													36000, 36000) {
+
+												public void onTick(
+														long millisUntilFinished) {
+
+												}
+
+												public void onFinish() {
+													utility.appendLog("Setto il valore della temperatura dell'acqua al livello profondo");
+
+													water_label_down.setText(String.valueOf(utility
+															.getWaterTemperature(
+																	preferences
+																			.getString(
+																					"STRUTTURA",
+																					"Mix"),
+																	"3")));
+
+													invia_trattamenti();
+
+													utility.appendLog("Attendo 1 minuto");
+
+													waitTimerBolusDown = new CountDownTimer(
+															6000, 6000) {
+
+														public void onTick(
+																long millisUntilFinished) {
+
+														}
+
+														public void onFinish() {
+															utility.appendLog("Setto i 3 parametri al livello profondo");
+
+															deltat_label_down
+																	.setText(String
+																			.valueOf(utility
+																					.getDeltaT(
+																							preferences
+																									.getString(
+																											"STRUTTURA",
+																											"Mix"),
+																							"3")));
+
+															antenna_black_label_down
+																	.setText(String
+																			.valueOf(utility
+																					.getAntenna(
+																							preferences
+																									.getString(
+																											"STRUTTURA",
+																											"Mix"),
+																							"3")));
+
+															time_label_down
+																	.setText(String
+																			.valueOf(utility
+																					.getTime(
+																							preferences
+																									.getString(
+																											"STRUTTURA",
+																											"Mix"),
+																							"3")));
+
+															invia_trattamenti();
+
+															utility.appendLog("Attendo 7 minuti");
+
+															waitTimerBolusDown = new CountDownTimer(
+																	42000,
+																	42000) {
+
+																public void onTick(
+																		long millisUntilFinished) {
+
+																}
+
+																public void onFinish() {
+
+																}
+															}.start();
+
+														}
+													}.start();
+
+												}
+											}.start();
+
+										}
+									}.start();
+
+								}
+							}.start();
+
+						}
+					});
+
+				} else {
+
+					utility.appendLog("Inviato comando: PLAY");
+					inviaComandi("1");
+
+				}
 			}
 		});
 
@@ -559,6 +983,7 @@ public class WorkActivity extends Activity {
 
 				utility.appendLog("Inviato comando: STOP");
 				inviaComandi("3");
+				def_value_defaults();
 			}
 		});
 
@@ -1104,31 +1529,48 @@ public class WorkActivity extends Activity {
 
 		PC_TO_CY pctocy = new PC_TO_CY();
 
-		utility.appendLog("Setto trattamento: TIMER:"
-				+ Integer
-						.parseInt(time_label_down
-								.getText()
-								.toString()
-								.substring(
-										0,
-										time_label_down.getText().toString()
-												.length() - 3)) + " - ANTENNA:"
-				+ antenna_black_label_down.getText().toString() + " WATER:"
-				+ water_label_down.getText().toString() + " - DELTAT:"
-				+ deltat_label_down.getText().toString());
+		if (time_label_down.getText().toString().length() == 2) {
 
-		pctocy.setTreatParms(
-				String.valueOf(Integer
-						.parseInt(time_label_down
-								.getText()
-								.toString()
-								.substring(
-										0,
-										time_label_down.getText().toString()
-												.length() - 3)) * 60),
-				antenna_black_label_down.getText().toString(), water_label_down
-						.getText().toString(), deltat_label_down.getText()
-						.toString());
+			utility.appendLog("Setto trattamento: TIMER:"
+					+ Integer.parseInt(time_label_down.getText().toString())
+					+ " - ANTENNA:"
+					+ antenna_black_label_down.getText().toString() + " WATER:"
+					+ water_label_down.getText().toString() + " - DELTAT:"
+					+ deltat_label_down.getText().toString());
+
+			pctocy.setTreatParms(String.valueOf(Integer
+					.parseInt(time_label_down.getText().toString())),
+					antenna_black_label_down.getText().toString(),
+					water_label_down.getText().toString(), deltat_label_down
+							.getText().toString());
+
+		} else {
+
+			utility.appendLog("Setto trattamento: TIMER:"
+					+ Integer.parseInt(time_label_down
+							.getText()
+							.toString()
+							.substring(
+									0,
+									time_label_down.getText().toString()
+											.length() - 3)) + " - ANTENNA:"
+					+ antenna_black_label_down.getText().toString() + " WATER:"
+					+ water_label_down.getText().toString() + " - DELTAT:"
+					+ deltat_label_down.getText().toString());
+
+			pctocy.setTreatParms(String.valueOf(Integer
+					.parseInt(time_label_down
+							.getText()
+							.toString()
+							.substring(
+									0,
+									time_label_down.getText().toString()
+											.length() - 3)) * 60),
+					antenna_black_label_down.getText().toString(),
+					water_label_down.getText().toString(), deltat_label_down
+							.getText().toString());
+		}
+
 		pctocy.setPSoCData();
 
 		SendData(PC_TO_CY.PACKET_SIZE, pctocy.PSoCData);
@@ -1160,6 +1602,17 @@ public class WorkActivity extends Activity {
 		time_label_down = (TextView) findViewById(R.id.time_label_down);
 		disturbo_label = (TextView) findViewById(R.id.disturbo_label);
 		suggerimenti = (TextView) findViewById(R.id.suggerimenti);
+
+		zero = (LinearLayout) findViewById(R.id.zero);
+		dieci = (LinearLayout) findViewById(R.id.dieci);
+		venti = (LinearLayout) findViewById(R.id.venti);
+		trenta = (LinearLayout) findViewById(R.id.trenta);
+		quaranta = (LinearLayout) findViewById(R.id.quaranta);
+		cinquanta = (LinearLayout) findViewById(R.id.cinquanta);
+		sessanta = (LinearLayout) findViewById(R.id.sessanta);
+		settanta = (LinearLayout) findViewById(R.id.settanta);
+		ottanta = (LinearLayout) findViewById(R.id.ottanta);
+		novanta = (LinearLayout) findViewById(R.id.novanta);
 
 	}
 

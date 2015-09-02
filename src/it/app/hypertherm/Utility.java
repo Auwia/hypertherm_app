@@ -336,16 +336,23 @@ public class Utility {
 
 		String result = "";
 
-		cur = database.query("STAGE_STRUTTURA",
-				new String[] { "PROFONDITA_LABEL" },
-				"STRUTTURA=? AND PROFONDITA=?", new String[] { struttura,
-						profondita }, null, null, null);
+		if (profondita.equals("4")) {
 
-		cur.moveToFirst();
+			result = "Dinamico";
 
-		result = cur.getString(0);
+		} else {
+			cur = database.query("STAGE_STRUTTURA",
+					new String[] { "PROFONDITA_LABEL" },
+					"STRUTTURA=? AND PROFONDITA=?", new String[] { struttura,
+							profondita }, null, null, null);
 
-		cur.close();
+			cur.moveToFirst();
+
+			result = cur.getString(0);
+
+			cur.close();
+
+		}
 
 		return result;
 
