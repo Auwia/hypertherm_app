@@ -136,6 +136,7 @@
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
             android:layout_weight="50"
+            android:id="@+id/grafico"
             android:background="@android:color/white"
             android:gravity="center_vertical|center_horizontal" >
 
@@ -657,10 +658,11 @@
                     android:gravity="center_vertical|center_horizontal" >
 
                     <Button
-                        android:id="@+id/button_continuos"
+                        android:id="@+id/button_rf_on"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/button_continuos" />
+                        android:background="@drawable/button_rf_on"
+                        android:enabled="false" />
                 </LinearLayout>
 
                 <LinearLayout

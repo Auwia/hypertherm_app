@@ -2,8 +2,8 @@ package it.app.hypertherm.activity;
 
 import it.app.hypertherm.MenuListViewAdapter;
 import it.app.hypertherm.R;
-import it.app.hypertherm.Utility;
 import it.app.hypertherm.db.HyperthermDB;
+import it.app.hypertherm.util.Utility;
 
 import java.io.File;
 
@@ -31,6 +31,14 @@ public class MainActivity extends Activity {
 	private ListView listaMenuItem;
 
 	private SharedPreferences preferences;
+
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		finish();
+
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

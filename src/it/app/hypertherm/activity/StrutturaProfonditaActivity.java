@@ -1,7 +1,7 @@
 package it.app.hypertherm.activity;
 
 import it.app.hypertherm.R;
-import it.app.hypertherm.Utility;
+import it.app.hypertherm.util.Utility;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,6 +26,14 @@ public class StrutturaProfonditaActivity extends Activity {
 	private Utility utility;
 
 	private SharedPreferences preferences;
+
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		finish();
+
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

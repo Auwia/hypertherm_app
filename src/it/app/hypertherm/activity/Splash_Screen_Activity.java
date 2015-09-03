@@ -2,7 +2,7 @@ package it.app.hypertherm.activity;
 
 import it.app.hypertherm.Caricamento;
 import it.app.hypertherm.R;
-import it.app.hypertherm.Utility;
+import it.app.hypertherm.util.Utility;
 
 import java.io.File;
 

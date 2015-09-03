@@ -2,7 +2,7 @@ package it.app.hypertherm.activity;
 
 import it.app.hypertherm.PatologiaListViewAdapter;
 import it.app.hypertherm.R;
-import it.app.hypertherm.Utility;
+import it.app.hypertherm.util.Utility;
 
 import java.io.File;
 
@@ -32,6 +32,14 @@ public class PatologiaActivity extends Activity {
 	private TextView tessuto;
 
 	private SharedPreferences preferences;
+
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		finish();
+
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

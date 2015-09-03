@@ -1,5 +1,7 @@
 package it.app.hypertherm;
 
+import it.app.hypertherm.util.Utility;
+
 import java.util.ArrayList;
 
 import android.content.Context;

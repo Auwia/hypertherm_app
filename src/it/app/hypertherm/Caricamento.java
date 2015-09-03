@@ -2,6 +2,7 @@ package it.app.hypertherm;
 
 import it.app.hypertherm.db.HyperthermDB;
 import it.app.hypertherm.db.HyperthermDataSource;
+import it.app.hypertherm.util.Utility;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;

@@ -1,11 +1,18 @@
 package it.app.hypertherm.activity;
 
 import it.app.hypertherm.R;
-import it.app.hypertherm.R.layout;
 import android.app.Activity;
 import android.os.Bundle;
 
 public class SettingsActivity extends Activity {
+
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		finish();
+
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

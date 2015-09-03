@@ -1,5 +1,8 @@
-package it.app.hypertherm;
+package it.app.hypertherm.util;
 
+import it.app.hypertherm.Menu_app;
+import it.app.hypertherm.R;
+import it.app.hypertherm.R.id;
 import it.app.hypertherm.db.HyperthermDB;
 import it.app.hypertherm.db.HyperthermDataSource;
 

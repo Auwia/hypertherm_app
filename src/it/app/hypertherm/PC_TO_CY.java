@@ -14,11 +14,13 @@ public class PC_TO_CY {
 	long In_Output; // (uint32) Stato delle 32 uscite disponibili
 	public int Cmd; // (uint16) Comando eventualmente inviato (0xFFFF <=>
 					// nessuno)
-	int iTime; // (uint16) Tempo impostato del trattamento (1..30 minuti in
-				// secondi)
-	int iD_temp; // (int16) Delta termico impostato (-100..+500 centesimi di °C)
-	int iH2o_temp; // (int16) Temperatura dell'H2o impostata (3500..4200
-					// centesimi di °C)
+	public int iTime; // (uint16) Tempo impostato del trattamento (1..30 minuti
+						// in
+	// secondi)
+	public int iD_temp; // (int16) Delta termico impostato (-100..+500 centesimi
+						// di °C)
+	public int iH2o_temp; // (int16) Temperatura dell'H2o impostata (3500..4200
+	// centesimi di °C)
 	int iColdHp_temp; // (int16) Temperatura impostata del manipolo freddo
 						// (centesimi di °C)
 	int Gain_D_temp; // (int16) Gain Delta Temp (adimensionale)
@@ -31,6 +33,7 @@ public class PC_TO_CY {
 	int Offset_Boil_temp; // (int16) Offset Boiler Temp (centesimi di grado)
 	int iPower; // (int16) Potenza impostata del trattamento (0..10000 centesimi
 				// di Watt)
+	public int runningTime;
 	byte[] Buf; // (uint8) Buffer a disposizione per trasmettere dati da Pc a Cy
 	public byte[] PSoCData; // (uint8) Buffer dei dati scambiati
 
@@ -180,6 +183,8 @@ public class PC_TO_CY {
 													// manipolo freddo
 		uint16_To_Buf(Offset_Boil_temp & 0xFFFF, 38); // Temperatura impostata
 														// del manipolo freddo
+
+		uint16_To_Buf(runningTime & 0xFFFF, 54);
 
 		// Trasferisce il contenuto del buffer
 		{
