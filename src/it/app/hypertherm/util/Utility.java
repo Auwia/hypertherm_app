@@ -2,7 +2,6 @@ package it.app.hypertherm.util;
 
 import it.app.hypertherm.Menu_app;
 import it.app.hypertherm.R;
-import it.app.hypertherm.R.id;
 import it.app.hypertherm.db.HyperthermDB;
 import it.app.hypertherm.db.HyperthermDataSource;
 
@@ -90,6 +89,35 @@ public class Utility {
 	}
 
 	public Utility() {
+	}
+
+	final protected char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+	public String bytesToHex(byte[] bytes) {
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
+	}
+
+	public int calcola_check_sum(byte[] buf) {
+
+		int check_sum = 0;
+
+		for (int i = 0; i < 128; i += 2) {
+
+			if (i > 2) {
+
+				check_sum += Integer.parseInt(
+						bytesToHex(buf).substring(i, i + 2), 16);
+			}
+
+		}
+
+		return check_sum;
 	}
 
 	public void esegui(int cmd) {

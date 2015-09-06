@@ -82,14 +82,11 @@ public class WorkActivity extends Activity {
 
 	private void inviaComandi(String comando) {
 
-		PC_TO_CY pctocy = new PC_TO_CY();
-		pctocy.setPSoCData();
-
-		pctocy.PSoCData[2] = 0;
-		pctocy.PSoCData[3] = 0;
-		pctocy.PSoCData[4] = 64;
-		pctocy.PSoCData[12] = 0;
 		pctocy.PSoCData[13] = (byte) Integer.parseInt(comando);
+
+		pctocy.Cmd = Integer.valueOf(comando);
+
+		pctocy.setPSoCData();
 
 		SendData(PC_TO_CY.PACKET_SIZE, pctocy.PSoCData);
 	}
@@ -111,6 +108,13 @@ public class WorkActivity extends Activity {
 			numBytes = 256;
 			utility.appendLog("SendData: numero di byte superiore a 256byte");
 		}
+
+		utility.appendLog("CHECK_SUM:" + utility.calcola_check_sum(buffer));
+		pctocy.setCheckSum(utility.calcola_check_sum(buffer));
+
+		pctocy.setPSoCData();
+
+		buffer = pctocy.PSoCData;
 
 		/* prepare the packet to be sent */
 		for (int count = 0; count < numBytes; count++) {
@@ -157,7 +161,7 @@ public class WorkActivity extends Activity {
 
 			while (READ_ENABLE) {
 
-				invia_trattamenti();
+				// invia_trattamenti();
 
 				exit += 1;
 
@@ -290,83 +294,138 @@ public class WorkActivity extends Activity {
 							Buf[3] = ((int) buf[62]) & 0xFF;
 							Buf[4] = ((int) buf[63]) & 0xFF;
 
-							utility.appendLog("COMANDO_RICEVUTO:" + "CheckSum="
-									+ CheckSum + " Ver=" + Ver + " TimStmp="
-									+ TimStmp + " Msk=" + msk_binary
-									+ " In_Output=" + In_Output + " Cmd=" + Cmd
-									+ " iTime=" + iTime + " iD_temp=" + iD_temp
-									+ " iH2o_temp=" + iH2o_temp
-									+ " iColdHp_temp=" + iColdHp_temp
-									+ " iPower=" + iPower + " Gain_D_temp="
-									+ Gain_D_temp + " Gain_D_temp="
-									+ Offset_D_temp + " Gain_H2o_temp="
-									+ Gain_H2o_temp + " Offset_H2o_temp="
-									+ Offset_H2o_temp + " Gain_Cold_temp="
-									+ Gain_Cold_temp + " Offset_Cold_temp="
-									+ Offset_Cold_temp + " Gain_Boil_temp="
-									+ Gain_Boil_temp + " Offset_Boil_temp="
-									+ Offset_Boil_temp + " Req_power="
-									+ Req_power + " Dir_power=" + Dir_power
-									+ " Ref_power=" + Ref_power + " D_temp="
-									+ D_temp + " H2o_temp=" + H2o_temp
-									+ " ColdHp_temp=" + ColdHp_temp
-									+ " Boil_temp=" + Boil_temp
-									+ " runningTime=" + runningTime
-									+ " pwmRes=" + pwmRes + " pwmPomp="
-									+ pwmPomp + " pwmFan=" + pwmFan
-									+ " runningTime=" + runningTime
-									+ " Buf[0]=" + Buf[0] + " Buf[1]=" + Buf[1]
-									+ " Buf[2]=" + Buf[2] + " Buf[3]=" + Buf[3]
-									+ " Buf[4]=" + Buf[4]);
+							int check_sum = utility.calcola_check_sum(buf);
 
-							// int cmd = msk_binary.indexOf("1");
-							//
-							// switch (cmd) {
-							// case 1: // COMANDO
-							// utility.esegui(Cmd);
-							// break;
-							//
-							// case 2: // TEMPO
-							// utility.SetTime(iTime / 60 + ":00");
-							// break;
-							//
-							// case 3: // DELTAT
-							// utility.setDeltaT(due_cifre(iD_temp).replace(
-							// ",", "."));
-							// break;
-							//
-							// case 4: // WATER
-							// utility.setWaterTemperature(due_cifre(iH2o_temp)
-							// .replace(",", "."));
-							// break;
-							//
-							// case 6: // ANTENNA
-							// utility.setAntenna(due_cifre(iPower).replace(
-							// ",", "."));
-							// break;
-							// }
+							if (check_sum == CheckSum) {
 
-							runOnUiThread(new Runnable() {
-								@Override
-								public void run() {
+								utility.appendLog("COMANDO_RICEVUTO:"
+										+ "CheckSum="
+										+ CheckSum
+										+ " Ver="
+										+ Ver
+										+ " TimStmp="
+										+ TimStmp
+										+ " Msk="
+										+ msk_binary
+										+ " In_Output="
+										+ In_Output
+										+ " Cmd="
+										+ Cmd
+										+ " iTime="
+										+ iTime
+										+ " iD_temp="
+										+ iD_temp
+										+ " iH2o_temp="
+										+ iH2o_temp
+										+ " iColdHp_temp="
+										+ iColdHp_temp
+										+ " iPower="
+										+ iPower
+										+ " Gain_D_temp="
+										+ Gain_D_temp
+										+ " Gain_D_temp="
+										+ Offset_D_temp
+										+ " Gain_H2o_temp="
+										+ Gain_H2o_temp
+										+ " Offset_H2o_temp="
+										+ Offset_H2o_temp
+										+ " Gain_Cold_temp="
+										+ Gain_Cold_temp
+										+ " Offset_Cold_temp="
+										+ Offset_Cold_temp
+										+ " Gain_Boil_temp="
+										+ Gain_Boil_temp
+										+ " Offset_Boil_temp="
+										+ Offset_Boil_temp
+										+ " Req_power="
+										+ Req_power
+										+ " Dir_power="
+										+ Dir_power
+										+ " Ref_power="
+										+ Ref_power
+										+ " D_temp="
+										+ D_temp
+										+ " H2o_temp="
+										+ H2o_temp
+										+ " ColdHp_temp="
+										+ ColdHp_temp
+										+ " Boil_temp="
+										+ Boil_temp
+										+ " runningTime="
+										+ runningTime
+										+ " pwmRes="
+										+ pwmRes
+										+ " pwmPomp="
+										+ pwmPomp
+										+ " pwmFan="
+										+ pwmFan
+										+ " runningTime="
+										+ runningTime
+										+ " Buf[0]="
+										+ Buf[0]
+										+ " Buf[1]="
+										+ Buf[1]
+										+ " Buf[2]="
+										+ Buf[2]
+										+ " Buf[3]="
+										+ Buf[3]
+										+ " Buf[4]=" + Buf[4]);
 
-									setColoriPiramide(Ref_power / 100);
+								// int cmd = msk_binary.indexOf("1");
+								//
+								// switch (cmd) {
+								// case 1: // COMANDO
+								// utility.esegui(Cmd);
+								// break;
+								//
+								// case 2: // TEMPO
+								// utility.SetTime(iTime / 60 + ":00");
+								// break;
+								//
+								// case 3: // DELTAT
+								// utility.setDeltaT(due_cifre(iD_temp).replace(
+								// ",", "."));
+								// break;
+								//
+								// case 4: // WATER
+								// utility.setWaterTemperature(due_cifre(iH2o_temp)
+								// .replace(",", "."));
+								// break;
+								//
+								// case 6: // ANTENNA
+								// utility.setAntenna(due_cifre(iPower).replace(
+								// ",", "."));
+								// break;
+								// }
 
-								}
-							});
+								runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
 
-							utility.esegui(Cmd);
+										setColoriPiramide(Ref_power / 100);
 
-							utility.SetTime(iTime / 60 + ":00");
+									}
+								});
 
-							utility.setDeltaT(due_cifre(iD_temp).replace(",",
-									"."));
+								utility.esegui(Cmd);
 
-							utility.setWaterTemperature(due_cifre(iH2o_temp)
-									.replace(",", "."));
+								utility.SetTime(iTime / 60 + ":00");
 
-							utility.setAntenna(due_cifre(iPower).replace(",",
-									"."));
+								utility.setDeltaT(due_cifre(iD_temp).replace(
+										",", "."));
+
+								utility.setWaterTemperature(due_cifre(iH2o_temp)
+										.replace(",", "."));
+
+								utility.setAntenna(due_cifre(iPower).replace(
+										",", "."));
+
+							} else {
+								utility.appendLog("Tracciato non conforme al checksum atteso="
+										+ CheckSum
+										+ " checksum ricevuto="
+										+ check_sum);
+							}
 						}
 					}
 				} catch (IOException e) {
@@ -1113,11 +1172,25 @@ public class WorkActivity extends Activity {
 				});
 
 		button_play.setOnClickListener(new View.OnClickListener() {
+
+			private int i = 0;
+
 			public void onClick(View v) {
 
 				suggerimenti.setText("");
 
-				disegna_grafico();
+				waitTimerBolusDown = new CountDownTimer(30000, 1000) {
+
+					public void onTick(long millisUntilFinished) {
+
+						disegna_grafico(i++);
+
+					}
+
+					public void onFinish() {
+
+					}
+				}.start();
 
 				if (preferences.getString("PROFONDITA", "1").equals("4")) {
 
@@ -1484,7 +1557,24 @@ public class WorkActivity extends Activity {
 				set_attention();
 
 				utility.appendLog("Inviato comando: ANTENNA-RIGHT");
-				invia_trattamenti();
+
+				pctocy.setTreatParms(
+						String.valueOf(Integer.parseInt(time_label_down
+								.getText()
+								.toString()
+								.substring(
+										0,
+										time_label_down.getText().toString()
+												.length() - 3)) * 60),
+						antenna_black_label_down.getText().toString(),
+						water_label_down.getText().toString(),
+						deltat_label_down.getText().toString());
+
+				pctocy.setPSoCData();
+
+				// invia_trattamenti();
+
+				SendData(PC_TO_CY.PACKET_SIZE, pctocy.PSoCData);
 
 			}
 		});
@@ -1782,18 +1872,18 @@ public class WorkActivity extends Activity {
 					}
 				});
 
-		button_antenna_right.setOnTouchListener(new View.OnTouchListener() {
-			public boolean onTouch(View v, MotionEvent event) {
-				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)
-						&& mAutoIncrement) {
-					funzionalita = button_antenna_right.getId();
-					mValue = 1;
-					mAutoIncrement = false;
-				}
-				return false;
-			}
-		});
+		// button_antenna_right.setOnTouchListener(new View.OnTouchListener() {
+		// public boolean onTouch(View v, MotionEvent event) {
+		// if ((event.getAction() == MotionEvent.ACTION_UP || event
+		// .getAction() == MotionEvent.ACTION_CANCEL)
+		// && mAutoIncrement) {
+		// funzionalita = button_antenna_right.getId();
+		// mValue = 1;
+		// mAutoIncrement = false;
+		// }
+		// return false;
+		// }
+		// });
 
 		button_time_left.setOnLongClickListener(new View.OnLongClickListener() {
 			public boolean onLongClick(View arg0) {
@@ -1844,7 +1934,7 @@ public class WorkActivity extends Activity {
 
 	}
 
-	protected void disegna_grafico() {
+	protected void disegna_grafico_bkp() {
 		Paint paintRed = new Paint();
 		paintRed.setColor(Color.RED);
 
@@ -1863,10 +1953,55 @@ public class WorkActivity extends Activity {
 			// from -x to +x evaluate and plot the function
 			while (x++ < measured.getXAxisLimit()) {
 				canvas.drawLine(measured.getXMeasured(x), measured
-						.getYMeasured(function(x, 0, 0)), measured
-						.getXMeasured(x + MeasuredAxis.X_GAP), measured
-						.getYMeasured(function(x + MeasuredAxis.Y_GAP, 0, 0)),
+						.getYMeasured(function(x, 0, 0)),
+
+				measured.getYMeasured(function(x + MeasuredAxis.Y_GAP, 0, 0)),
+						measured.getXMeasured(x + MeasuredAxis.X_GAP),
+
 						paintRed);
+			}
+			canvas.save();
+			canvas.translate(0, 0);
+			canvas.scale(canvas.getWidth(), canvas.getHeight());
+			canvas.restore();
+
+		}
+
+		LinearLayout ll = (LinearLayout) findViewById(R.id.grafico);
+		ll.setBackgroundDrawable(new BitmapDrawable(bg));
+
+	}
+
+	protected void disegna_grafico(int z) {
+		Paint paintRed = new Paint();
+		paintRed.setColor(Color.RED);
+
+		Paint paintBlu = new Paint();
+		paintBlu.setColor(Color.BLUE);
+
+		Bitmap bg = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+
+		Canvas canvas = new Canvas(bg);
+
+		MeasuredAxis measured = new MeasuredAxis(canvas.getWidth(),
+				canvas.getHeight());
+
+		synchronized (canvas) {
+			int x = measured.getXAxisNegLimit();
+			int y = measured.getXAxisNegLimit();
+
+			// from -x to +x evaluate and plot the function
+			while (x++ < measured.getXAxisLimit()) {
+
+				while (y++ < measured.getXAxisLimit()) {
+
+					canvas.drawLine(
+							measured.getXMeasured(x),
+							measured.getYMeasured(function(x, y, z)),
+							measured.getXMeasured(x + MeasuredAxis.X_GAP),
+							measured.getYMeasured(function(x
+									+ MeasuredAxis.Y_GAP, y, z)), paintRed);
+				}
 			}
 			canvas.save();
 			canvas.translate(0, 0);
@@ -1889,10 +2024,23 @@ public class WorkActivity extends Activity {
 		float Dt = pctocy.iD_temp;
 		double a = 0.035;
 		int X = pctocy.runningTime;
+		double A = (B + 1) * Dt + Tw - Tb;
+		double h = 0.011522;
+		double k = 0.011513;
+		int x0 = 70;
 
-		return new Double((B * Tw * Math.exp(-b * x) + ((B + 1) * Dt + Tw - Tb)
-				* Math.exp(-a * x))
-				/ (B * Math.exp(-b * x) + 1)).floatValue();
+		double equation = Tb
+				+ ((B * Tw * Math.exp(-b * y) + Tb + A * Math.exp(-a * y))
+						/ (B * Math.exp(-b * y) + 1) - Tb)
+				* Math.exp(-h * Math.pow(x - x0, 2) * (1 - Math.exp(-k * z)));
+
+		// return new Double((B * Tw * Math.exp(-b * x) + ((B + 1) * Dt + Tw -
+		// Tb)
+		// * Math.exp(-a * x))
+		// / (B * Math.exp(-b * x) + 1)).floatValue();
+
+		return new Double(equation).floatValue();
+
 	}
 
 	class MeasuredAxis {
