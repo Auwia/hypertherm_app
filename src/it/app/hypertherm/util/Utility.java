@@ -41,7 +41,7 @@ public class Utility {
 			time_label_up;
 
 	private Button button_play, button_stop, button_pause, button_bolus_down,
-			button_bolus_up, button_home;
+			button_bolus_up, button_home, button_rf_on;
 
 	private int comando;
 
@@ -85,6 +85,7 @@ public class Utility {
 				.findViewById(R.id.button_bolus_down);
 		button_bolus_up = (Button) activity.findViewById(R.id.button_bolus_up);
 		button_home = (Button) activity.findViewById(R.id.button_home);
+		button_rf_on = (Button) activity.findViewById(R.id.button_rf_on);
 
 	}
 
@@ -135,12 +136,14 @@ public class Utility {
 					button_pause.setPressed(false);
 					button_stop.setPressed(false);
 					button_home.setEnabled(false);
+					button_rf_on.setPressed(true);
 					break;
 
 				case 512: // PAUSE
 					button_play.setPressed(false);
 					button_pause.setPressed(true);
 					button_stop.setPressed(false);
+					button_rf_on.setPressed(false);
 					break;
 
 				case 768: // STOP
@@ -148,6 +151,7 @@ public class Utility {
 					button_pause.setPressed(false);
 					button_stop.setPressed(true);
 					button_home.setEnabled(true);
+					button_rf_on.setPressed(false);
 					break;
 
 				case 1024: // BOOL-UP
@@ -166,7 +170,7 @@ public class Utility {
 					break;
 
 				case 2816: // RESET
-
+					button_rf_on.setPressed(false);
 					break;
 
 				}

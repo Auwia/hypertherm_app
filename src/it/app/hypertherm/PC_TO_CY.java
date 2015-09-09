@@ -6,6 +6,9 @@ import java.util.Arrays;
 
 public class PC_TO_CY {
 	public int CheckSum;
+	public int Dir_power;
+	public int H2o_temp;
+	public int D_temp;
 	byte Ver;
 	byte TimeStamp;
 	public long Msk;
@@ -15,7 +18,7 @@ public class PC_TO_CY {
 	public int iD_temp;
 	public int iH2o_temp;
 	int iColdHp_temp;
-	int iPower;
+	public int iPower;
 	int Gain_D_temp;
 	int Offset_D_temp;
 	int Gain_H2o_temp;
@@ -29,7 +32,7 @@ public class PC_TO_CY {
 	byte[] Buf;
 	public byte[] PSoCData;
 
-	public static final byte HOSTUSB_VER = 14;
+	public static final byte HOSTUSB_VER = 0;
 	public static final int PACKET_SIZE = 64;
 	private static final int PC_CY_BUFCNT = 24;
 
@@ -76,13 +79,13 @@ public class PC_TO_CY {
 	public void setTreatParms(String TvTime, String TvPower, String TvH2otemp,
 			String TvDtemp) {
 
-		iTime = Integer.parseInt(TvTime);
+		runningTime = Integer.parseInt(TvTime);
 
-		iPower = getStrToInt_x100(TvPower);
+		Dir_power = getStrToInt_x100(TvPower);
 
-		iH2o_temp = getStrToInt_x100(TvH2otemp);
+		H2o_temp = getStrToInt_x100(TvH2otemp);
 
-		iD_temp = getStrToInt_x100(TvDtemp);
+		D_temp = getStrToInt_x100(TvDtemp);
 	}
 
 	public void setDefaultTreatParms() {
@@ -120,7 +123,7 @@ public class PC_TO_CY {
 		PSoCData[2] = Ver;
 		PSoCData[3] = TimeStamp;
 
-		uint32_To_Buf(Msk & 0xFFFFFFFF, 4);
+		// uint32_To_Buf(Msk & 0xFFFFFFFF, 4);
 		uint32_To_Buf(In_Output & 0xFFFFFFFF, 8);
 		uint16_To_Buf(Cmd & 0xFFFF, 13);
 		uint16_To_Buf(iTime & 0xFFFF, 14);
@@ -137,6 +140,9 @@ public class PC_TO_CY {
 		uint16_To_Buf(Offset_Cold_temp & 0xFFFF, 34);
 		uint16_To_Buf(Gain_Boil_temp & 0xFFFF, 36);
 		uint16_To_Buf(Offset_Boil_temp & 0xFFFF, 38);
+		uint16_To_Buf(Dir_power & 0xFFFF, 42);
+		uint16_To_Buf(D_temp & 0xFFFF, 46	);
+		uint16_To_Buf(H2o_temp & 0xFFFF, 48);
 		uint16_To_Buf(runningTime & 0xFFFF, 54);
 
 		{

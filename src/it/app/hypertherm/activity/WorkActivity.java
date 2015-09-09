@@ -60,6 +60,18 @@ public class WorkActivity extends Activity {
 
 	private final static int ROSSO = Color.parseColor("#ccff00");
 	private final static int VERDE = Color.parseColor("#0000cc");
+	private final static int MSK_CMD = 2;
+	private final static int MSK_TIME = 4;
+	private final static int MSK_DELTAT = 8;
+	private final static int MSK_WATER = 16;
+	private final static int MSK_POWER = 64;
+	private final static int PLAY = 1;
+	private final static int PAUSE = 2;
+	private final static int STOP = 3;
+	private final static int BOLUS_UP = 4;
+	private final static int BOLUS_DOWN = 5;
+	private final static int BOLUS_STOP = 6;
+	private final static int RESET = 11;
 
 	private boolean READ_ENABLE = true;
 
@@ -80,13 +92,42 @@ public class WorkActivity extends Activity {
 
 	private PC_TO_CY pctocy = new PC_TO_CY();
 
-	private void inviaComandi(String comando) {
+	public void inviaComandi(int comando, int maschera) {
 
-		pctocy.PSoCData[13] = (byte) Integer.parseInt(comando);
+		int timer = Integer
+				.parseInt(time_label_down
+						.getText()
+						.toString()
+						.substring(
+								0,
+								time_label_down.getText().toString().length() - 3)) * 60;
+		int power = Integer.parseInt(antenna_black_label_down.getText()
+				.toString()) * 100;
+		int water = (int) (Float.parseFloat(water_label_down.getText()
+				.toString()) * 100);
+		int deltat = (int) (Float.parseFloat(deltat_label_down.getText()
+				.toString()) * 100);
 
-		pctocy.Cmd = Integer.valueOf(comando);
+		for (int i = 0; i < 64; i++) { // Reset buffer
+			pctocy.PSoCData[i] = (byte) 0;
+		}
 
-		pctocy.setPSoCData();
+		pctocy.PSoCData[4] = (byte) maschera; // maschera 1
+		pctocy.PSoCData[13] = (byte) comando; // Cmd
+		pctocy.PSoCData[14] = (byte) (timer & 0xFF); // Tempo 1
+		pctocy.PSoCData[15] = (byte) ((timer & 0xFF00) >> 8); // Tempo 2
+		pctocy.PSoCData[16] = (byte) (deltat & 0xFF); // Tempo 1
+		pctocy.PSoCData[17] = (byte) ((deltat & 0xFF00) >> 8); // Tempo 2
+		pctocy.PSoCData[18] = (byte) (water & 0xFF); // Tempo 1
+		pctocy.PSoCData[19] = (byte) ((water & 0xFF00) >> 8); // Tempo 2
+		pctocy.PSoCData[22] = (byte) (power & 0xFF); // Tempo 1
+		pctocy.PSoCData[23] = (byte) ((power & 0xFF00) >> 8); // Tempo 2
+
+		utility.appendLog("CHECK_SUM:"
+				+ utility.calcola_check_sum(pctocy.PSoCData));
+		pctocy.PSoCData[0] = (byte) (utility.calcola_check_sum(pctocy.PSoCData) & 0xFF);
+		pctocy.PSoCData[1] = (byte) ((utility
+				.calcola_check_sum(pctocy.PSoCData) & 0xFF00) >> 8);
 
 		SendData(PC_TO_CY.PACKET_SIZE, pctocy.PSoCData);
 	}
@@ -108,13 +149,6 @@ public class WorkActivity extends Activity {
 			numBytes = 256;
 			utility.appendLog("SendData: numero di byte superiore a 256byte");
 		}
-
-		utility.appendLog("CHECK_SUM:" + utility.calcola_check_sum(buffer));
-		pctocy.setCheckSum(utility.calcola_check_sum(buffer));
-
-		pctocy.setPSoCData();
-
-		buffer = pctocy.PSoCData;
 
 		/* prepare the packet to be sent */
 		for (int count = 0; count < numBytes; count++) {
@@ -161,8 +195,7 @@ public class WorkActivity extends Activity {
 
 			while (READ_ENABLE) {
 
-				// invia_trattamenti();
-
+				// inviaComandi(0, MSK_WATER);
 				exit += 1;
 
 				try {
@@ -296,6 +329,9 @@ public class WorkActivity extends Activity {
 
 							int check_sum = utility.calcola_check_sum(buf);
 
+							utility.appendLog("Checksum calcolato=" + check_sum
+									+ " Checksum ricevuto=" + CheckSum);
+
 							if (check_sum == CheckSum) {
 
 								utility.appendLog("COMANDO_RICEVUTO:"
@@ -370,33 +406,6 @@ public class WorkActivity extends Activity {
 										+ " Buf[3]="
 										+ Buf[3]
 										+ " Buf[4]=" + Buf[4]);
-
-								// int cmd = msk_binary.indexOf("1");
-								//
-								// switch (cmd) {
-								// case 1: // COMANDO
-								// utility.esegui(Cmd);
-								// break;
-								//
-								// case 2: // TEMPO
-								// utility.SetTime(iTime / 60 + ":00");
-								// break;
-								//
-								// case 3: // DELTAT
-								// utility.setDeltaT(due_cifre(iD_temp).replace(
-								// ",", "."));
-								// break;
-								//
-								// case 4: // WATER
-								// utility.setWaterTemperature(due_cifre(iH2o_temp)
-								// .replace(",", "."));
-								// break;
-								//
-								// case 6: // ANTENNA
-								// utility.setAntenna(due_cifre(iPower).replace(
-								// ",", "."));
-								// break;
-								// }
 
 								runOnUiThread(new Runnable() {
 									@Override
@@ -1033,7 +1042,7 @@ public class WorkActivity extends Activity {
 		} catch (InterruptedException e) {
 		}
 
-		invia_trattamenti();
+		inviaComandi(0, 64);
 
 	}
 
@@ -1179,24 +1188,34 @@ public class WorkActivity extends Activity {
 
 				suggerimenti.setText("");
 
-				waitTimerBolusDown = new CountDownTimer(30000, 1000) {
+				// waitTimerBolusDown = new CountDownTimer(30000, 1000) {
+				//
+				// public void onTick(long millisUntilFinished) {
+				//
+				// disegna_grafico(i++);
+				//
+				// }
+				//
+				// public void onFinish() {
+				//
+				// }
+				// }.start();
 
-					public void onTick(long millisUntilFinished) {
+				runOnUiThread(new Runnable() {
 
-						disegna_grafico(i++);
+					@Override
+					public void run() {
+
+						// disegna_grafico(100);
+
+						button_rf_on.setPressed(true);
 
 					}
-
-					public void onFinish() {
-
-					}
-				}.start();
+				});
 
 				if (preferences.getString("PROFONDITA", "1").equals("4")) {
 
-					inviaComandi("1");
-
-					invia_trattamenti();
+					inviaComandi(PLAY, MSK_CMD);
 
 					utility.appendLog("Lancio programma DINAMICO");
 
@@ -1222,7 +1241,7 @@ public class WorkActivity extends Activity {
 													.getString("STRUTTURA",
 															"Mix"), "2")));
 
-									invia_trattamenti();
+									inviaComandi(0, MSK_WATER);
 
 									utility.appendLog("Attendo 1 minuto");
 
@@ -1253,7 +1272,7 @@ public class WorkActivity extends Activity {
 															"STRUTTURA", "Mix"),
 													"2")));
 
-											invia_trattamenti();
+											inviaComandi(0, MSK_POWER);
 
 											utility.appendLog("Attendo 6 minuti");
 
@@ -1276,7 +1295,7 @@ public class WorkActivity extends Activity {
 																					"Mix"),
 																	"3")));
 
-													invia_trattamenti();
+													inviaComandi(0, MSK_POWER);
 
 													utility.appendLog("Attendo 1 minuto");
 
@@ -1321,7 +1340,8 @@ public class WorkActivity extends Activity {
 																											"Mix"),
 																							"3")));
 
-															invia_trattamenti();
+															inviaComandi(0,
+																	MSK_POWER);
 
 															utility.appendLog("Attendo 7 minuti");
 
@@ -1357,7 +1377,7 @@ public class WorkActivity extends Activity {
 				} else {
 
 					utility.appendLog("Inviato comando: PLAY");
-					inviaComandi("1");
+					inviaComandi(PLAY, MSK_CMD);
 
 					button_home.setEnabled(false);
 
@@ -1369,7 +1389,8 @@ public class WorkActivity extends Activity {
 			public void onClick(View v) {
 
 				utility.appendLog("Inviato comando: PAUSE");
-				inviaComandi("2");
+				button_rf_on.setPressed(false);
+				inviaComandi(PAUSE, MSK_CMD);
 			}
 		});
 
@@ -1377,7 +1398,8 @@ public class WorkActivity extends Activity {
 			public void onClick(View v) {
 
 				utility.appendLog("Inviato comando: STOP");
-				inviaComandi("3");
+				button_rf_on.setPressed(false);
+				inviaComandi(STOP, MSK_CMD);
 				def_value_defaults();
 
 			}
@@ -1398,7 +1420,7 @@ public class WorkActivity extends Activity {
 						}
 
 						utility.appendLog("Inviato comando: BOLUS-STOP");
-						inviaComandi("6");
+						inviaComandi(BOLUS_STOP, MSK_CMD);
 
 						return true;
 
@@ -1410,7 +1432,7 @@ public class WorkActivity extends Activity {
 							utility.appendLog("Setto pressed true");
 
 							utility.appendLog("Inviato comando: BOLUS-DOWN");
-							inviaComandi("5");
+							inviaComandi(BOLUS_DOWN, MSK_CMD);
 
 							waitTimerBolusDown = new CountDownTimer(30000,
 									30000) {
@@ -1435,7 +1457,7 @@ public class WorkActivity extends Activity {
 							}
 
 							utility.appendLog("Inviato comando: BOLUS-STOP");
-							inviaComandi("6");
+							inviaComandi(BOLUS_STOP, MSK_CMD);
 
 							utility.appendLog("Setto pressed false");
 							button_bolus_down.setPressed(false);
@@ -1466,7 +1488,7 @@ public class WorkActivity extends Activity {
 						}
 
 						utility.appendLog("Inviato comando: BOLUS-STOP");
-						inviaComandi("6");
+						inviaComandi(BOLUS_STOP, MSK_CMD);
 
 						return true;
 
@@ -1478,7 +1500,7 @@ public class WorkActivity extends Activity {
 							utility.appendLog("Setto pressed true");
 
 							utility.appendLog("Inviato comando: BOLUS-UP");
-							inviaComandi("4");
+							inviaComandi(BOLUS_UP, MSK_CMD);
 
 							waitTimerBolusUp = new CountDownTimer(30000, 30000) {
 
@@ -1502,7 +1524,7 @@ public class WorkActivity extends Activity {
 							}
 
 							utility.appendLog("Inviato comando: BOLUS-STOP");
-							inviaComandi("6");
+							inviaComandi(BOLUS_STOP, MSK_CMD);
 
 							utility.appendLog("Setto pressed false");
 							button_bolus_up.setPressed(false);
@@ -1535,7 +1557,8 @@ public class WorkActivity extends Activity {
 				set_attention();
 
 				utility.appendLog("Inviato comando: ANTENNA-LEFT");
-				invia_trattamenti();
+
+				inviaComandi(0, MSK_POWER);
 
 			}
 		});
@@ -1557,24 +1580,7 @@ public class WorkActivity extends Activity {
 				set_attention();
 
 				utility.appendLog("Inviato comando: ANTENNA-RIGHT");
-
-				pctocy.setTreatParms(
-						String.valueOf(Integer.parseInt(time_label_down
-								.getText()
-								.toString()
-								.substring(
-										0,
-										time_label_down.getText().toString()
-												.length() - 3)) * 60),
-						antenna_black_label_down.getText().toString(),
-						water_label_down.getText().toString(),
-						deltat_label_down.getText().toString());
-
-				pctocy.setPSoCData();
-
-				// invia_trattamenti();
-
-				SendData(PC_TO_CY.PACKET_SIZE, pctocy.PSoCData);
+				inviaComandi(0, MSK_POWER);
 
 			}
 		});
@@ -1598,7 +1604,7 @@ public class WorkActivity extends Activity {
 				set_attention();
 
 				utility.appendLog("Inviato comando: WATER-LEFT");
-				invia_trattamenti();
+				inviaComandi(0, MSK_WATER);
 
 			}
 		});
@@ -1621,7 +1627,7 @@ public class WorkActivity extends Activity {
 				set_attention();
 
 				utility.appendLog("Inviato comando: WATER-RIGHT");
-				invia_trattamenti();
+				inviaComandi(0, MSK_WATER);
 
 			}
 		});
@@ -1649,7 +1655,7 @@ public class WorkActivity extends Activity {
 				set_attention();
 
 				utility.appendLog("Inviato comando: DELTAt-LEFT");
-				invia_trattamenti();
+				inviaComandi(0, MSK_DELTAT);
 
 			}
 		});
@@ -1677,7 +1683,7 @@ public class WorkActivity extends Activity {
 				set_attention();
 
 				utility.appendLog("Inviato comando: DELTAT-RIGHT");
-				invia_trattamenti();
+				inviaComandi(0, MSK_DELTAT);
 
 			}
 		});
@@ -1701,7 +1707,7 @@ public class WorkActivity extends Activity {
 				}
 
 				utility.appendLog("Inviato comando: TIMER-LEFT");
-				invia_trattamenti();
+				inviaComandi(0, MSK_TIME);
 
 			}
 		});
@@ -1725,7 +1731,7 @@ public class WorkActivity extends Activity {
 				}
 
 				utility.appendLog("Inviato comando: TIMER-RIGHT");
-				invia_trattamenti();
+				inviaComandi(0, MSK_TIME);
 
 			}
 		});
@@ -1872,19 +1878,6 @@ public class WorkActivity extends Activity {
 					}
 				});
 
-		// button_antenna_right.setOnTouchListener(new View.OnTouchListener() {
-		// public boolean onTouch(View v, MotionEvent event) {
-		// if ((event.getAction() == MotionEvent.ACTION_UP || event
-		// .getAction() == MotionEvent.ACTION_CANCEL)
-		// && mAutoIncrement) {
-		// funzionalita = button_antenna_right.getId();
-		// mValue = 1;
-		// mAutoIncrement = false;
-		// }
-		// return false;
-		// }
-		// });
-
 		button_time_left.setOnLongClickListener(new View.OnLongClickListener() {
 			public boolean onLongClick(View arg0) {
 				funzionalita = button_time_left.getId();
@@ -1991,16 +1984,28 @@ public class WorkActivity extends Activity {
 			int y = measured.getXAxisNegLimit();
 
 			// from -x to +x evaluate and plot the function
-			while (x++ < measured.getXAxisLimit()) {
+			for (double x1 = 370; x1 <= 420; x1 += 0.1) {
 
-				while (y++ < measured.getXAxisLimit()) {
+				for (int y1 = 0; y1 < measured.getYAxisLimit(); y1++) {
 
-					canvas.drawLine(
-							measured.getXMeasured(x),
-							measured.getYMeasured(function(x, y, z)),
-							measured.getXMeasured(x + MeasuredAxis.X_GAP),
-							measured.getYMeasured(function(x
-									+ MeasuredAxis.Y_GAP, y, z)), paintRed);
+					// canvas.drawLine(
+					// measured.getXMeasured(x1),
+					// measured.getYMeasured(function(x1, y, 100)),
+					// measured.getXMeasured(x1 + MeasuredAxis.X_GAP),
+					// measured.getYMeasured(function(x1
+					// + MeasuredAxis.Y_GAP, y1, 100)), paintRed);
+
+					canvas.drawPoint(function(x1, y1, 100), (float) x1,
+							paintBlu);
+
+					// canvas.drawLine(
+					// measured.getXMeasured(x1),
+					// measured.getYMeasured(function(x1, y1, 100)),
+					// measured.getXMeasured(x1 + MeasuredAxis.X_GAP),
+					// measured.getYMeasured(function(x1
+					// + MeasuredAxis.Y_GAP, y1, 100)), paintRed);
+
+					utility.appendLog("x=" + x1 + " y=" + function(x1, y1, 100));
 				}
 			}
 			canvas.save();
@@ -2015,24 +2020,25 @@ public class WorkActivity extends Activity {
 
 	}
 
-	private float function(float x, float y, float z) {
+	private float function(double x, double y, double z) {
 
-		int B = 3;
-		float Tw = pctocy.iH2o_temp;
+		int B = 3, n = 0;
+		float W, T, D;
+		float Tw = W = pctocy.iH2o_temp;
 		double b = 0.19;
-		float Tb = 37;
-		float Dt = pctocy.iD_temp;
+		float Tb = T = 37;
+		float Dt = D = pctocy.iD_temp;
 		double a = 0.035;
 		int X = pctocy.runningTime;
-		double A = (B + 1) * Dt + Tw - Tb;
+		double A = (B + 1) * D + W - T;
 		double h = 0.011522;
 		double k = 0.011513;
-		int x0 = 70;
+		int x0 = n = 70;
 
-		double equation = Tb
-				+ ((B * Tw * Math.exp(-b * y) + Tb + A * Math.exp(-a * y))
-						/ (B * Math.exp(-b * y) + 1) - Tb)
-				* Math.exp(-h * Math.pow(x - x0, 2) * (1 - Math.exp(-k * z)));
+		double equation = T
+				+ ((B * W * Math.exp(-b * y) + T + A * Math.exp(-a * y))
+						/ (B * Math.exp(-b * y) + 1) - T)
+				* Math.exp(-h * Math.pow(x - n, 2) * (1 - Math.exp(-k * z)));
 
 		// return new Double((B * Tw * Math.exp(-b * x) + ((B + 1) * Dt + Tw -
 		// Tb)
@@ -2061,6 +2067,10 @@ public class WorkActivity extends Activity {
 
 		public int getXAxisLimit() {
 			return (_realWidth / 2);
+		}
+
+		public int getYAxisLimit() {
+			return (_realHeight / 2);
 		}
 
 		public float getXMeasured(int x) {
@@ -2107,56 +2117,6 @@ public class WorkActivity extends Activity {
 				}
 			}.start();
 		}
-
-	}
-
-	protected void invia_trattamenti() {
-
-		if (time_label_down.getText().toString().length() == 2) {
-
-			utility.appendLog("Setto trattamento: TIMER:"
-					+ Integer.parseInt(time_label_down.getText().toString())
-					+ " - ANTENNA:"
-					+ antenna_black_label_down.getText().toString() + " WATER:"
-					+ water_label_down.getText().toString() + " - DELTAT:"
-					+ deltat_label_down.getText().toString());
-
-			pctocy.setTreatParms(String.valueOf(Integer
-					.parseInt(time_label_down.getText().toString())),
-					antenna_black_label_down.getText().toString(),
-					water_label_down.getText().toString(), deltat_label_down
-							.getText().toString());
-
-		} else {
-
-			utility.appendLog("Setto trattamento: TIMER:"
-					+ Integer.parseInt(time_label_down
-							.getText()
-							.toString()
-							.substring(
-									0,
-									time_label_down.getText().toString()
-											.length() - 3)) + " - ANTENNA:"
-					+ antenna_black_label_down.getText().toString() + " WATER:"
-					+ water_label_down.getText().toString() + " - DELTAT:"
-					+ deltat_label_down.getText().toString());
-
-			pctocy.setTreatParms(String.valueOf(Integer
-					.parseInt(time_label_down
-							.getText()
-							.toString()
-							.substring(
-									0,
-									time_label_down.getText().toString()
-											.length() - 3)) * 60),
-					antenna_black_label_down.getText().toString(),
-					water_label_down.getText().toString(), deltat_label_down
-							.getText().toString());
-		}
-
-		pctocy.setPSoCData();
-
-		SendData(PC_TO_CY.PACKET_SIZE, pctocy.PSoCData);
 
 	}
 

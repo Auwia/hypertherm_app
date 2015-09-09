@@ -7,6 +7,7 @@ import it.app.hypertherm.util.Utility;
 
 import java.io.File;
 
+import net.sf.andpdf.pdfviewer.PdfViewerActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,11 +33,15 @@ public class MainActivity extends Activity {
 
 	private SharedPreferences preferences;
 
+	private boolean exit = false;
+
 	@Override
 	public void onPause() {
 		super.onPause();
 
-		finish();
+		if (!exit) {
+			finish();
+		}
 
 	}
 
@@ -159,6 +164,15 @@ public class MainActivity extends Activity {
 
 			break;
 		case 4:
+
+			exit = true;
+
+			intent = new Intent(MainActivity.this, OpenPdfActivity.class);
+			intent.putExtra(PdfViewerActivity.EXTRA_PDFFILENAME,
+					Environment.getExternalStorageDirectory()
+							+ "/Hypertherm/pdf/user_manual.pdf");
+			startActivity(intent);
+
 			break;
 		}
 

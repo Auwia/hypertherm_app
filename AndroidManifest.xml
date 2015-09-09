@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="it.app.hypertherm"
-    android:versionCode="1090"
-    android:versionName="1.09.0" >
+    android:versionCode="1100"
+    android:versionName="1.10.0" >
 
     <uses-sdk
         android:minSdkVersion="16"
@@ -72,8 +72,12 @@
             android:label="@string/title_activity_patologia" >
         </activity>
         <activity
-            android:name="it.app.hypertherm.activity.StrutturaProfonditaActivity"
+            android:name=".activity.StrutturaProfonditaActivity"
             android:label="@string/title_activity_struttura_profondita" >
+        </activity>
+        <activity
+            android:name="it.app.hypertherm.activity.OpenPdfActivity"
+            android:label="@string/title_activity_open_pdf" >
         </activity>
     </application>
 

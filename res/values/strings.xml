@@ -30,5 +30,6 @@
     <string name="title_activity_tessuto2">Tessuto2Activity</string>
     <string name="title_activity_patologia">PatologiaActivity</string>
     <string name="title_activity_struttura_profondita">StrutturaProfonditaActivity</string>
+    <string name="title_activity_open_pdf">Manuale Utente</string>
 
 </resources>
