@@ -132,11 +132,11 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/grafico"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
             android:layout_weight="50"
-            android:id="@+id/grafico"
             android:background="@android:color/white"
             android:gravity="center_vertical|center_horizontal" >
 
@@ -610,10 +610,10 @@
                     android:gravity="center_vertical|center_horizontal" >
 
                     <Button
-                        android:id="@+id/button_temperature_positive"
+                        android:id="@+id/button_temperature_negative"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/button_temperature_positive" />
+                        android:background="@drawable/button_temperature_negative" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -638,10 +638,10 @@
                     android:gravity="center_vertical|center_horizontal" >
 
                     <Button
-                        android:id="@+id/button_temperature_negative"
+                        android:id="@+id/button_temperature_positive"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/button_temperature_negative" />
+                        android:background="@drawable/button_temperature_positive" />
                 </LinearLayout>
             </LinearLayout>
 

@@ -70,7 +70,11 @@ public class StrutturaProfonditaActivity extends Activity {
 
 		button_home.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				finish();
+
+				Intent intent = new Intent(StrutturaProfonditaActivity.this,
+						MainActivity.class);
+				startActivity(intent);
+
 			}
 		});
 

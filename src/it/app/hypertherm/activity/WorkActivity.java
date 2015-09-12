@@ -2,12 +2,12 @@ package it.app.hypertherm.activity;
 
 import it.app.hypertherm.PC_TO_CY;
 import it.app.hypertherm.R;
+import it.app.hypertherm.util.CountDownTimer;
 import it.app.hypertherm.util.Utility;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.State;
-import java.text.DecimalFormat;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -18,7 +18,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
@@ -47,16 +46,12 @@ public class WorkActivity extends Activity {
 	private LinearLayout zero, dieci, venti, trenta, quaranta, cinquanta,
 			sessanta, settanta, ottanta, novanta;
 
-	private boolean mAutoIncrement = false;
-	private boolean mAutoDecrement = false;
-
 	private Handler repeatUpdateHandler = new Handler();
-
-	public double mValue;
 
 	private Utility utility;
 
-	private int funzionalita, Ref_power, Dir_power;
+	private int funzionalita, Ref_power, Dir_power, iTime, iD_temp, iH2o_temp,
+			iPower;
 
 	private final static int ROSSO = Color.parseColor("#ccff00");
 	private final static int VERDE = Color.parseColor("#0000cc");
@@ -65,6 +60,7 @@ public class WorkActivity extends Activity {
 	private final static int MSK_DELTAT = 8;
 	private final static int MSK_WATER = 16;
 	private final static int MSK_POWER = 64;
+	private final static int MSK_ALL_4 = 92;
 	private final static int PLAY = 1;
 	private final static int PAUSE = 2;
 	private final static int STOP = 3;
@@ -88,7 +84,7 @@ public class WorkActivity extends Activity {
 	public static write_thread writeThread;
 
 	private CountDownTimer waitTimerBolusUp = null;
-	private CountDownTimer waitTimerBolusDown = null;
+	private CountDownTimer waitTimer = null;
 
 	private PC_TO_CY pctocy = new PC_TO_CY();
 
@@ -101,8 +97,9 @@ public class WorkActivity extends Activity {
 						.substring(
 								0,
 								time_label_down.getText().toString().length() - 3)) * 60;
-		int power = Integer.parseInt(antenna_black_label_down.getText()
-				.toString()) * 100;
+
+		int power = (int) (Integer.parseInt(antenna_black_label_down.getText()
+				.toString()) * 100);
 		int water = (int) (Float.parseFloat(water_label_down.getText()
 				.toString()) * 100);
 		int deltat = (int) (Float.parseFloat(deltat_label_down.getText()
@@ -122,9 +119,6 @@ public class WorkActivity extends Activity {
 		pctocy.PSoCData[19] = (byte) ((water & 0xFF00) >> 8); // Tempo 2
 		pctocy.PSoCData[22] = (byte) (power & 0xFF); // Tempo 1
 		pctocy.PSoCData[23] = (byte) ((power & 0xFF00) >> 8); // Tempo 2
-
-		utility.appendLog("CHECK_SUM:"
-				+ utility.calcola_check_sum(pctocy.PSoCData));
 		pctocy.PSoCData[0] = (byte) (utility.calcola_check_sum(pctocy.PSoCData) & 0xFF);
 		pctocy.PSoCData[1] = (byte) ((utility
 				.calcola_check_sum(pctocy.PSoCData) & 0xFF00) >> 8);
@@ -255,54 +249,24 @@ public class WorkActivity extends Activity {
 							CheckSum |= (((int) buf[1]) & 0xFF) << 8;
 							int Ver = ((int) buf[2]) & 0xFF;
 							int TimStmp = ((int) buf[3]) & 0xFF;
-							// int Msk = ((int) buf[4]) & 0xFF;
-							// Msk |= (((int) buf[5]) & 0xFF) << 8;
-							// Msk |= (((int) buf[6]) & 0xFF) << 16;
-							// Msk |= (((int) buf[7]) & 0xFF) << 24;
 
 							byte[] msk = new byte[4];
-
 							msk[0] = buf[4];
 							msk[1] = buf[5];
 							msk[2] = buf[6];
 							msk[3] = buf[7];
-
 							String msk_binary = utility.toBinary(msk);
 
-							int In_Output = ((int) buf[8]) & 0xFF;
-							In_Output |= (((int) buf[9]) & 0xFF) << 8;
-							In_Output |= (((int) buf[10]) & 0xFF) << 16;
-							In_Output |= (((int) buf[11]) & 0xFF) << 24;
 							int Cmd = ((int) buf[12]) & 0xFF;
 							Cmd |= (((int) buf[13]) & 0xFF) << 8;
-							int iTime = ((int) buf[14]) & 0xFF;
+							iTime = ((int) buf[14]) & 0xFF;
 							iTime |= (((int) buf[15]) & 0xFF) << 8;
-							int iD_temp = ((int) buf[16]) & 0xFF;
+							iD_temp = ((int) buf[16]) & 0xFF;
 							iD_temp |= (((int) buf[17]) & 0xFF) << 8;
-							int iH2o_temp = ((int) buf[18]) & 0xFF;
+							iH2o_temp = ((int) buf[18]) & 0xFF;
 							iH2o_temp |= (((int) buf[19]) & 0xFF) << 8;
-							int iColdHp_temp = ((int) buf[20]) & 0xFF;
-							iColdHp_temp |= (((int) buf[21]) & 0xFF) << 8;
-							int iPower = ((int) buf[22]) & 0xFF;
+							iPower = ((int) buf[22]) & 0xFF;
 							iPower |= (((int) buf[23]) & 0xFF) << 8;
-							int Gain_D_temp = ((int) buf[24]) & 0xFF;
-							Gain_D_temp |= (((int) buf[25]) & 0xFF) << 8;
-							int Offset_D_temp = ((int) buf[26]) & 0xFF;
-							Offset_D_temp |= (((int) buf[27]) & 0xFF) << 8;
-							int Gain_H2o_temp = ((int) buf[28]) & 0xFF;
-							Gain_H2o_temp |= (((int) buf[29]) & 0xFF) << 8;
-							int Offset_H2o_temp = ((int) buf[30]) & 0xFF;
-							Offset_H2o_temp |= (((int) buf[31]) & 0xFF) << 8;
-							int Gain_Cold_temp = ((int) buf[32]) & 0xFF;
-							Gain_Cold_temp |= (((int) buf[33]) & 0xFF) << 8;
-							int Offset_Cold_temp = ((int) buf[34]) & 0xFF;
-							Offset_Cold_temp |= (((int) buf[35]) & 0xFF) << 8;
-							int Gain_Boil_temp = ((int) buf[36]) & 0xFF;
-							Gain_Boil_temp |= (((int) buf[37]) & 0xFF) << 8;
-							int Offset_Boil_temp = ((int) buf[38]) & 0xFF;
-							Offset_Boil_temp |= (((int) buf[39]) & 0xFF) << 8;
-							int Req_power = ((int) buf[40]) & 0xFF;
-							Req_power |= (((int) buf[41]) & 0xFF) << 8;
 							Dir_power = ((int) buf[42]) & 0xFF;
 							Dir_power |= (((int) buf[43]) & 0xFF) << 8;
 							Ref_power = ((int) buf[44]) & 0xFF;
@@ -311,28 +275,11 @@ public class WorkActivity extends Activity {
 							D_temp |= (((int) buf[47]) & 0xFF) << 8;
 							int H2o_temp = ((int) buf[48]) & 0xFF;
 							H2o_temp |= (((int) buf[49]) & 0xFF) << 8;
-							int ColdHp_temp = ((int) buf[50]) & 0xFF;
-							ColdHp_temp |= (((int) buf[51]) & 0xFF) << 8;
-							int Boil_temp = ((int) buf[52]) & 0xFF;
-							Boil_temp |= (((int) buf[53]) & 0xFF) << 8;
 							int runningTime = ((int) buf[54]) & 0xFF;
 							runningTime |= (((int) buf[55]) & 0xFF) << 8;
-							int pwmRes = ((int) buf[56]) & 0xFF;
-							int pwmPomp = ((int) buf[57]) & 0xFF;
-							int pwmFan = ((int) buf[58]) & 0xFF;
-							int[] Buf = new int[5];
-							Buf[0] = ((int) buf[59]) & 0xFF;
-							Buf[1] = ((int) buf[60]) & 0xFF;
-							Buf[2] = ((int) buf[61]) & 0xFF;
-							Buf[3] = ((int) buf[62]) & 0xFF;
-							Buf[4] = ((int) buf[63]) & 0xFF;
 
-							int check_sum = utility.calcola_check_sum(buf);
-
-							utility.appendLog("Checksum calcolato=" + check_sum
-									+ " Checksum ricevuto=" + CheckSum);
-
-							if (check_sum == CheckSum) {
+							if (utility.calcola_check_sum(buf) == CheckSum
+									|| utility.calcola_check_sum(buf) + 1 == CheckSum) {
 
 								utility.appendLog("COMANDO_RICEVUTO:"
 										+ "CheckSum="
@@ -343,8 +290,6 @@ public class WorkActivity extends Activity {
 										+ TimStmp
 										+ " Msk="
 										+ msk_binary
-										+ " In_Output="
-										+ In_Output
 										+ " Cmd="
 										+ Cmd
 										+ " iTime="
@@ -353,28 +298,8 @@ public class WorkActivity extends Activity {
 										+ iD_temp
 										+ " iH2o_temp="
 										+ iH2o_temp
-										+ " iColdHp_temp="
-										+ iColdHp_temp
 										+ " iPower="
 										+ iPower
-										+ " Gain_D_temp="
-										+ Gain_D_temp
-										+ " Gain_D_temp="
-										+ Offset_D_temp
-										+ " Gain_H2o_temp="
-										+ Gain_H2o_temp
-										+ " Offset_H2o_temp="
-										+ Offset_H2o_temp
-										+ " Gain_Cold_temp="
-										+ Gain_Cold_temp
-										+ " Offset_Cold_temp="
-										+ Offset_Cold_temp
-										+ " Gain_Boil_temp="
-										+ Gain_Boil_temp
-										+ " Offset_Boil_temp="
-										+ Offset_Boil_temp
-										+ " Req_power="
-										+ Req_power
 										+ " Dir_power="
 										+ Dir_power
 										+ " Ref_power="
@@ -383,29 +308,10 @@ public class WorkActivity extends Activity {
 										+ D_temp
 										+ " H2o_temp="
 										+ H2o_temp
-										+ " ColdHp_temp="
-										+ ColdHp_temp
-										+ " Boil_temp="
-										+ Boil_temp
 										+ " runningTime="
 										+ runningTime
-										+ " pwmRes="
-										+ pwmRes
-										+ " pwmPomp="
-										+ pwmPomp
-										+ " pwmFan="
-										+ pwmFan
 										+ " runningTime="
-										+ runningTime
-										+ " Buf[0]="
-										+ Buf[0]
-										+ " Buf[1]="
-										+ Buf[1]
-										+ " Buf[2]="
-										+ Buf[2]
-										+ " Buf[3]="
-										+ Buf[3]
-										+ " Buf[4]=" + Buf[4]);
+										+ runningTime);
 
 								runOnUiThread(new Runnable() {
 									@Override
@@ -418,22 +324,69 @@ public class WorkActivity extends Activity {
 
 								utility.esegui(Cmd);
 
-								utility.SetTime(iTime / 60 + ":00");
+								utility.SetTime(runningTime / 60 + ":00");
 
-								utility.setDeltaT(due_cifre(iD_temp).replace(
-										",", "."));
+								int d_temp = 0;
+								if (D_temp >= 60000) {
+									d_temp = (D_temp - 65536);
+								} else {
+									d_temp = D_temp;
+								}
 
-								utility.setWaterTemperature(due_cifre(iH2o_temp)
-										.replace(",", "."));
+								String a;
 
-								utility.setAntenna(due_cifre(iPower).replace(
-										",", "."));
+								if (d_temp < 0) {
+									a = String.valueOf(d_temp).substring(0, 1)
+											+ "0."
+											+ String.valueOf(d_temp).substring(
+													1, 2);
+								} else {
+									a = String.valueOf(d_temp).substring(0, 1)
+											+ "."
+											+ String.valueOf(d_temp).substring(
+													1, 2);
+								}
+
+								utility.setDeltaT(a);
+
+								utility.setWaterTemperature(String.valueOf(
+										H2o_temp).substring(0, 2)
+										+ "."
+										+ String.valueOf(H2o_temp).substring(2,
+												3));
+
+								utility.setAntenna("" + (int) (Dir_power / 100));
+
+								runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+
+										// float id_temp = iD_temp / 100;
+										//
+										// water_label_down.setText(String
+										// .valueOf(iH2o_temp).substring(
+										// 0, 2)
+										// + "."
+										// + String.valueOf(iH2o_temp)
+										// .substring(2, 3));
+										//
+										// deltat_label_down.setText(String
+										// .valueOf(id_temp));
+										//
+										// antenna_black_label_down.setText(""
+										// + ((int) (iPower / 100)));
+										//
+										// time_label_down.setText(iTime / 60
+										// + ":00");
+
+									}
+								});
 
 							} else {
 								utility.appendLog("Tracciato non conforme al checksum atteso="
 										+ CheckSum
 										+ " checksum ricevuto="
-										+ check_sum);
+										+ utility.calcola_check_sum(buf));
 							}
 						}
 					}
@@ -458,7 +411,7 @@ public class WorkActivity extends Activity {
 
 		private void setColoriPiramide(int Ref_power) {
 
-			int MAX = Integer.parseInt(antenna_black_label_down.getText()
+			int MAX = (int) Float.parseFloat(antenna_black_label_down.getText()
 					.toString());
 
 			if (Ref_power < MAX / 10) {
@@ -971,18 +924,6 @@ public class WorkActivity extends Activity {
 
 	}
 
-	private String due_cifre(int number) {
-		double numer_job = (double) number / 100;
-		DecimalFormat df = new DecimalFormat("0.0#");
-		return df.format(numer_job);
-	}
-
-	private String una_cifra(int number) {
-		number /= 10;
-		DecimalFormat df = new DecimalFormat("0.0#");
-		return df.format(number);
-	}
-
 	private void initSerialPort() {
 		serialPort = new SerialPortOpt();
 		serialPort.mDevNum = 0;
@@ -1042,7 +983,7 @@ public class WorkActivity extends Activity {
 		} catch (InterruptedException e) {
 		}
 
-		inviaComandi(0, 64);
+		inviaComandi(0, MSK_ALL_4);
 
 	}
 
@@ -1127,6 +1068,8 @@ public class WorkActivity extends Activity {
 				.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 
+						azzera();
+
 						if (!button_power.isPressed()
 								&& seek_bar.getProgress() < 10) {
 
@@ -1134,13 +1077,47 @@ public class WorkActivity extends Activity {
 
 							seek_bar.setProgress(seek_bar.getProgress() + 1);
 
-							waitTimerBolusDown = new CountDownTimer(1000, 1000) {
+							waitTimer = new CountDownTimer(1000, 1000) {
 
 								public void onTick(long millisUntilFinished) {
 
 								}
 
 								public void onFinish() {
+
+									// water_label_down.setText(""
+									// + (Float.parseFloat(water_label_down
+									// .getText().toString()) - 0.3f));
+
+									funzionalita = button_water_left.getId();
+									decrement();
+									decrement();
+									decrement();
+
+									// deltat_label_down.setText(""
+									// + (Float.parseFloat(deltat_label_down
+									// .getText().toString()) - 0.1f));
+
+									funzionalita = button_deltat_left.getId();
+									decrement();
+
+									if (!disturbo_label
+											.getText()
+											.toString()
+											.equals(utility
+													.getMenuItemDefault())) {
+
+										antenna_black_label_down.setText(""
+												+ utility.getPmaxRF(
+														Float.parseFloat(deltat_label_down
+																.getText()
+																.toString()),
+														Float.parseFloat(water_label_down
+																.getText()
+																.toString())));
+									}
+
+									inviaComandi(0, MSK_ALL_4);
 
 									button_rf_on.setPressed(false);
 
@@ -1156,6 +1133,8 @@ public class WorkActivity extends Activity {
 				.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 
+						azzera();
+
 						if (!button_power.isPressed()
 								&& seek_bar.getProgress() > 0) {
 
@@ -1163,13 +1142,39 @@ public class WorkActivity extends Activity {
 
 							seek_bar.setProgress(seek_bar.getProgress() - 1);
 
-							waitTimerBolusDown = new CountDownTimer(1000, 1000) {
+							waitTimer = new CountDownTimer(1000, 1000) {
 
 								public void onTick(long millisUntilFinished) {
 
 								}
 
 								public void onFinish() {
+
+									funzionalita = button_water_right.getId();
+									increment();
+									increment();
+									increment();
+
+									funzionalita = button_deltat_right.getId();
+									increment();
+
+									if (!disturbo_label
+											.getText()
+											.toString()
+											.equals(utility
+													.getMenuItemDefault())) {
+
+										antenna_black_label_down.setText(""
+												+ utility.getPmaxRF(
+														Float.parseFloat(deltat_label_down
+																.getText()
+																.toString()),
+														Float.parseFloat(water_label_down
+																.getText()
+																.toString())));
+									}
+
+									inviaComandi(0, MSK_ALL_4);
 
 									button_rf_on.setPressed(false);
 
@@ -1186,9 +1191,11 @@ public class WorkActivity extends Activity {
 
 			public void onClick(View v) {
 
+				azzera();
+
 				suggerimenti.setText("");
 
-				// waitTimerBolusDown = new CountDownTimer(30000, 1000) {
+				// waitTimer = new CountDownTimer(30000, 1000) {
 				//
 				// public void onTick(long millisUntilFinished) {
 				//
@@ -1226,8 +1233,7 @@ public class WorkActivity extends Activity {
 
 							utility.appendLog("Attendo 5 minuti");
 
-							waitTimerBolusDown = new CountDownTimer(30000,
-									30000) {
+							waitTimer = new CountDownTimer(30000, 30000) {
 
 								public void onTick(long millisUntilFinished) {
 
@@ -1245,8 +1251,7 @@ public class WorkActivity extends Activity {
 
 									utility.appendLog("Attendo 1 minuto");
 
-									waitTimerBolusDown = new CountDownTimer(
-											6000, 6000) {
+									waitTimer = new CountDownTimer(6000, 6000) {
 
 										public void onTick(
 												long millisUntilFinished) {
@@ -1276,7 +1281,7 @@ public class WorkActivity extends Activity {
 
 											utility.appendLog("Attendo 6 minuti");
 
-											waitTimerBolusDown = new CountDownTimer(
+											waitTimer = new CountDownTimer(
 													36000, 36000) {
 
 												public void onTick(
@@ -1299,7 +1304,7 @@ public class WorkActivity extends Activity {
 
 													utility.appendLog("Attendo 1 minuto");
 
-													waitTimerBolusDown = new CountDownTimer(
+													waitTimer = new CountDownTimer(
 															6000, 6000) {
 
 														public void onTick(
@@ -1345,7 +1350,7 @@ public class WorkActivity extends Activity {
 
 															utility.appendLog("Attendo 7 minuti");
 
-															waitTimerBolusDown = new CountDownTimer(
+															waitTimer = new CountDownTimer(
 																	42000,
 																	42000) {
 
@@ -1390,6 +1395,7 @@ public class WorkActivity extends Activity {
 
 				utility.appendLog("Inviato comando: PAUSE");
 				button_rf_on.setPressed(false);
+				azzera();
 				inviaComandi(PAUSE, MSK_CMD);
 			}
 		});
@@ -1399,6 +1405,7 @@ public class WorkActivity extends Activity {
 
 				utility.appendLog("Inviato comando: STOP");
 				button_rf_on.setPressed(false);
+				azzera();
 				inviaComandi(STOP, MSK_CMD);
 				def_value_defaults();
 
@@ -1429,13 +1436,11 @@ public class WorkActivity extends Activity {
 						if (!button_bolus_down.isPressed()) {
 
 							button_bolus_down.setPressed(true);
-							utility.appendLog("Setto pressed true");
 
 							utility.appendLog("Inviato comando: BOLUS-DOWN");
 							inviaComandi(BOLUS_DOWN, MSK_CMD);
 
-							waitTimerBolusDown = new CountDownTimer(30000,
-									30000) {
+							waitTimer = new CountDownTimer(30000, 30000) {
 
 								public void onTick(long millisUntilFinished) {
 
@@ -1443,7 +1448,6 @@ public class WorkActivity extends Activity {
 
 								public void onFinish() {
 									button_bolus_down.setPressed(false);
-									utility.appendLog("Setto pressed false");
 								}
 							}.start();
 
@@ -1451,15 +1455,14 @@ public class WorkActivity extends Activity {
 
 						} else {
 
-							if (waitTimerBolusDown != null) {
-								waitTimerBolusDown.cancel();
-								waitTimerBolusDown = null;
+							if (waitTimer != null) {
+								waitTimer.cancel();
+								waitTimer = null;
 							}
 
 							utility.appendLog("Inviato comando: BOLUS-STOP");
 							inviaComandi(BOLUS_STOP, MSK_CMD);
 
-							utility.appendLog("Setto pressed false");
 							button_bolus_down.setPressed(false);
 
 							return true;
@@ -1482,9 +1485,9 @@ public class WorkActivity extends Activity {
 					if (button_bolus_down.isPressed()) {
 						button_bolus_down.setPressed(false);
 
-						if (waitTimerBolusDown != null) {
-							waitTimerBolusDown.cancel();
-							waitTimerBolusDown = null;
+						if (waitTimer != null) {
+							waitTimer.cancel();
+							waitTimer = null;
 						}
 
 						utility.appendLog("Inviato comando: BOLUS-STOP");
@@ -1497,7 +1500,6 @@ public class WorkActivity extends Activity {
 						if (!button_bolus_up.isPressed()) {
 
 							button_bolus_up.setPressed(true);
-							utility.appendLog("Setto pressed true");
 
 							utility.appendLog("Inviato comando: BOLUS-UP");
 							inviaComandi(BOLUS_UP, MSK_CMD);
@@ -1510,7 +1512,7 @@ public class WorkActivity extends Activity {
 
 								public void onFinish() {
 									button_bolus_up.setPressed(false);
-									utility.appendLog("Setto pressed false");
+
 								}
 							}.start();
 
@@ -1526,7 +1528,6 @@ public class WorkActivity extends Activity {
 							utility.appendLog("Inviato comando: BOLUS-STOP");
 							inviaComandi(BOLUS_STOP, MSK_CMD);
 
-							utility.appendLog("Setto pressed false");
 							button_bolus_up.setPressed(false);
 
 							return true;
@@ -1547,7 +1548,9 @@ public class WorkActivity extends Activity {
 					antenna_black_label_down.setText("0");
 				}
 
-				if (Integer.parseInt(antenna_black_label_down.getText()
+				azzera();
+
+				if (Float.parseFloat(antenna_black_label_down.getText()
 						.toString()) > 0) {
 					antenna_black_label_down.setText(String.valueOf(Integer
 							.parseInt(antenna_black_label_down.getText()
@@ -1570,6 +1573,8 @@ public class WorkActivity extends Activity {
 					antenna_black_label_down.setText("0");
 				}
 
+				azzera();
+
 				if (Integer.parseInt(antenna_black_label_down.getText()
 						.toString()) < 99) {
 					antenna_black_label_down.setText(String.valueOf(Integer
@@ -1591,6 +1596,8 @@ public class WorkActivity extends Activity {
 				if (water_label_down.getText().equals("-00.0")) {
 					water_label_down.setText("42");
 				}
+
+				azzera();
 
 				if (Float.parseFloat(water_label_down.getText().toString()) > 35) {
 
@@ -1616,6 +1623,8 @@ public class WorkActivity extends Activity {
 					water_label_down.setText("35");
 				}
 
+				azzera();
+
 				if (Float.parseFloat(water_label_down.getText().toString()) < 42) {
 
 					float tot = (Float.parseFloat(water_label_down.getText()
@@ -1636,8 +1645,10 @@ public class WorkActivity extends Activity {
 			public void onClick(View v) {
 
 				if (deltat_label_down.getText().equals("-00.0")) {
-					deltat_label_down.setText("3");
+					deltat_label_down.setText("+3");
 				}
+
+				azzera();
 
 				if (Float.parseFloat(deltat_label_down.getText().toString()) > -1) {
 
@@ -1667,6 +1678,8 @@ public class WorkActivity extends Activity {
 					deltat_label_down.setText("-1");
 				}
 
+				azzera();
+
 				if (Float.parseFloat(deltat_label_down.getText().toString()) < 3) {
 
 					float tot = (Float.parseFloat(deltat_label_down.getText()
@@ -1691,6 +1704,8 @@ public class WorkActivity extends Activity {
 		button_time_left.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 
+				azzera();
+
 				int time = Integer
 						.parseInt(time_label_down
 								.getText()
@@ -1714,6 +1729,8 @@ public class WorkActivity extends Activity {
 
 		button_time_right.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+
+				azzera();
 
 				int time = Integer
 						.parseInt(time_label_down
@@ -1740,6 +1757,9 @@ public class WorkActivity extends Activity {
 
 		button_home.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+
+				azzera();
+
 				Intent intent = new Intent(WorkActivity.this,
 						MainActivity.class);
 				startActivity(intent);
@@ -1750,22 +1770,34 @@ public class WorkActivity extends Activity {
 		button_water_left
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
+
+						azzera();
+
 						funzionalita = button_water_left.getId();
-						mValue = 1;
-						mAutoDecrement = true;
-						repeatUpdateHandler.post(new RptUpdater());
-						return false;
+
+						auto_decrement(button_water_left, water_label_down, 35,
+								10);
+
+						return true;
 					}
 				});
 
 		button_water_left.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)
-						&& mAutoDecrement) {
+						.getAction() == MotionEvent.ACTION_CANCEL)) {
 					funzionalita = button_water_left.getId();
-					mValue = 1;
-					mAutoDecrement = false;
+
+				}
+
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						inviaComandi(0, MSK_ALL_4);
+						waitTimer = null;
+					}
+
 				}
 				return false;
 			}
@@ -1774,22 +1806,34 @@ public class WorkActivity extends Activity {
 		button_water_right
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
+
+						azzera();
+
 						funzionalita = button_water_right.getId();
-						mValue = 1;
-						mAutoIncrement = true;
-						repeatUpdateHandler.post(new RptUpdater());
-						return false;
+
+						auto_increment(button_water_right, water_label_down,
+								42, 10);
+
+						return true;
 					}
 				});
 
 		button_water_right.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)
-						&& mAutoIncrement) {
+						.getAction() == MotionEvent.ACTION_CANCEL)) {
 					funzionalita = button_water_right.getId();
-					mValue = 1;
-					mAutoIncrement = false;
+
+				}
+
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						inviaComandi(0, MSK_ALL_4);
+						waitTimer = null;
+					}
+
 				}
 				return false;
 			}
@@ -1798,23 +1842,43 @@ public class WorkActivity extends Activity {
 		button_deltat_left
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
+
+						azzera();
+
 						funzionalita = button_deltat_left.getId();
-						mValue = 1;
-						mAutoDecrement = true;
-						repeatUpdateHandler.post(new RptUpdater());
-						return false;
+
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+
+								auto_decrement(button_deltat_left,
+										deltat_label_down, -1, 10);
+
+							}
+						});
+
+						return true;
 					}
 				});
 
 		button_deltat_left.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)
-						&& mAutoDecrement) {
+						.getAction() == MotionEvent.ACTION_CANCEL)) {
 					funzionalita = button_deltat_left.getId();
-					mValue = 1;
-					mAutoDecrement = false;
+
 				}
+
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						inviaComandi(0, MSK_ALL_4);
+						waitTimer = null;
+					}
+
+				}
+
 				return false;
 			}
 		});
@@ -1822,23 +1886,36 @@ public class WorkActivity extends Activity {
 		button_deltat_right
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
+
+						azzera();
+
 						funzionalita = button_deltat_right.getId();
-						mValue = 1;
-						mAutoIncrement = true;
-						repeatUpdateHandler.post(new RptUpdater());
-						return false;
+
+						auto_increment(button_deltat_right, deltat_label_down,
+								3, 10);
+
+						return true;
 					}
 				});
 
 		button_deltat_right.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)
-						&& mAutoIncrement) {
+						.getAction() == MotionEvent.ACTION_CANCEL)) {
 					funzionalita = button_deltat_right.getId();
-					mValue = 1;
-					mAutoIncrement = false;
+
 				}
+
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						inviaComandi(0, MSK_ALL_4);
+						waitTimer = null;
+					}
+
+				}
+
 				return false;
 			}
 		});
@@ -1846,23 +1923,35 @@ public class WorkActivity extends Activity {
 		button_antenna_left
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
+
+						azzera();
+
 						funzionalita = button_antenna_left.getId();
-						mValue = 1;
-						mAutoDecrement = true;
-						repeatUpdateHandler.post(new RptUpdater());
-						return false;
+
+						auto_decrement(button_antenna_left,
+								antenna_black_label_down, 0, 1);
+						return true;
 					}
 				});
 
 		button_antenna_left.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)
-						&& mAutoDecrement) {
+						.getAction() == MotionEvent.ACTION_CANCEL)) {
 					funzionalita = button_antenna_left.getId();
-					mValue = 1;
-					mAutoDecrement = false;
+
 				}
+
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						inviaComandi(0, MSK_ALL_4);
+						waitTimer = null;
+					}
+
+				}
+
 				return false;
 			}
 		});
@@ -1870,33 +1959,47 @@ public class WorkActivity extends Activity {
 		button_antenna_right
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
+
+						azzera();
+
 						funzionalita = button_antenna_right.getId();
-						mValue = 1;
-						mAutoIncrement = true;
-						repeatUpdateHandler.post(new RptUpdater());
-						return false;
+						auto_increment(button_antenna_right,
+								antenna_black_label_down, 99, 1);
+
+						return true;
 					}
 				});
 
 		button_time_left.setOnLongClickListener(new View.OnLongClickListener() {
 			public boolean onLongClick(View arg0) {
+
+				azzera();
+
 				funzionalita = button_time_left.getId();
-				mValue = 1;
-				mAutoDecrement = true;
-				repeatUpdateHandler.post(new RptUpdater());
-				return false;
+
+				auto_decrement(button_time_left, time_label_down, 0, 1);
+
+				return true;
 			}
 		});
 
 		button_time_left.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)
-						&& mAutoDecrement) {
+						.getAction() == MotionEvent.ACTION_CANCEL)) {
 					funzionalita = button_time_left.getId();
-					mValue = 1;
-					mAutoDecrement = false;
 				}
+
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						inviaComandi(0, MSK_ALL_4);
+						waitTimer = null;
+					}
+
+				}
+
 				return false;
 			}
 		});
@@ -1904,26 +2007,57 @@ public class WorkActivity extends Activity {
 		button_time_right
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
+
+						azzera();
+
 						funzionalita = button_time_right.getId();
-						mValue = 1;
-						mAutoIncrement = true;
-						repeatUpdateHandler.post(new RptUpdater());
-						return false;
+						auto_increment(button_time_right, time_label_down, 30,
+								1);
+
+						return true;
 					}
 				});
 
 		button_time_right.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)
-						&& mAutoIncrement) {
+						.getAction() == MotionEvent.ACTION_CANCEL)) {
 					funzionalita = button_time_right.getId();
-					mValue = 1;
-					mAutoIncrement = false;
+
 				}
+
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						inviaComandi(0, MSK_ALL_4);
+						waitTimer = null;
+					}
+
+				}
+
 				return false;
 			}
 		});
+
+	}
+
+	protected void azzera() {
+
+		if (waitTimer != null) {
+			waitTimer.cancel();
+			inviaComandi(0, MSK_ALL_4);
+			waitTimer = null;
+		}
+
+		button_antenna_left.setPressed(false);
+		button_antenna_right.setPressed(false);
+		button_water_left.setPressed(false);
+		button_water_right.setPressed(false);
+		button_deltat_left.setPressed(false);
+		button_deltat_right.setPressed(false);
+		button_time_left.setPressed(false);
+		button_time_right.setPressed(false);
 
 	}
 
@@ -2088,7 +2222,7 @@ public class WorkActivity extends Activity {
 
 			disturbo_label.setTextColor(Color.parseColor("#ffa500"));
 
-			waitTimerBolusDown = new CountDownTimer(5600, 700) {
+			waitTimer = new CountDownTimer(5600, 700) {
 
 				private int tot = 1;
 
@@ -2170,12 +2304,10 @@ public class WorkActivity extends Activity {
 
 			if (Float.parseFloat(water_label_down.getText().toString()) > 35) {
 
-				double tot = (Float.parseFloat(water_label_down.getText()
-						.toString()) * 10 - mValue) / 10;
+				float tot = (Float.parseFloat(water_label_down.getText()
+						.toString()) * 10 - 1) / 10;
 
 				water_label_down.setText(String.valueOf(tot));
-
-				// mValue = mValue + 0.5;
 
 			}
 		}
@@ -2188,16 +2320,14 @@ public class WorkActivity extends Activity {
 
 			if (Float.parseFloat(deltat_label_down.getText().toString()) > -1) {
 
-				double tot = (Float.parseFloat(deltat_label_down.getText()
-						.toString()) * 10 - mValue) / 10;
+				float tot = (Float.parseFloat(deltat_label_down.getText()
+						.toString()) * 10 - 1) / 10;
 
 				if (tot > 0) {
 					deltat_label_down.setText("+" + tot);
 				} else {
 					deltat_label_down.setText(String.valueOf(tot));
 				}
-
-				// mValue++;
 
 			}
 
@@ -2214,8 +2344,6 @@ public class WorkActivity extends Activity {
 						.setText(String.valueOf(Integer
 								.parseInt(antenna_black_label_down.getText()
 										.toString()) - 1));
-
-				// mValue++;
 
 			}
 
@@ -2247,12 +2375,11 @@ public class WorkActivity extends Activity {
 
 			if (Float.parseFloat(water_label_down.getText().toString()) < 42) {
 
-				double tot = (Float.parseFloat(water_label_down.getText()
-						.toString()) * 10 + mValue) / 10;
+				float tot = (Float.parseFloat(water_label_down.getText()
+						.toString()) * 10 + 1) / 10;
 
 				water_label_down.setText(String.valueOf(tot));
 
-				// mValue++;
 			}
 		}
 
@@ -2264,16 +2391,14 @@ public class WorkActivity extends Activity {
 
 			if (Float.parseFloat(deltat_label_down.getText().toString()) < 3) {
 
-				double tot = (Float.parseFloat(deltat_label_down.getText()
-						.toString()) * 10 + mValue) / 10;
+				float tot = (Float.parseFloat(deltat_label_down.getText()
+						.toString()) * 10 + 1) / 10;
 
 				if (tot > 0) {
 					deltat_label_down.setText("+" + tot);
 				} else {
 					deltat_label_down.setText(String.valueOf(tot));
 				}
-
-				// mValue++;
 
 			}
 
@@ -2291,7 +2416,6 @@ public class WorkActivity extends Activity {
 								.parseInt(antenna_black_label_down.getText()
 										.toString()) + 1));
 
-				// mValue++;
 			}
 
 		}
@@ -2312,17 +2436,161 @@ public class WorkActivity extends Activity {
 		}
 	}
 
-	class RptUpdater implements Runnable {
-		public void run() {
-			if (mAutoIncrement) {
-				increment();
-				repeatUpdateHandler.postDelayed(new RptUpdater(), 300);
-			} else if (mAutoDecrement) {
-				decrement();
-				repeatUpdateHandler.postDelayed(new RptUpdater(), 300);
-			}
+	private int buttonId;
+
+	private void auto_increment(final Button button, final TextView textView,
+			final int max, final int step) {
+
+		if (waitTimer != null) {
+			waitTimer.cancel();
+			inviaComandi(0, MSK_ALL_4);
+			waitTimer = null;
 		}
+
+		buttonId = button.getId();
+
+		long count;
+
+		if (buttonId == button_time_right.getId()) {
+
+			count = Math.round(max
+					- (Double.valueOf(textView.getText().toString()
+							.substring(0, textView.length() - 3))))
+					* step * 3 * 1000;
+
+		} else {
+			count = Math.round(max
+					- (Double.valueOf(textView.getText().toString())))
+					* step * 3 * 1000;
+		}
+
+		waitTimer = new CountDownTimer(count, 500) {
+
+			public void onTick(long millisUntilFinished) {
+
+				button.setPressed(true);
+				funzionalita = button.getId();
+
+				Double misurato;
+
+				if (buttonId == button_time_right.getId()) {
+					misurato = Double.valueOf(textView.getText().toString()
+							.substring(0, textView.length() - 3));
+				} else {
+					misurato = Double.valueOf(textView.getText().toString());
+				}
+
+				if (max != misurato) {
+
+					increment();
+
+				} else {
+					button.setPressed(false);
+					inviaParametri(button);
+					this.cancel();
+				}
+
+			}
+
+			public void onFinish() {
+				button.setPressed(false);
+
+				inviaParametri(button);
+
+			}
+		}.start();
 
 	}
 
+	private void auto_decrement(final Button button, final TextView textView,
+			final int min, final int step) {
+
+		if (waitTimer != null) {
+			waitTimer.cancel();
+			inviaComandi(0, MSK_ALL_4);
+			waitTimer = null;
+		}
+
+		buttonId = button.getId();
+
+		long count;
+
+		if (buttonId == button_time_left.getId()) {
+
+			count = Math.round((Double.valueOf(textView.getText().toString()
+					.substring(0, textView.length() - 3)))
+					- min)
+					* step * 3 * 1000;
+
+		} else {
+			count = Math.round((Double.valueOf(textView.getText().toString()))
+					- min)
+					* step * 3 * 1000;
+		}
+
+		waitTimer = new CountDownTimer(count, 500) {
+
+			public void onTick(long millisUntilFinished) {
+
+				button.setPressed(true);
+				funzionalita = button.getId();
+
+				Double misurato;
+
+				if (buttonId == button_time_left.getId()) {
+					misurato = Double.valueOf(textView.getText().toString()
+							.substring(0, textView.length() - 3));
+				} else {
+					misurato = Double.valueOf(textView.getText().toString());
+				}
+
+				if (min != misurato) {
+
+					decrement();
+
+				} else {
+					button.setPressed(false);
+
+					inviaParametri(button);
+
+					this.cancel();
+				}
+
+			}
+
+			public void onFinish() {
+
+				button.setPressed(false);
+
+				inviaParametri(button);
+			}
+		}.start();
+
+	}
+
+	protected void inviaParametri(Button button) {
+
+		int WATER_LEFT = button_water_left.getId(), WATER_RIGHT = button_water_right
+				.getId();
+		int DELTAT_LEFT = button_water_left.getId(), DELTAT_RIGHT = button_water_right
+				.getId();
+		int ANTENNA_LEFT = button_antenna_left.getId(), ANTENNA_RIGHT = button_antenna_right
+				.getId();
+		int TIME_LEFT = button_time_left.getId(), TIME_RIGHT = button_time_right
+				.getId();
+
+		if (button.getId() == WATER_LEFT || button.getId() == WATER_RIGHT) {
+			inviaComandi(0, MSK_WATER);
+		}
+		if (button.getId() == DELTAT_LEFT || button.getId() == DELTAT_RIGHT) {
+			inviaComandi(0, MSK_DELTAT);
+		}
+		if (button.getId() == ANTENNA_LEFT || button.getId() == ANTENNA_RIGHT) {
+			inviaComandi(0, MSK_POWER);
+		}
+		if (button.getId() == TIME_LEFT || button.getId() == TIME_RIGHT) {
+			inviaComandi(0, MSK_TIME);
+		}
+
+	}
 }

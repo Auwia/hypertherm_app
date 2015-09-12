@@ -179,9 +179,9 @@ public class Utility {
 		});
 	}
 
-	public double getPmaxRF(double deltat, double twater) {
+	public int getPmaxRF(float deltat, float twater) {
 
-		return Math.round(4.3 * (5.4 * deltat + twater - 37));
+		return (int) (4.3 * (5.4 * deltat + twater - 37));
 
 	}
 
@@ -212,7 +212,8 @@ public class Utility {
 			@Override
 			public void run() {
 
-				appendLog("Imposto il valore di acqua ricevuto dalla scheda...");
+				appendLog("Imposto il valore di acqua ricevuto dalla scheda..."
+						+ valore);
 				water_label_up.setText(valore);
 				appendLog("Imposto il valore di acqua ricevuto dalla scheda...OK");
 
@@ -271,7 +272,8 @@ public class Utility {
 			@Override
 			public void run() {
 
-				appendLog("Imposto il valore di DeltaT ricevuto dalla scheda...");
+				appendLog("Imposto il valore di DeltaT ricevuto dalla scheda..."
+						+ valore);
 				deltat_label_up.setText(valore);
 				appendLog("Imposto il valore di DeltaT ricevuto dalla scheda...OK");
 
@@ -332,7 +334,8 @@ public class Utility {
 			@Override
 			public void run() {
 
-				appendLog("Imposto il valore di antenna ricevuto dalla scheda...");
+				appendLog("Imposto il valore di antenna ricevuto dalla scheda..."
+						+ valore);
 				antenna_black_label_up.setText(valore);
 				appendLog("Imposto il valore di antenna ricevuto dalla scheda...OK");
 
@@ -417,7 +420,8 @@ public class Utility {
 			@Override
 			public void run() {
 
-				appendLog("Imposto il valore di tempo ricevuto dalla scheda...");
+				appendLog("Imposto il valore di tempo ricevuto dalla scheda..."
+						+ valore);
 				time_label_up.setText(valore);
 				appendLog("Imposto il valore di tempo ricevuto dalla scheda...OK");
 
