@@ -8,7 +8,6 @@ import it.app.hypertherm.util.Utility;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.State;
-import java.util.Random;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -16,7 +15,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -52,13 +50,11 @@ public class WorkActivity extends Activity {
 	private int funzionalita, Ref_power, Dir_power, iTime, iD_temp, iH2o_temp,
 			iPower;
 
+	private static boolean SIMULATORE = false;
+
 	public float WATER = 37, DELTAT = 1.2f;
 
 	private LineGraphSeries<DataPoint> mSeries1;
-
-	private final Handler mHandler = new Handler();
-
-	private Runnable mTimer1;
 
 	private final static int ROSSO = Color.parseColor("#ccff00");
 	private final static int VERDE = Color.parseColor("#0000cc");
@@ -92,6 +88,7 @@ public class WorkActivity extends Activity {
 
 	private CountDownTimer waitTimerBolusUp = null;
 	private CountDownTimer waitTimer = null;
+	private CountDownTimer waitTimerGrafico = null;
 
 	private PC_TO_CY pctocy = new PC_TO_CY();
 
@@ -1048,6 +1045,8 @@ public class WorkActivity extends Activity {
 
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
+					int pos = seek_bar.getProgress();
+
 					seek_bar.setProgress(5);
 
 					if (button_power.isPressed()) {
@@ -1066,6 +1065,33 @@ public class WorkActivity extends Activity {
 						button_temperature_negative.setEnabled(false);
 						button_temperature_positive.setEnabled(false);
 
+						if (pos > 0 && pos < 5) {
+							for (int i = 0; i < 5 - pos; i++) {
+
+								funzionalita = button_water_right.getId();
+								increment();
+								increment();
+								increment();
+
+								funzionalita = button_deltat_right.getId();
+								increment();
+
+							}
+						} else if (pos > 5 && pos < 10) {
+							for (int i = 0; i < 5 - pos; i++) {
+								funzionalita = button_water_left.getId();
+								decrement();
+								decrement();
+								decrement();
+
+								funzionalita = button_deltat_left.getId();
+								decrement();
+
+							}
+						}
+
+						inviaComandi(0, MSK_ALL_4);
+
 						return false;
 
 					}
@@ -1081,11 +1107,11 @@ public class WorkActivity extends Activity {
 					public void onClick(View v) {
 
 						if (!button_power.isPressed()
-								&& seek_bar.getProgress() < 10) {
+								&& seek_bar.getProgress() > 0) {
 
 							button_rf_on.setPressed(true);
 
-							seek_bar.setProgress(seek_bar.getProgress() + 1);
+							seek_bar.setProgress(seek_bar.getProgress() - 1);
 
 							waitTimer = new CountDownTimer(1000, 1000) {
 
@@ -1095,18 +1121,10 @@ public class WorkActivity extends Activity {
 
 								public void onFinish() {
 
-									// water_label_down.setText(""
-									// + (Float.parseFloat(water_label_down
-									// .getText().toString()) - 0.3f));
-
 									funzionalita = button_water_left.getId();
 									decrement();
 									decrement();
 									decrement();
-
-									// deltat_label_down.setText(""
-									// + (Float.parseFloat(deltat_label_down
-									// .getText().toString()) - 0.1f));
 
 									funzionalita = button_deltat_left.getId();
 									decrement();
@@ -1144,11 +1162,11 @@ public class WorkActivity extends Activity {
 					public void onClick(View v) {
 
 						if (!button_power.isPressed()
-								&& seek_bar.getProgress() > 0) {
+								&& seek_bar.getProgress() < 10) {
 
 							button_rf_on.setPressed(true);
 
-							seek_bar.setProgress(seek_bar.getProgress() - 1);
+							seek_bar.setProgress(seek_bar.getProgress() + 1);
 
 							waitTimer = new CountDownTimer(1000, 1000) {
 
@@ -1195,7 +1213,7 @@ public class WorkActivity extends Activity {
 
 		button_play.setOnClickListener(new View.OnClickListener() {
 
-			private int i = 0;
+			private int t = 2;
 
 			public void onClick(View v) {
 
@@ -1206,16 +1224,27 @@ public class WorkActivity extends Activity {
 					@Override
 					public void run() {
 
-						mTimer1 = new Runnable() {
-							@Override
-							public void run() {
+						if (waitTimerGrafico == null) {
 
-								mSeries1.resetData(generateData());
-								mHandler.postDelayed(this, 1000);
-								button_rf_on.setPressed(true);
-							}
-						};
-						mHandler.postDelayed(mTimer1, 300);
+							waitTimerGrafico = new CountDownTimer(
+									Integer.parseInt(time_label_down.getText()
+											.subSequence(0, 2).toString()) * 60 * 1000 + 1,
+									1000) {
+
+								public void onTick(long millisUntilFinished) {
+
+									mSeries1.resetData(generateData(t));
+
+									button_rf_on.setPressed(true);
+
+								}
+
+								public void onFinish() {
+									utility.appendLog("CHIUDO IL GRAFICO");
+								}
+
+							}.start();
+						}
 
 					}
 				});
@@ -1966,8 +1995,7 @@ public class WorkActivity extends Activity {
 
 				funzionalita = button_time_left.getId();
 
-				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)) {
+				if ((event.getAction() == MotionEvent.ACTION_UP)) {
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
@@ -2073,11 +2101,12 @@ public class WorkActivity extends Activity {
 		int B = 3;
 		float Tw = WATER;
 		double b = 0.19;
-		float Tb = 37;
+		int Tb = 37;
 		float Dt = DELTAT;
 		double a = 0.035;
 		double A = (B + 1) * Dt + Tw - Tb;
-		double h = 0.011522;
+		// double h = 0.011522;
+		double h = 0.011;
 		double k = 0.011513;
 		int x0 = 70;
 
@@ -2172,7 +2201,7 @@ public class WorkActivity extends Activity {
 		// graph.getGridLabelRenderer().setHorizontalLabelsVisible(true);
 		// graph.getGridLabelRenderer().setVerticalLabelsVisible(true);
 		// graph.getGridLabelRenderer().reloadStyles();
-		mSeries1 = new LineGraphSeries<DataPoint>(generateData());
+		mSeries1 = new LineGraphSeries<DataPoint>(generateData(1));
 		mSeries1.setDrawBackground(true);
 		mSeries1.setBackgroundColor(Color.argb(100, 255, 255, 0));
 		Paint paint = new Paint();
@@ -2183,17 +2212,9 @@ public class WorkActivity extends Activity {
 
 	}
 
-	private DataPoint[] generateData() {
+	private DataPoint[] generateData(int t) {
 
-		Random r = new Random();
-		int Low = 370;
-		int High = 420;
-		// WATER = r.nextInt(High - Low) / 10;
-		Low = -10;
-		High = 30;
-		// DELTAT = r.nextInt(High - Low) / 10;
-
-		int count = 20;
+		int count = 18;
 		double f = 0;
 		DataPoint[] values = new DataPoint[count * count];
 		int x = 0, i = 0;
@@ -2201,12 +2222,17 @@ public class WorkActivity extends Activity {
 		for (x = 0; x < count; x++) {
 
 			for (int y = 0; y < count; y++) {
-				f = function(x, y, 10);
-				DataPoint v = new DataPoint(x, f);
-				values[i] = v;
-				i++;
-			}
 
+				if (SIMULATORE) {
+					f = function(x, y, t++);
+				} else {
+					f = function(x, y, 0);
+				}
+
+				DataPoint v = new DataPoint(x, f);
+				values[i++] = v;
+
+			}
 		}
 
 		return values;

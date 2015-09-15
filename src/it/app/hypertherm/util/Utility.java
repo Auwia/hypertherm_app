@@ -921,4 +921,23 @@ public class Utility {
 					: '1');
 		return sb.toString();
 	}
+
+	public double getDoubleOperation(String operazione) {
+
+		cur = database.query("SETTINGS", new String[] { operazione.substring(0,
+				operazione.length() - 10) }, null, null, null, null, null);
+
+		cur.moveToFirst();
+
+		String risultato = "-1";
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			risultato = cur.getString(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return Double.parseDouble(risultato);
+
+	}
 }
