@@ -8,15 +8,13 @@ import it.app.hypertherm.util.Utility;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.State;
+import java.util.Random;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -30,6 +28,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.dwin.navy.serialportapi.SerialPortOpt;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 public class WorkActivity extends Activity {
 
@@ -46,12 +47,18 @@ public class WorkActivity extends Activity {
 	private LinearLayout zero, dieci, venti, trenta, quaranta, cinquanta,
 			sessanta, settanta, ottanta, novanta;
 
-	private Handler repeatUpdateHandler = new Handler();
-
 	private Utility utility;
 
 	private int funzionalita, Ref_power, Dir_power, iTime, iD_temp, iH2o_temp,
 			iPower;
+
+	public float WATER = 37, DELTAT = 1.2f;
+
+	private LineGraphSeries<DataPoint> mSeries1;
+
+	private final Handler mHandler = new Handler();
+
+	private Runnable mTimer1;
 
 	private final static int ROSSO = Color.parseColor("#ccff00");
 	private final static int VERDE = Color.parseColor("#0000cc");
@@ -324,7 +331,8 @@ public class WorkActivity extends Activity {
 
 								utility.esegui(Cmd);
 
-								utility.SetTime(runningTime / 60 + ":00");
+								utility.SetTime(utility
+										.convertSecondsToMmSs(runningTime));
 
 								int d_temp = 0;
 								if (D_temp >= 60000) {
@@ -333,27 +341,20 @@ public class WorkActivity extends Activity {
 									d_temp = D_temp;
 								}
 
-								String a;
+								DELTAT = Float
+										.parseFloat(String.valueOf(Double
+												.parseDouble(String
+														.valueOf(d_temp)) / 100));
+								utility.setDeltaT(String.valueOf(Double
+										.parseDouble(String.valueOf(d_temp)) / 100));
 
-								if (d_temp < 0) {
-									a = String.valueOf(d_temp).substring(0, 1)
-											+ "0."
-											+ String.valueOf(d_temp).substring(
-													1, 2);
-								} else {
-									a = String.valueOf(d_temp).substring(0, 1)
-											+ "."
-											+ String.valueOf(d_temp).substring(
-													1, 2);
-								}
-
-								utility.setDeltaT(a);
-
-								utility.setWaterTemperature(String.valueOf(
-										H2o_temp).substring(0, 2)
-										+ "."
-										+ String.valueOf(H2o_temp).substring(2,
-												3));
+								WATER = Float
+										.parseFloat(String.valueOf(Double
+												.parseDouble(String
+														.valueOf(H2o_temp)) / 100));
+								utility.setWaterTemperature(String
+										.valueOf(Double.parseDouble(String
+												.valueOf(H2o_temp)) / 100));
 
 								utility.setAntenna("" + (int) (Dir_power / 100));
 
@@ -361,23 +362,34 @@ public class WorkActivity extends Activity {
 									@Override
 									public void run() {
 
-										// float id_temp = iD_temp / 100;
-										//
-										// water_label_down.setText(String
-										// .valueOf(iH2o_temp).substring(
-										// 0, 2)
-										// + "."
-										// + String.valueOf(iH2o_temp)
-										// .substring(2, 3));
-										//
-										// deltat_label_down.setText(String
-										// .valueOf(id_temp));
-										//
-										// antenna_black_label_down.setText(""
-										// + ((int) (iPower / 100)));
-										//
-										// time_label_down.setText(iTime / 60
-										// + ":00");
+										int id_temp = 0;
+										if (iD_temp >= 60000) {
+											id_temp = (iD_temp - 65536);
+										} else {
+											id_temp = iD_temp;
+										}
+
+										water_label_down
+												.setText(String.valueOf(utility.round(
+														Double.parseDouble(String
+																.valueOf(iH2o_temp)) / 100,
+														1)));
+										if (id_temp > 0) {
+
+											deltat_label_down
+													.setText("+".concat(String.valueOf(Double.parseDouble(String
+															.valueOf(id_temp)) / 100)));
+										} else {
+											deltat_label_down
+													.setText(String.valueOf(Double.parseDouble(String
+															.valueOf(id_temp)) / 100));
+										}
+
+										antenna_black_label_down.setText(""
+												+ ((int) (iPower / 100)));
+
+										time_label_down.setText(utility
+												.convertSecondsToMmSs(iTime));
 
 									}
 								});
@@ -1068,8 +1080,6 @@ public class WorkActivity extends Activity {
 				.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 
-						azzera();
-
 						if (!button_power.isPressed()
 								&& seek_bar.getProgress() < 10) {
 
@@ -1133,8 +1143,6 @@ public class WorkActivity extends Activity {
 				.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
 
-						azzera();
-
 						if (!button_power.isPressed()
 								&& seek_bar.getProgress() > 0) {
 
@@ -1191,31 +1199,23 @@ public class WorkActivity extends Activity {
 
 			public void onClick(View v) {
 
-				azzera();
-
 				suggerimenti.setText("");
-
-				// waitTimer = new CountDownTimer(30000, 1000) {
-				//
-				// public void onTick(long millisUntilFinished) {
-				//
-				// disegna_grafico(i++);
-				//
-				// }
-				//
-				// public void onFinish() {
-				//
-				// }
-				// }.start();
 
 				runOnUiThread(new Runnable() {
 
 					@Override
 					public void run() {
 
-						// disegna_grafico(100);
+						mTimer1 = new Runnable() {
+							@Override
+							public void run() {
 
-						button_rf_on.setPressed(true);
+								mSeries1.resetData(generateData());
+								mHandler.postDelayed(this, 1000);
+								button_rf_on.setPressed(true);
+							}
+						};
+						mHandler.postDelayed(mTimer1, 300);
 
 					}
 				});
@@ -1395,7 +1395,7 @@ public class WorkActivity extends Activity {
 
 				utility.appendLog("Inviato comando: PAUSE");
 				button_rf_on.setPressed(false);
-				azzera();
+
 				inviaComandi(PAUSE, MSK_CMD);
 			}
 		});
@@ -1405,7 +1405,7 @@ public class WorkActivity extends Activity {
 
 				utility.appendLog("Inviato comando: STOP");
 				button_rf_on.setPressed(false);
-				azzera();
+
 				inviaComandi(STOP, MSK_CMD);
 				def_value_defaults();
 
@@ -1541,224 +1541,8 @@ public class WorkActivity extends Activity {
 			}
 		});
 
-		button_antenna_left.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-
-				if (antenna_black_label_down.getText().equals("-00.0")) {
-					antenna_black_label_down.setText("0");
-				}
-
-				azzera();
-
-				if (Float.parseFloat(antenna_black_label_down.getText()
-						.toString()) > 0) {
-					antenna_black_label_down.setText(String.valueOf(Integer
-							.parseInt(antenna_black_label_down.getText()
-									.toString()) - 1));
-				}
-
-				set_attention();
-
-				utility.appendLog("Inviato comando: ANTENNA-LEFT");
-
-				inviaComandi(0, MSK_POWER);
-
-			}
-		});
-
-		button_antenna_right.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-
-				if (antenna_black_label_down.getText().equals("-00.0")) {
-					antenna_black_label_down.setText("0");
-				}
-
-				azzera();
-
-				if (Integer.parseInt(antenna_black_label_down.getText()
-						.toString()) < 99) {
-					antenna_black_label_down.setText(String.valueOf(Integer
-							.parseInt(antenna_black_label_down.getText()
-									.toString()) + 1));
-				}
-
-				set_attention();
-
-				utility.appendLog("Inviato comando: ANTENNA-RIGHT");
-				inviaComandi(0, MSK_POWER);
-
-			}
-		});
-
-		button_water_left.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-
-				if (water_label_down.getText().equals("-00.0")) {
-					water_label_down.setText("42");
-				}
-
-				azzera();
-
-				if (Float.parseFloat(water_label_down.getText().toString()) > 35) {
-
-					float tot = (Float.parseFloat(water_label_down.getText()
-							.toString()) * 10 - 1) / 10;
-
-					water_label_down.setText(String.valueOf(tot));
-
-				}
-
-				set_attention();
-
-				utility.appendLog("Inviato comando: WATER-LEFT");
-				inviaComandi(0, MSK_WATER);
-
-			}
-		});
-
-		button_water_right.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-
-				if (water_label_down.getText().equals("-00.0")) {
-					water_label_down.setText("35");
-				}
-
-				azzera();
-
-				if (Float.parseFloat(water_label_down.getText().toString()) < 42) {
-
-					float tot = (Float.parseFloat(water_label_down.getText()
-							.toString()) * 10 + 1) / 10;
-
-					water_label_down.setText(String.valueOf(tot));
-				}
-
-				set_attention();
-
-				utility.appendLog("Inviato comando: WATER-RIGHT");
-				inviaComandi(0, MSK_WATER);
-
-			}
-		});
-
-		button_deltat_left.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-
-				if (deltat_label_down.getText().equals("-00.0")) {
-					deltat_label_down.setText("+3");
-				}
-
-				azzera();
-
-				if (Float.parseFloat(deltat_label_down.getText().toString()) > -1) {
-
-					float tot = (Float.parseFloat(deltat_label_down.getText()
-							.toString()) * 10 - 1) / 10;
-
-					if (tot > 0) {
-						deltat_label_down.setText("+" + tot);
-					} else {
-						deltat_label_down.setText(String.valueOf(tot));
-					}
-
-				}
-
-				set_attention();
-
-				utility.appendLog("Inviato comando: DELTAt-LEFT");
-				inviaComandi(0, MSK_DELTAT);
-
-			}
-		});
-
-		button_deltat_right.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-
-				if (deltat_label_down.getText().equals("-00.0")) {
-					deltat_label_down.setText("-1");
-				}
-
-				azzera();
-
-				if (Float.parseFloat(deltat_label_down.getText().toString()) < 3) {
-
-					float tot = (Float.parseFloat(deltat_label_down.getText()
-							.toString()) * 10 + 1) / 10;
-
-					if (tot > 0) {
-						deltat_label_down.setText("+" + tot);
-					} else {
-						deltat_label_down.setText(String.valueOf(tot));
-					}
-
-				}
-
-				set_attention();
-
-				utility.appendLog("Inviato comando: DELTAT-RIGHT");
-				inviaComandi(0, MSK_DELTAT);
-
-			}
-		});
-
-		button_time_left.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-
-				azzera();
-
-				int time = Integer
-						.parseInt(time_label_down
-								.getText()
-								.toString()
-								.substring(
-										0,
-										time_label_down.getText().toString()
-												.length() - 3));
-
-				if (time > 0) {
-
-					time_label_down.setText("" + (time - 1) + ":00");
-
-				}
-
-				utility.appendLog("Inviato comando: TIMER-LEFT");
-				inviaComandi(0, MSK_TIME);
-
-			}
-		});
-
-		button_time_right.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-
-				azzera();
-
-				int time = Integer
-						.parseInt(time_label_down
-								.getText()
-								.toString()
-								.substring(
-										0,
-										time_label_down.getText().toString()
-												.length() - 3));
-
-				if (time < 30) {
-
-					time_label_down.setText("" + (time + 1) + ":00");
-
-				}
-
-				utility.appendLog("Inviato comando: TIMER-RIGHT");
-				inviaComandi(0, MSK_TIME);
-
-			}
-		});
-
-		// AUTOMATICI
-
 		button_home.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-
-				azzera();
 
 				Intent intent = new Intent(WorkActivity.this,
 						MainActivity.class);
@@ -1771,12 +1555,17 @@ public class WorkActivity extends Activity {
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
 
-						azzera();
-
 						funzionalita = button_water_left.getId();
 
-						auto_decrement(button_water_left, water_label_down, 35,
-								10);
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+
+								auto_decrement(button_water_left,
+										water_label_down, 35, 10);
+
+							}
+						});
 
 						return true;
 					}
@@ -1784,9 +1573,18 @@ public class WorkActivity extends Activity {
 
 		button_water_left.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
-				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)) {
-					funzionalita = button_water_left.getId();
+
+				funzionalita = button_water_left.getId();
+
+				if ((event.getAction() == MotionEvent.ACTION_UP)) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						waitTimer = null;
+					}
+
+					utility.appendLog("Inviato comando: WATER-LEFT");
+					inviaComandi(0, MSK_WATER);
 
 				}
 
@@ -1794,9 +1592,23 @@ public class WorkActivity extends Activity {
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
-						inviaComandi(0, MSK_ALL_4);
 						waitTimer = null;
 					}
+
+					if (water_label_down.getText().equals("-00.0")) {
+						water_label_down.setText("42");
+					}
+
+					if (Float.parseFloat(water_label_down.getText().toString()) > 35) {
+
+						float tot = (Float.parseFloat(water_label_down
+								.getText().toString()) * 10 - 1) / 10;
+
+						water_label_down.setText(String.valueOf(tot));
+
+					}
+
+					set_attention();
 
 				}
 				return false;
@@ -1807,12 +1619,16 @@ public class WorkActivity extends Activity {
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
 
-						azzera();
-
 						funzionalita = button_water_right.getId();
 
-						auto_increment(button_water_right, water_label_down,
-								42, 10);
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+
+								auto_increment(button_water_right,
+										water_label_down, 42, 10);
+							}
+						});
 
 						return true;
 					}
@@ -1820,9 +1636,18 @@ public class WorkActivity extends Activity {
 
 		button_water_right.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
-				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)) {
-					funzionalita = button_water_right.getId();
+
+				funzionalita = button_water_right.getId();
+
+				if ((event.getAction() == MotionEvent.ACTION_UP)) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						waitTimer = null;
+					}
+
+					utility.appendLog("Inviato comando: WATER-RIGHT");
+					inviaComandi(0, MSK_WATER);
 
 				}
 
@@ -1830,9 +1655,23 @@ public class WorkActivity extends Activity {
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
-						inviaComandi(0, MSK_ALL_4);
 						waitTimer = null;
 					}
+
+					if (water_label_down.getText().equals("-00.0")) {
+						water_label_down.setText("42");
+					}
+
+					if (Float.parseFloat(water_label_down.getText().toString()) < 42) {
+
+						float tot = (Float.parseFloat(water_label_down
+								.getText().toString()) * 10 + 1) / 10;
+
+						water_label_down.setText(String.valueOf(tot));
+
+					}
+
+					set_attention();
 
 				}
 				return false;
@@ -1842,8 +1681,6 @@ public class WorkActivity extends Activity {
 		button_deltat_left
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
-
-						azzera();
 
 						funzionalita = button_deltat_left.getId();
 
@@ -1863,9 +1700,17 @@ public class WorkActivity extends Activity {
 
 		button_deltat_left.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
-				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)) {
-					funzionalita = button_deltat_left.getId();
+
+				funzionalita = button_deltat_left.getId();
+
+				if ((event.getAction() == MotionEvent.ACTION_UP)) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						waitTimer = null;
+					}
+
+					inviaComandi(0, MSK_DELTAT);
 
 				}
 
@@ -1873,9 +1718,28 @@ public class WorkActivity extends Activity {
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
-						inviaComandi(0, MSK_ALL_4);
 						waitTimer = null;
 					}
+
+					if (deltat_label_down.getText().equals("-00.0")) {
+						deltat_label_down.setText("+3");
+					}
+
+					if (Float
+							.parseFloat(deltat_label_down.getText().toString()) > -1) {
+
+						float tot = (Float.parseFloat(deltat_label_down
+								.getText().toString()) * 10 - 1) / 10;
+
+						if (tot > 0) {
+							deltat_label_down.setText("+" + tot);
+						} else {
+							deltat_label_down.setText(String.valueOf(tot));
+						}
+
+					}
+
+					set_attention();
 
 				}
 
@@ -1887,12 +1751,17 @@ public class WorkActivity extends Activity {
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
 
-						azzera();
-
 						funzionalita = button_deltat_right.getId();
 
-						auto_increment(button_deltat_right, deltat_label_down,
-								3, 10);
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+
+								auto_increment(button_deltat_right,
+										deltat_label_down, 3, 10);
+
+							}
+						});
 
 						return true;
 					}
@@ -1900,9 +1769,18 @@ public class WorkActivity extends Activity {
 
 		button_deltat_right.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
-				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)) {
-					funzionalita = button_deltat_right.getId();
+
+				funzionalita = button_deltat_right.getId();
+
+				if ((event.getAction() == MotionEvent.ACTION_UP)) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						waitTimer = null;
+					}
+
+					utility.appendLog("Inviato comando: DELTAT-RIGHT");
+					inviaComandi(0, MSK_DELTAT);
 
 				}
 
@@ -1910,9 +1788,28 @@ public class WorkActivity extends Activity {
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
-						inviaComandi(0, MSK_ALL_4);
 						waitTimer = null;
 					}
+
+					if (deltat_label_down.getText().equals("-00.0")) {
+						deltat_label_down.setText("-1");
+					}
+
+					if (Float
+							.parseFloat(deltat_label_down.getText().toString()) < 3) {
+
+						float tot = (Float.parseFloat(deltat_label_down
+								.getText().toString()) * 10 + 1) / 10;
+
+						if (tot > 0) {
+							deltat_label_down.setText("+" + tot);
+						} else {
+							deltat_label_down.setText(String.valueOf(tot));
+						}
+
+					}
+
+					set_attention();
 
 				}
 
@@ -1924,21 +1821,36 @@ public class WorkActivity extends Activity {
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
 
-						azzera();
-
 						funzionalita = button_antenna_left.getId();
 
-						auto_decrement(button_antenna_left,
-								antenna_black_label_down, 0, 1);
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+
+								auto_decrement(button_antenna_left,
+										antenna_black_label_down, 0, 1);
+
+							}
+						});
+
 						return true;
 					}
 				});
 
 		button_antenna_left.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
-				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)) {
-					funzionalita = button_antenna_left.getId();
+
+				funzionalita = button_antenna_left.getId();
+
+				if ((event.getAction() == MotionEvent.ACTION_UP)) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						waitTimer = null;
+					}
+
+					utility.appendLog("Inviato comando: ANTENNA-LEFT");
+					inviaComandi(0, MSK_POWER);
 
 				}
 
@@ -1946,9 +1858,21 @@ public class WorkActivity extends Activity {
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
-						inviaComandi(0, MSK_ALL_4);
 						waitTimer = null;
 					}
+
+					if (antenna_black_label_down.getText().equals("-00.0")) {
+						antenna_black_label_down.setText("0");
+					}
+
+					if (Float.parseFloat(antenna_black_label_down.getText()
+							.toString()) > 0) {
+						antenna_black_label_down.setText(String.valueOf(Integer
+								.parseInt(antenna_black_label_down.getText()
+										.toString()) - 1));
+					}
+
+					set_attention();
 
 				}
 
@@ -1960,24 +1884,78 @@ public class WorkActivity extends Activity {
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
 
-						azzera();
-
 						funzionalita = button_antenna_right.getId();
-						auto_increment(button_antenna_right,
-								antenna_black_label_down, 99, 1);
+
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+
+								auto_increment(button_antenna_right,
+										antenna_black_label_down, 99, 1);
+
+							}
+						});
 
 						return true;
 					}
 				});
 
-		button_time_left.setOnLongClickListener(new View.OnLongClickListener() {
-			public boolean onLongClick(View arg0) {
-
-				azzera();
+		button_antenna_right.setOnTouchListener(new View.OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent event) {
 
 				funzionalita = button_time_left.getId();
 
-				auto_decrement(button_time_left, time_label_down, 0, 1);
+				if ((event.getAction() == MotionEvent.ACTION_UP)) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						waitTimer = null;
+					}
+
+					utility.appendLog("Inviato comando: ANTENNA-RIGHT");
+					inviaComandi(0, MSK_POWER);
+
+				}
+
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						waitTimer = null;
+					}
+
+					if (antenna_black_label_down.getText().equals("-00.0")) {
+						antenna_black_label_down.setText("0");
+					}
+
+					if (Integer.parseInt(antenna_black_label_down.getText()
+							.toString()) < 99) {
+						antenna_black_label_down.setText(String.valueOf(Integer
+								.parseInt(antenna_black_label_down.getText()
+										.toString()) + 1));
+					}
+
+					set_attention();
+
+				}
+
+				return false;
+			}
+		});
+
+		button_time_left.setOnLongClickListener(new View.OnLongClickListener() {
+			public boolean onLongClick(View arg0) {
+
+				funzionalita = button_time_left.getId();
+
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+
+						auto_decrement(button_time_left, time_label_down, 0, 1);
+
+					}
+				});
 
 				return true;
 			}
@@ -1985,19 +1963,39 @@ public class WorkActivity extends Activity {
 
 		button_time_left.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
+
+				funzionalita = button_time_left.getId();
+
 				if ((event.getAction() == MotionEvent.ACTION_UP || event
 						.getAction() == MotionEvent.ACTION_CANCEL)) {
-					funzionalita = button_time_left.getId();
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						waitTimer = null;
+					}
+
+					utility.appendLog("Inviato comando: TIMER-LEFT");
+					inviaComandi(0, MSK_TIME);
 				}
 
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
-						inviaComandi(0, MSK_ALL_4);
 						waitTimer = null;
 					}
 
+					int time = Integer.parseInt(time_label_down
+							.getText()
+							.toString()
+							.substring(
+									0,
+									time_label_down.getText().toString()
+											.length() - 3));
+
+					if (time > 0) {
+						time_label_down.setText((time - 1) + ":00");
+					}
 				}
 
 				return false;
@@ -2008,11 +2006,17 @@ public class WorkActivity extends Activity {
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
 
-						azzera();
-
 						funzionalita = button_time_right.getId();
-						auto_increment(button_time_right, time_label_down, 30,
-								1);
+
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+
+								auto_increment(button_time_right,
+										time_label_down, 30, 1);
+
+							}
+						});
 
 						return true;
 					}
@@ -2020,9 +2024,18 @@ public class WorkActivity extends Activity {
 
 		button_time_right.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
-				if ((event.getAction() == MotionEvent.ACTION_UP || event
-						.getAction() == MotionEvent.ACTION_CANCEL)) {
-					funzionalita = button_time_right.getId();
+
+				funzionalita = button_time_right.getId();
+
+				if ((event.getAction() == MotionEvent.ACTION_UP)) {
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+						waitTimer = null;
+					}
+
+					utility.appendLog("Inviato comando: TIMER-RIGHT");
+					inviaComandi(0, MSK_TIME);
 
 				}
 
@@ -2030,8 +2043,21 @@ public class WorkActivity extends Activity {
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
-						inviaComandi(0, MSK_ALL_4);
 						waitTimer = null;
+					}
+
+					int time = Integer.parseInt(time_label_down
+							.getText()
+							.toString()
+							.substring(
+									0,
+									time_label_down.getText().toString()
+											.length() - 3));
+
+					if (time < 30) {
+
+						time_label_down.setText("" + (time + 1) + ":00");
+
 					}
 
 				}
@@ -2042,178 +2068,26 @@ public class WorkActivity extends Activity {
 
 	}
 
-	protected void azzera() {
-
-		if (waitTimer != null) {
-			waitTimer.cancel();
-			inviaComandi(0, MSK_ALL_4);
-			waitTimer = null;
-		}
-
-		button_antenna_left.setPressed(false);
-		button_antenna_right.setPressed(false);
-		button_water_left.setPressed(false);
-		button_water_right.setPressed(false);
-		button_deltat_left.setPressed(false);
-		button_deltat_right.setPressed(false);
-		button_time_left.setPressed(false);
-		button_time_right.setPressed(false);
-
-	}
-
-	protected void disegna_grafico_bkp() {
-		Paint paintRed = new Paint();
-		paintRed.setColor(Color.RED);
-
-		Paint paintBlu = new Paint();
-		paintBlu.setColor(Color.BLUE);
-
-		Bitmap bg = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
-
-		Canvas canvas = new Canvas(bg);
-
-		MeasuredAxis measured = new MeasuredAxis(canvas.getWidth(),
-				canvas.getHeight());
-
-		synchronized (canvas) {
-			int x = measured.getXAxisNegLimit();
-			// from -x to +x evaluate and plot the function
-			while (x++ < measured.getXAxisLimit()) {
-				canvas.drawLine(measured.getXMeasured(x), measured
-						.getYMeasured(function(x, 0, 0)),
-
-				measured.getYMeasured(function(x + MeasuredAxis.Y_GAP, 0, 0)),
-						measured.getXMeasured(x + MeasuredAxis.X_GAP),
-
-						paintRed);
-			}
-			canvas.save();
-			canvas.translate(0, 0);
-			canvas.scale(canvas.getWidth(), canvas.getHeight());
-			canvas.restore();
-
-		}
-
-		LinearLayout ll = (LinearLayout) findViewById(R.id.grafico);
-		ll.setBackgroundDrawable(new BitmapDrawable(bg));
-
-	}
-
-	protected void disegna_grafico(int z) {
-		Paint paintRed = new Paint();
-		paintRed.setColor(Color.RED);
-
-		Paint paintBlu = new Paint();
-		paintBlu.setColor(Color.BLUE);
-
-		Bitmap bg = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-
-		Canvas canvas = new Canvas(bg);
-
-		MeasuredAxis measured = new MeasuredAxis(canvas.getWidth(),
-				canvas.getHeight());
-
-		synchronized (canvas) {
-			int x = measured.getXAxisNegLimit();
-			int y = measured.getXAxisNegLimit();
-
-			// from -x to +x evaluate and plot the function
-			for (double x1 = 370; x1 <= 420; x1 += 0.1) {
-
-				for (int y1 = 0; y1 < measured.getYAxisLimit(); y1++) {
-
-					// canvas.drawLine(
-					// measured.getXMeasured(x1),
-					// measured.getYMeasured(function(x1, y, 100)),
-					// measured.getXMeasured(x1 + MeasuredAxis.X_GAP),
-					// measured.getYMeasured(function(x1
-					// + MeasuredAxis.Y_GAP, y1, 100)), paintRed);
-
-					canvas.drawPoint(function(x1, y1, 100), (float) x1,
-							paintBlu);
-
-					// canvas.drawLine(
-					// measured.getXMeasured(x1),
-					// measured.getYMeasured(function(x1, y1, 100)),
-					// measured.getXMeasured(x1 + MeasuredAxis.X_GAP),
-					// measured.getYMeasured(function(x1
-					// + MeasuredAxis.Y_GAP, y1, 100)), paintRed);
-
-					utility.appendLog("x=" + x1 + " y=" + function(x1, y1, 100));
-				}
-			}
-			canvas.save();
-			canvas.translate(0, 0);
-			canvas.scale(canvas.getWidth(), canvas.getHeight());
-			canvas.restore();
-
-		}
-
-		LinearLayout ll = (LinearLayout) findViewById(R.id.grafico);
-		ll.setBackgroundDrawable(new BitmapDrawable(bg));
-
-	}
-
 	private float function(double x, double y, double z) {
 
-		int B = 3, n = 0;
-		float W, T, D;
-		float Tw = W = pctocy.iH2o_temp;
+		int B = 3;
+		float Tw = WATER;
 		double b = 0.19;
-		float Tb = T = 37;
-		float Dt = D = pctocy.iD_temp;
+		float Tb = 37;
+		float Dt = DELTAT;
 		double a = 0.035;
-		int X = pctocy.runningTime;
-		double A = (B + 1) * D + W - T;
+		double A = (B + 1) * Dt + Tw - Tb;
 		double h = 0.011522;
 		double k = 0.011513;
-		int x0 = n = 70;
+		int x0 = 70;
 
-		double equation = T
-				+ ((B * W * Math.exp(-b * y) + T + A * Math.exp(-a * y))
-						/ (B * Math.exp(-b * y) + 1) - T)
-				* Math.exp(-h * Math.pow(x - n, 2) * (1 - Math.exp(-k * z)));
-
-		// return new Double((B * Tw * Math.exp(-b * x) + ((B + 1) * Dt + Tw -
-		// Tb)
-		// * Math.exp(-a * x))
-		// / (B * Math.exp(-b * x) + 1)).floatValue();
+		double equation = Tb
+				+ ((B * Tw * Math.exp(-b * y) + Tb + A * Math.exp(-a * y))
+						/ (B * Math.exp(-b * y) + 1) - Tb)
+				* Math.exp(-h * Math.pow(x - x0, 2) * (1 - Math.exp(-k * z)));
 
 		return new Double(equation).floatValue();
 
-	}
-
-	class MeasuredAxis {
-		public static final int X_GAP = 1;
-		public static final int Y_GAP = 1;
-
-		int _realHeight;
-		int _realWidth;
-
-		public MeasuredAxis(int width, int height) {
-			_realWidth = width;
-			_realHeight = height;
-		}
-
-		public int getXAxisNegLimit() {
-			return (_realWidth / 2) * (-1);
-		}
-
-		public int getXAxisLimit() {
-			return (_realWidth / 2);
-		}
-
-		public int getYAxisLimit() {
-			return (_realHeight / 2);
-		}
-
-		public float getXMeasured(int x) {
-			return ((_realWidth / 2) + x);
-		}
-
-		public float getYMeasured(float y) {
-			return ((_realHeight / 2) - y);
-		}
 	}
 
 	protected void set_attention() {
@@ -2292,6 +2166,50 @@ public class WorkActivity extends Activity {
 		ottanta = (LinearLayout) findViewById(R.id.ottanta);
 		novanta = (LinearLayout) findViewById(R.id.novanta);
 
+		// GRAFICO_DEF
+		GraphView graph = (GraphView) findViewById(R.id.grafico);
+		// graph.getGridLabelRenderer().setGridColor(Color.TRANSPARENT);
+		// graph.getGridLabelRenderer().setHorizontalLabelsVisible(true);
+		// graph.getGridLabelRenderer().setVerticalLabelsVisible(true);
+		// graph.getGridLabelRenderer().reloadStyles();
+		mSeries1 = new LineGraphSeries<DataPoint>(generateData());
+		mSeries1.setDrawBackground(true);
+		mSeries1.setBackgroundColor(Color.argb(100, 255, 255, 0));
+		Paint paint = new Paint();
+		paint.setColor(Color.argb(100, 255, 255, 0));
+		mSeries1.setCustomPaint(paint);
+
+		graph.addSeries(mSeries1);
+
+	}
+
+	private DataPoint[] generateData() {
+
+		Random r = new Random();
+		int Low = 370;
+		int High = 420;
+		// WATER = r.nextInt(High - Low) / 10;
+		Low = -10;
+		High = 30;
+		// DELTAT = r.nextInt(High - Low) / 10;
+
+		int count = 20;
+		double f = 0;
+		DataPoint[] values = new DataPoint[count * count];
+		int x = 0, i = 0;
+
+		for (x = 0; x < count; x++) {
+
+			for (int y = 0; y < count; y++) {
+				f = function(x, y, 10);
+				DataPoint v = new DataPoint(x, f);
+				values[i] = v;
+				i++;
+			}
+
+		}
+
+		return values;
 	}
 
 	private void decrement() {
@@ -2485,17 +2403,12 @@ public class WorkActivity extends Activity {
 					increment();
 
 				} else {
-					button.setPressed(false);
-					inviaParametri(button);
 					this.cancel();
 				}
 
 			}
 
 			public void onFinish() {
-				button.setPressed(false);
-
-				inviaParametri(button);
 
 			}
 		}.start();
@@ -2507,7 +2420,6 @@ public class WorkActivity extends Activity {
 
 		if (waitTimer != null) {
 			waitTimer.cancel();
-			inviaComandi(0, MSK_ALL_4);
 			waitTimer = null;
 		}
 
@@ -2532,7 +2444,6 @@ public class WorkActivity extends Activity {
 
 			public void onTick(long millisUntilFinished) {
 
-				button.setPressed(true);
 				funzionalita = button.getId();
 
 				Double misurato;
@@ -2549,9 +2460,6 @@ public class WorkActivity extends Activity {
 					decrement();
 
 				} else {
-					button.setPressed(false);
-
-					inviaParametri(button);
 
 					this.cancel();
 				}
@@ -2559,38 +2467,9 @@ public class WorkActivity extends Activity {
 			}
 
 			public void onFinish() {
-
-				button.setPressed(false);
-
-				inviaParametri(button);
 			}
 		}.start();
 
 	}
 
-	protected void inviaParametri(Button button) {
-
-		int WATER_LEFT = button_water_left.getId(), WATER_RIGHT = button_water_right
-				.getId();
-		int DELTAT_LEFT = button_water_left.getId(), DELTAT_RIGHT = button_water_right
-				.getId();
-		int ANTENNA_LEFT = button_antenna_left.getId(), ANTENNA_RIGHT = button_antenna_right
-				.getId();
-		int TIME_LEFT = button_time_left.getId(), TIME_RIGHT = button_time_right
-				.getId();
-
-		if (button.getId() == WATER_LEFT || button.getId() == WATER_RIGHT) {
-			inviaComandi(0, MSK_WATER);
-		}
-		if (button.getId() == DELTAT_LEFT || button.getId() == DELTAT_RIGHT) {
-			inviaComandi(0, MSK_DELTAT);
-		}
-		if (button.getId() == ANTENNA_LEFT || button.getId() == ANTENNA_RIGHT) {
-			inviaComandi(0, MSK_POWER);
-		}
-		if (button.getId() == TIME_LEFT || button.getId() == TIME_RIGHT) {
-			inviaComandi(0, MSK_TIME);
-		}
-
-	}
 }

@@ -429,6 +429,22 @@ public class Utility {
 		});
 	}
 
+	public String convertSecondsToMmSs(long seconds) {
+		long s = seconds % 60;
+		long m = (seconds / 60) % 60;
+		return String.format("%02d:%02d", m, s);
+	}
+
+	public double round(double value, int places) {
+		if (places < 0)
+			throw new IllegalArgumentException();
+
+		long factor = (long) Math.pow(10, places);
+		value = value * factor;
+		long tmp = Math.round(value);
+		return (double) tmp / factor;
+	}
+
 	public int getTime(String disturbo) {
 
 		int result = 0;

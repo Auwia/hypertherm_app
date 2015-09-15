@@ -132,7 +132,6 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/grafico"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
@@ -147,6 +146,11 @@
                 android:textColor="@android:color/black"
                 android:textSize="40sp"
                 android:textStyle="bold" />
+
+            <com.jjoe64.graphview.GraphView
+                android:id="@+id/grafico"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" />
         </LinearLayout>
 
         <LinearLayout
