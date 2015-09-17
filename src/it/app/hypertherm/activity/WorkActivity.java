@@ -94,13 +94,8 @@ public class WorkActivity extends Activity {
 
 	public void inviaComandi(int comando, int maschera) {
 
-		int timer = Integer
-				.parseInt(time_label_down
-						.getText()
-						.toString()
-						.substring(
-								0,
-								time_label_down.getText().toString().length() - 3)) * 60;
+		int timer = Integer.parseInt(time_label_down.getText().toString()
+				.substring(0, 2)) * 60;
 
 		int power = (int) (Integer.parseInt(antenna_black_label_down.getText()
 				.toString()) * 100);
@@ -338,64 +333,94 @@ public class WorkActivity extends Activity {
 									d_temp = D_temp;
 								}
 
-								DELTAT = Float
-										.parseFloat(String.valueOf(Double
-												.parseDouble(String
-														.valueOf(d_temp)) / 100));
-								utility.setDeltaT(String.valueOf(Double
-										.parseDouble(String.valueOf(d_temp)) / 100));
+								if (d_temp < 0) {
 
-								WATER = Float
-										.parseFloat(String.valueOf(Double
-												.parseDouble(String
-														.valueOf(H2o_temp)) / 100));
-								utility.setWaterTemperature(String
-										.valueOf(Double.parseDouble(String
-												.valueOf(H2o_temp)) / 100));
+									DELTAT = Float.parseFloat(String.valueOf(
+											Double.parseDouble(String
+													.valueOf(d_temp)) / 100)
+											.substring(0, 4));
+									utility.setDeltaT(String.valueOf(
+											Double.parseDouble(String
+													.valueOf(d_temp)) / 100)
+											.substring(0, 4));
+								} else {
+
+									DELTAT = Float
+											.parseFloat("+"
+													+ String.valueOf(
+															Double.parseDouble(String
+																	.valueOf(d_temp)) / 100)
+															.substring(0, 3));
+									utility.setDeltaT("+"
+											+ String.valueOf(
+													Double.parseDouble(String
+															.valueOf(d_temp)) / 100)
+													.substring(0, 3));
+								}
+
+								WATER = Float.parseFloat(String.valueOf(
+										Double.parseDouble(String
+												.valueOf(H2o_temp)) / 100)
+										.substring(0, 4));
+								utility.setWaterTemperature(String.valueOf(
+										Double.parseDouble(String
+												.valueOf(H2o_temp)) / 100)
+										.substring(0, 4));
 
 								utility.setAntenna("" + (int) (Dir_power / 100));
 
-								runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
-
-										int id_temp = 0;
-										if (iD_temp >= 60000) {
-											id_temp = (iD_temp - 65536);
-										} else {
-											id_temp = iD_temp;
-										}
-
-										water_label_down
-												.setText(String.valueOf(utility.round(
-														Double.parseDouble(String
-																.valueOf(iH2o_temp)) / 100,
-														1)));
-										if (id_temp > 0) {
-
-											deltat_label_down
-													.setText("+".concat(String.valueOf(Double.parseDouble(String
-															.valueOf(id_temp)) / 100)));
-										} else {
-											deltat_label_down
-													.setText(String.valueOf(Double.parseDouble(String
-															.valueOf(id_temp)) / 100));
-										}
-
-										antenna_black_label_down.setText(""
-												+ ((int) (iPower / 100)));
-
-										time_label_down.setText(utility
-												.convertSecondsToMmSs(iTime));
-
-									}
-								});
+								// runOnUiThread(new Runnable() {
+								// @Override
+								// public void run() {
+								//
+								// int id_temp = 0;
+								// if (iD_temp >= 60000) {
+								// id_temp = (iD_temp - 65536);
+								// } else {
+								// id_temp = iD_temp;
+								// }
+								//
+								// water_label_down
+								// .setText(String.valueOf(utility.round(
+								// Double.parseDouble(String
+								// .valueOf(iH2o_temp)) / 100,
+								// 1)));
+								// if (id_temp > 0) {
+								//
+								// deltat_label_down
+								// .setText("+".concat(String.valueOf(Double.parseDouble(String
+								// .valueOf(id_temp)) / 100)));
+								// } else {
+								// deltat_label_down
+								// .setText(String.valueOf(Double.parseDouble(String
+								// .valueOf(id_temp)) / 100));
+								// }
+								//
+								// antenna_black_label_down.setText(""
+								// + ((int) (iPower / 100)));
+								//
+								// time_label_down.setText(utility
+								// .convertSecondsToMm(iTime));
+								//
+								// }
+								// });
 
 							} else {
 								utility.appendLog("Tracciato non conforme al checksum atteso="
 										+ CheckSum
 										+ " checksum ricevuto="
 										+ utility.calcola_check_sum(buf));
+
+								String tracciato = "";
+								char[] c = utility.bytesToHex2(buf);
+
+								for (int i = 0; i < 128; i++) {
+									tracciato += String.valueOf(c[i]);
+									tracciato += String.valueOf(c[i++]) + " ";
+								}
+
+								utility.appendLog("Tracciato errato ricevuto="
+										+ tracciato);
 							}
 						}
 					}
@@ -1011,8 +1036,14 @@ public class WorkActivity extends Activity {
 
 		antenna_black_label_down.setText(String.valueOf(preferences.getInt(
 				"ANTENNA", 0)));
-		time_label_down.setText(String.valueOf(preferences.getInt("TIME", 0))
-				+ ":00");
+
+		if (preferences.getInt("TIME", 0) < 10) {
+			time_label_down.setText("0"
+					+ String.valueOf(preferences.getInt("TIME", 0)));
+		} else {
+			time_label_down.setText(String.valueOf(preferences
+					.getInt("TIME", 0)));
+		}
 
 		disturbo_label.setText(String.valueOf(preferences.getString(
 				"MENU_ITEM", "Defect")));
@@ -1301,10 +1332,23 @@ public class WorkActivity extends Activity {
 															"STRUTTURA", "Mix"),
 													"2")));
 
-											time_label_down.setText(String.valueOf(utility.getTime(
-													preferences.getString(
-															"STRUTTURA", "Mix"),
-													"2")));
+											if (utility.getTime(preferences
+													.getString("STRUTTURA",
+															"Mix"), "2") < 10) {
+
+												time_label_down.setText("0"
+														+ String.valueOf(utility.getTime(
+																preferences
+																		.getString(
+																				"STRUTTURA",
+																				"Mix"),
+																"2")));
+											} else {
+												time_label_down.setText(String.valueOf(utility.getTime(
+														preferences.getString(
+																"STRUTTURA",
+																"Mix"), "2")));
+											}
 
 											inviaComandi(0, MSK_POWER);
 
@@ -1787,7 +1831,7 @@ public class WorkActivity extends Activity {
 							public void run() {
 
 								auto_increment(button_deltat_right,
-										deltat_label_down, 3, 10);
+										deltat_label_down, 5, 10);
 
 							}
 						});
@@ -1825,7 +1869,7 @@ public class WorkActivity extends Activity {
 					}
 
 					if (Float
-							.parseFloat(deltat_label_down.getText().toString()) < 3) {
+							.parseFloat(deltat_label_down.getText().toString()) < 5) {
 
 						float tot = (Float.parseFloat(deltat_label_down
 								.getText().toString()) * 10 + 1) / 10;
@@ -2013,17 +2057,21 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
-					int time = Integer.parseInt(time_label_down
-							.getText()
-							.toString()
-							.substring(
-									0,
-									time_label_down.getText().toString()
-											.length() - 3));
+					int time = Integer.parseInt(time_label_down.getText()
+							.toString().substring(0, 2));
 
 					if (time > 0) {
-						time_label_down.setText((time - 1) + ":00");
+						if (time - 1 < 10 && time - 1 > 0) {
+							time_label_down.setText("0" + (time - 1));
+						} else {
+							time_label_down.setText("" + (time - 1));
+						}
+
+						if (time == 1) {
+							time_label_down.setText("00");
+						}
 					}
+
 				}
 
 				return false;
@@ -2074,20 +2122,18 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
-					int time = Integer.parseInt(time_label_down
-							.getText()
-							.toString()
-							.substring(
-									0,
-									time_label_down.getText().toString()
-											.length() - 3));
+					int time = Integer.parseInt(time_label_down.getText()
+							.toString().substring(0, 2));
 
 					if (time < 30) {
 
-						time_label_down.setText("" + (time + 1) + ":00");
+						if (time + 1 < 10) {
+							time_label_down.setText("0" + (time + 1));
+						} else {
+							time_label_down.setText("" + (time + 1));
+						}
 
 					}
-
 				}
 
 				return false;
@@ -2294,16 +2340,20 @@ public class WorkActivity extends Activity {
 		}
 
 		if (funzionalita == button_time_left.getId()) {
-			int time = Integer.parseInt(time_label_down
-					.getText()
-					.toString()
-					.substring(0,
-							time_label_down.getText().toString().length() - 3));
+
+			int time = Integer.parseInt(time_label_down.getText().toString()
+					.substring(0, 2));
 
 			if (time > 0) {
+				if (time - 1 < 10 && time - 1 > 0) {
+					time_label_down.setText("0" + (time - 1));
+				} else {
+					time_label_down.setText("" + (time - 1));
+				}
 
-				time_label_down.setText("" + (time - 1) + ":00");
-
+				if (time == 1) {
+					time_label_down.setText("00");
+				}
 			}
 
 		}
@@ -2333,7 +2383,7 @@ public class WorkActivity extends Activity {
 				deltat_label_down.setText("-1");
 			}
 
-			if (Float.parseFloat(deltat_label_down.getText().toString()) < 3) {
+			if (Float.parseFloat(deltat_label_down.getText().toString()) < 5) {
 
 				float tot = (Float.parseFloat(deltat_label_down.getText()
 						.toString()) * 10 + 1) / 10;
@@ -2366,15 +2416,22 @@ public class WorkActivity extends Activity {
 
 		if (funzionalita == button_time_right.getId()) {
 
-			int time = Integer.parseInt(time_label_down
-					.getText()
-					.toString()
-					.substring(0,
-							time_label_down.getText().toString().length() - 3));
+			int time = Integer.parseInt(time_label_down.getText().toString()
+					.substring(0, 2));
 
 			if (time < 30) {
 
-				time_label_down.setText("" + (time + 1) + ":00");
+				time_label_down.setText("" + (time + 1));
+
+			}
+
+			if (time < 30) {
+
+				if (time + 1 < 10) {
+					time_label_down.setText("0" + (time + 1));
+				} else {
+					time_label_down.setText("" + (time + 1));
+				}
 
 			}
 		}
@@ -2399,7 +2456,7 @@ public class WorkActivity extends Activity {
 
 			count = Math.round(max
 					- (Double.valueOf(textView.getText().toString()
-							.substring(0, textView.length() - 3))))
+							.substring(0, 2))))
 					* step * 3 * 1000;
 
 		} else {
@@ -2419,7 +2476,7 @@ public class WorkActivity extends Activity {
 
 				if (buttonId == button_time_right.getId()) {
 					misurato = Double.valueOf(textView.getText().toString()
-							.substring(0, textView.length() - 3));
+							.substring(0, 2));
 				} else {
 					misurato = Double.valueOf(textView.getText().toString());
 				}
@@ -2456,9 +2513,9 @@ public class WorkActivity extends Activity {
 		if (buttonId == button_time_left.getId()) {
 
 			count = Math.round((Double.valueOf(textView.getText().toString()
-					.substring(0, textView.length() - 3)))
+					.substring(0, 2)))
 					- min)
-					* step * 3 * 1000;
+					* step * 3 * 1000 + 10000;
 
 		} else {
 			count = Math.round((Double.valueOf(textView.getText().toString()))
@@ -2475,8 +2532,10 @@ public class WorkActivity extends Activity {
 				Double misurato;
 
 				if (buttonId == button_time_left.getId()) {
+
 					misurato = Double.valueOf(textView.getText().toString()
-							.substring(0, textView.length() - 3));
+							.substring(0, 2));
+
 				} else {
 					misurato = Double.valueOf(textView.getText().toString());
 				}

@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -50,14 +49,6 @@ public class Utility {
 	private static SQLiteDatabase database;
 	private HyperthermDataSource datasource;
 	private Cursor cur;
-	private ContentValues row = new ContentValues();
-
-	// DECIMAL TO HEX
-	private static final int sizeOfIntInHalfBytes = 8;
-	private static final int numberOfBitsInAHalfByte = 4;
-	private static final int halfByte = 0x0F;
-	private static final char[] hexDigits = { '0', '1', '2', '3', '4', '5',
-			'6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
 	public Utility(Activity activity) {
 
@@ -102,6 +93,16 @@ public class Utility {
 			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
 		}
 		return new String(hexChars);
+	}
+
+	public char[] bytesToHex2(byte[] bytes) {
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return hexChars;
 	}
 
 	public int calcola_check_sum(byte[] buf) {
@@ -212,10 +213,12 @@ public class Utility {
 			@Override
 			public void run() {
 
-				appendLog("Imposto il valore di acqua ricevuto dalla scheda..."
-						+ valore);
+				// appendLog("Imposto il valore di acqua ricevuto dalla scheda..."
+				// + valore);
+
 				water_label_up.setText(valore);
-				appendLog("Imposto il valore di acqua ricevuto dalla scheda...OK");
+
+				// appendLog("Imposto il valore di acqua ricevuto dalla scheda...OK");
 
 			}
 		});
@@ -272,10 +275,12 @@ public class Utility {
 			@Override
 			public void run() {
 
-				appendLog("Imposto il valore di DeltaT ricevuto dalla scheda..."
-						+ valore);
+				// appendLog("Imposto il valore di DeltaT ricevuto dalla scheda..."
+				// + valore);
+
 				deltat_label_up.setText(valore);
-				appendLog("Imposto il valore di DeltaT ricevuto dalla scheda...OK");
+
+				// appendLog("Imposto il valore di DeltaT ricevuto dalla scheda...OK");
 
 			}
 		});
@@ -334,10 +339,12 @@ public class Utility {
 			@Override
 			public void run() {
 
-				appendLog("Imposto il valore di antenna ricevuto dalla scheda..."
-						+ valore);
+				// appendLog("Imposto il valore di antenna ricevuto dalla scheda..."
+				// + valore);
+
 				antenna_black_label_up.setText(valore);
-				appendLog("Imposto il valore di antenna ricevuto dalla scheda...OK");
+
+				// appendLog("Imposto il valore di antenna ricevuto dalla scheda...OK");
 
 			}
 		});
@@ -420,10 +427,12 @@ public class Utility {
 			@Override
 			public void run() {
 
-				appendLog("Imposto il valore di tempo ricevuto dalla scheda..."
-						+ valore);
+				// appendLog("Imposto il valore di tempo ricevuto dalla scheda..."
+				// + valore);
+
 				time_label_up.setText(valore);
-				appendLog("Imposto il valore di tempo ricevuto dalla scheda...OK");
+
+				// appendLog("Imposto il valore di tempo ricevuto dalla scheda...OK");
 
 			}
 		});
@@ -433,6 +442,11 @@ public class Utility {
 		long s = seconds % 60;
 		long m = (seconds / 60) % 60;
 		return String.format("%02d:%02d", m, s);
+	}
+
+	public String convertSecondsToMm(long seconds) {
+		long m = (seconds / 60) % 60;
+		return String.format("%02d", m);
 	}
 
 	public double round(double value, int places) {
