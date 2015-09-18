@@ -39,7 +39,7 @@ public class WorkActivity extends Activity {
 			button_home, button_play, button_pause, button_stop,
 			button_bolus_up, button_bolus_down, button_power,
 			button_temperature_positive, button_temperature_negative,
-			button_rf_on;
+			button_rf_on, button_antenna, button_time;
 	private TextView antenna_black_label_down, water_label_down,
 			deltat_label_down, time_label_down, disturbo_label, suggerimenti;
 	private LinearLayout zero, dieci, venti, trenta, quaranta, cinquanta,
@@ -333,39 +333,36 @@ public class WorkActivity extends Activity {
 									d_temp = D_temp;
 								}
 
-								if (d_temp < 0) {
+								if (d_temp > 0) {
 
-									DELTAT = Float.parseFloat(String.valueOf(
-											Double.parseDouble(String
-													.valueOf(d_temp)) / 100)
-											.substring(0, 4));
-									utility.setDeltaT(String.valueOf(
-											Double.parseDouble(String
-													.valueOf(d_temp)) / 100)
-											.substring(0, 4));
+									DELTAT = Float.parseFloat("+"
+											+ utility.arrotondaPerEccesso(
+													d_temp, 1));
+
+									utility.setDeltaT("+"
+											+ utility.arrotondaPerEccesso(
+													d_temp, 1));
+
 								} else {
 
-									DELTAT = Float
-											.parseFloat("+"
-													+ String.valueOf(
-															Double.parseDouble(String
-																	.valueOf(d_temp)) / 100)
-															.substring(0, 3));
-									utility.setDeltaT("+"
-											+ String.valueOf(
-													Double.parseDouble(String
-															.valueOf(d_temp)) / 100)
-													.substring(0, 3));
+									DELTAT = Float.parseFloat(""
+											+ utility.arrotondaPerEccesso(
+													d_temp, 1));
+
+									utility.setDeltaT(""
+											+ utility.arrotondaPerEccesso(
+													d_temp, 1));
+
 								}
 
-								WATER = Float.parseFloat(String.valueOf(
-										Double.parseDouble(String
-												.valueOf(H2o_temp)) / 100)
-										.substring(0, 4));
-								utility.setWaterTemperature(String.valueOf(
-										Double.parseDouble(String
-												.valueOf(H2o_temp)) / 100)
-										.substring(0, 4));
+								WATER = Float.parseFloat(""
+										+ utility.arrotondaPerEccesso(H2o_temp,
+												1));
+
+								utility.setWaterTemperature(String
+										.valueOf(Float.parseFloat(""
+												+ utility.arrotondaPerEccesso(
+														H2o_temp, 1))));
 
 								utility.setAntenna("" + (int) (Dir_power / 100));
 
@@ -1064,6 +1061,10 @@ public class WorkActivity extends Activity {
 		suggerimenti.setText(utility.get_suggerimento_trattamento());
 
 		button_home.setEnabled(true);
+		button_antenna.setPressed(false);
+		button_time.setPressed(false);
+		button_temperature_negative.setPressed(false);
+		button_temperature_positive.setPressed(false);
 
 	}
 
@@ -1076,25 +1077,20 @@ public class WorkActivity extends Activity {
 
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
+					button_temperature_negative.setPressed(false);
+					button_temperature_positive.setPressed(false);
+
 					int pos = seek_bar.getProgress();
 
 					seek_bar.setProgress(5);
 
 					if (button_power.isPressed()) {
 
-						button_power.setPressed(false);
-
-						button_temperature_negative.setEnabled(true);
-						button_temperature_positive.setEnabled(true);
-
 						return true;
 
 					} else {
 
 						button_power.setPressed(true);
-
-						button_temperature_negative.setEnabled(false);
-						button_temperature_positive.setEnabled(false);
 
 						if (pos > 0 && pos < 5) {
 							for (int i = 0; i < 5 - pos; i++) {
@@ -1133,333 +1129,367 @@ public class WorkActivity extends Activity {
 			}
 		});
 
-		button_temperature_negative
-				.setOnClickListener(new View.OnClickListener() {
-					public void onClick(View v) {
+		button_temperature_negative.setOnTouchListener(new OnTouchListener() {
 
-						if (!button_power.isPressed()
-								&& seek_bar.getProgress() > 0) {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
 
-							button_rf_on.setPressed(true);
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
-							seek_bar.setProgress(seek_bar.getProgress() - 1);
+					if (seek_bar.getProgress() > 0) {
 
-							waitTimer = new CountDownTimer(1000, 1000) {
+						seek_bar.setProgress(seek_bar.getProgress() - 1);
 
-								public void onTick(long millisUntilFinished) {
+						waitTimer = new CountDownTimer(1000, 1000) {
 
+							public void onTick(long millisUntilFinished) {
+
+							}
+
+							public void onFinish() {
+
+								funzionalita = button_water_left.getId();
+								decrement();
+								decrement();
+								decrement();
+
+								funzionalita = button_deltat_left.getId();
+								decrement();
+
+								if (!disturbo_label.getText().toString()
+										.equals(utility.getMenuItemDefault())) {
+
+									antenna_black_label_down.setText(""
+											+ utility.getPmaxRF(
+													Float.parseFloat(deltat_label_down
+															.getText()
+															.toString()),
+													Float.parseFloat(water_label_down
+															.getText()
+															.toString())));
 								}
 
-								public void onFinish() {
-
-									funzionalita = button_water_left.getId();
-									decrement();
-									decrement();
-									decrement();
-
-									funzionalita = button_deltat_left.getId();
-									decrement();
-
-									if (!disturbo_label
-											.getText()
-											.toString()
-											.equals(utility
-													.getMenuItemDefault())) {
-
-										antenna_black_label_down.setText(""
-												+ utility.getPmaxRF(
-														Float.parseFloat(deltat_label_down
-																.getText()
-																.toString()),
-														Float.parseFloat(water_label_down
-																.getText()
-																.toString())));
-									}
-
-									inviaComandi(0, MSK_ALL_4);
-
-									button_rf_on.setPressed(false);
-
+								if (seek_bar.getProgress() == 5) {
+									button_power.setPressed(true);
+									button_temperature_negative
+											.setPressed(false);
+									button_temperature_positive
+											.setPressed(false);
+								} else {
+									button_power.setPressed(false);
+									button_temperature_negative
+											.setPressed(true);
+									button_temperature_positive
+											.setPressed(false);
 								}
-							}.start();
 
-						}
+								inviaComandi(0, MSK_ALL_4);
+
+							}
+						}.start();
 
 					}
-				});
+				}
 
-		button_temperature_positive
-				.setOnClickListener(new View.OnClickListener() {
-					public void onClick(View v) {
+				return true;
+			}
+		});
 
-						if (!button_power.isPressed()
-								&& seek_bar.getProgress() < 10) {
+		button_temperature_positive.setOnTouchListener(new OnTouchListener() {
 
-							button_rf_on.setPressed(true);
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
 
-							seek_bar.setProgress(seek_bar.getProgress() + 1);
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
-							waitTimer = new CountDownTimer(1000, 1000) {
+					if (seek_bar.getProgress() < 10) {
 
-								public void onTick(long millisUntilFinished) {
+						seek_bar.setProgress(seek_bar.getProgress() + 1);
 
+						waitTimer = new CountDownTimer(1000, 1000) {
+
+							public void onTick(long millisUntilFinished) {
+
+							}
+
+							public void onFinish() {
+
+								funzionalita = button_water_right.getId();
+								increment();
+								increment();
+								increment();
+
+								funzionalita = button_deltat_right.getId();
+								increment();
+
+								if (!disturbo_label.getText().toString()
+										.equals(utility.getMenuItemDefault())) {
+
+									antenna_black_label_down.setText(""
+											+ utility.getPmaxRF(
+													Float.parseFloat(deltat_label_down
+															.getText()
+															.toString()),
+													Float.parseFloat(water_label_down
+															.getText()
+															.toString())));
 								}
 
-								public void onFinish() {
-
-									funzionalita = button_water_right.getId();
-									increment();
-									increment();
-									increment();
-
-									funzionalita = button_deltat_right.getId();
-									increment();
-
-									if (!disturbo_label
-											.getText()
-											.toString()
-											.equals(utility
-													.getMenuItemDefault())) {
-
-										antenna_black_label_down.setText(""
-												+ utility.getPmaxRF(
-														Float.parseFloat(deltat_label_down
-																.getText()
-																.toString()),
-														Float.parseFloat(water_label_down
-																.getText()
-																.toString())));
-									}
-
-									inviaComandi(0, MSK_ALL_4);
-
-									button_rf_on.setPressed(false);
-
+								if (seek_bar.getProgress() == 5) {
+									button_power.setPressed(true);
+									button_temperature_negative
+											.setPressed(false);
+									button_temperature_positive
+											.setPressed(false);
+								} else {
+									button_power.setPressed(false);
+									button_temperature_negative
+											.setPressed(false);
+									button_temperature_positive
+											.setPressed(true);
 								}
-							}.start();
-						}
 
+								inviaComandi(0, MSK_ALL_4);
+
+							}
+						}.start();
 					}
-				});
+				}
+				return true;
+			}
+		});
 
-		button_play.setOnClickListener(new View.OnClickListener() {
+		button_play.setOnTouchListener(new OnTouchListener() {
 
 			private int t = 2;
 
-			public void onClick(View v) {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
 
-				suggerimenti.setText("");
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
-				runOnUiThread(new Runnable() {
+					suggerimenti.setText("");
 
-					@Override
-					public void run() {
-
-						if (waitTimerGrafico == null) {
-
-							waitTimerGrafico = new CountDownTimer(
-									Integer.parseInt(time_label_down.getText()
-											.subSequence(0, 2).toString()) * 60 * 1000 + 1,
-									1000) {
-
-								public void onTick(long millisUntilFinished) {
-
-									mSeries1.resetData(generateData(t));
-
-									button_rf_on.setPressed(true);
-
-								}
-
-								public void onFinish() {
-									utility.appendLog("CHIUDO IL GRAFICO");
-								}
-
-							}.start();
-						}
-
-					}
-				});
-
-				if (preferences.getString("PROFONDITA", "1").equals("4")) {
-
-					inviaComandi(PLAY, MSK_CMD);
-
-					utility.appendLog("Lancio programma DINAMICO");
+					button_antenna.setPressed(true);
+					button_time.setPressed(true);
 
 					runOnUiThread(new Runnable() {
 
 						@Override
 						public void run() {
 
-							utility.appendLog("Attendo 5 minuti");
+							if (waitTimerGrafico == null) {
 
-							waitTimer = new CountDownTimer(30000, 30000) {
+								waitTimerGrafico = new CountDownTimer(
+										Integer.parseInt(time_label_down
+												.getText().subSequence(0, 2)
+												.toString()) * 60 * 1000 + 1,
+										1000) {
 
-								public void onTick(long millisUntilFinished) {
+									public void onTick(long millisUntilFinished) {
 
-								}
+										mSeries1.resetData(generateData(t));
 
-								public void onFinish() {
-									utility.appendLog("Setto il valore della temperatura dell'acqua al livello intermedio");
+									}
 
-									water_label_down.setText(String.valueOf(utility
-											.getWaterTemperature(preferences
-													.getString("STRUTTURA",
-															"Mix"), "2")));
+									public void onFinish() {
+										utility.appendLog("CHIUDO IL GRAFICO");
+									}
 
-									inviaComandi(0, MSK_WATER);
-
-									utility.appendLog("Attendo 1 minuto");
-
-									waitTimer = new CountDownTimer(6000, 6000) {
-
-										public void onTick(
-												long millisUntilFinished) {
-
-										}
-
-										public void onFinish() {
-
-											utility.appendLog("Setto i 3 parametri al livello intermedio");
-
-											deltat_label_down.setText(String.valueOf(utility.getDeltaT(
-													preferences.getString(
-															"STRUTTURA", "Mix"),
-													"2")));
-
-											antenna_black_label_down.setText(String.valueOf(utility.getAntenna(
-													preferences.getString(
-															"STRUTTURA", "Mix"),
-													"2")));
-
-											if (utility.getTime(preferences
-													.getString("STRUTTURA",
-															"Mix"), "2") < 10) {
-
-												time_label_down.setText("0"
-														+ String.valueOf(utility.getTime(
-																preferences
-																		.getString(
-																				"STRUTTURA",
-																				"Mix"),
-																"2")));
-											} else {
-												time_label_down.setText(String.valueOf(utility.getTime(
-														preferences.getString(
-																"STRUTTURA",
-																"Mix"), "2")));
-											}
-
-											inviaComandi(0, MSK_POWER);
-
-											utility.appendLog("Attendo 6 minuti");
-
-											waitTimer = new CountDownTimer(
-													36000, 36000) {
-
-												public void onTick(
-														long millisUntilFinished) {
-
-												}
-
-												public void onFinish() {
-													utility.appendLog("Setto il valore della temperatura dell'acqua al livello profondo");
-
-													water_label_down.setText(String.valueOf(utility
-															.getWaterTemperature(
-																	preferences
-																			.getString(
-																					"STRUTTURA",
-																					"Mix"),
-																	"3")));
-
-													inviaComandi(0, MSK_POWER);
-
-													utility.appendLog("Attendo 1 minuto");
-
-													waitTimer = new CountDownTimer(
-															6000, 6000) {
-
-														public void onTick(
-																long millisUntilFinished) {
-
-														}
-
-														public void onFinish() {
-															utility.appendLog("Setto i 3 parametri al livello profondo");
-
-															deltat_label_down
-																	.setText(String
-																			.valueOf(utility
-																					.getDeltaT(
-																							preferences
-																									.getString(
-																											"STRUTTURA",
-																											"Mix"),
-																							"3")));
-
-															antenna_black_label_down
-																	.setText(String
-																			.valueOf(utility
-																					.getAntenna(
-																							preferences
-																									.getString(
-																											"STRUTTURA",
-																											"Mix"),
-																							"3")));
-
-															time_label_down
-																	.setText(String
-																			.valueOf(utility
-																					.getTime(
-																							preferences
-																									.getString(
-																											"STRUTTURA",
-																											"Mix"),
-																							"3")));
-
-															inviaComandi(0,
-																	MSK_POWER);
-
-															utility.appendLog("Attendo 7 minuti");
-
-															waitTimer = new CountDownTimer(
-																	42000,
-																	42000) {
-
-																public void onTick(
-																		long millisUntilFinished) {
-
-																}
-
-																public void onFinish() {
-
-																}
-															}.start();
-
-														}
-													}.start();
-
-												}
-											}.start();
-
-										}
-									}.start();
-
-								}
-							}.start();
+								}.start();
+							}
 
 						}
 					});
 
-				} else {
+					if (preferences.getString("PROFONDITA", "1").equals("4")) {
 
-					utility.appendLog("Inviato comando: PLAY");
-					inviaComandi(PLAY, MSK_CMD);
+						inviaComandi(PLAY, MSK_CMD);
 
-					button_home.setEnabled(false);
+						utility.appendLog("Lancio programma DINAMICO");
 
+						runOnUiThread(new Runnable() {
+
+							@Override
+							public void run() {
+
+								utility.appendLog("Attendo 5 minuti");
+
+								waitTimer = new CountDownTimer(30000, 30000) {
+
+									public void onTick(long millisUntilFinished) {
+
+									}
+
+									public void onFinish() {
+										utility.appendLog("Setto il valore della temperatura dell'acqua al livello intermedio");
+
+										water_label_down.setText(String.valueOf(utility
+												.getWaterTemperature(
+														preferences.getString(
+																"STRUTTURA",
+																"Mix"), "2")));
+
+										inviaComandi(0, MSK_WATER);
+
+										utility.appendLog("Attendo 1 minuto");
+
+										waitTimer = new CountDownTimer(6000,
+												6000) {
+
+											public void onTick(
+													long millisUntilFinished) {
+
+											}
+
+											public void onFinish() {
+
+												utility.appendLog("Setto i 3 parametri al livello intermedio");
+
+												deltat_label_down.setText(String.valueOf(utility.getDeltaT(
+														preferences.getString(
+																"STRUTTURA",
+																"Mix"), "2")));
+
+												antenna_black_label_down.setText(String.valueOf(utility.getAntenna(
+														preferences.getString(
+																"STRUTTURA",
+																"Mix"), "2")));
+
+												if (utility.getTime(preferences
+														.getString("STRUTTURA",
+																"Mix"), "2") < 10) {
+
+													time_label_down.setText("0"
+															+ String.valueOf(utility.getTime(
+																	preferences
+																			.getString(
+																					"STRUTTURA",
+																					"Mix"),
+																	"2")));
+												} else {
+													time_label_down.setText(String.valueOf(utility.getTime(
+															preferences
+																	.getString(
+																			"STRUTTURA",
+																			"Mix"),
+															"2")));
+												}
+
+												inviaComandi(0, MSK_POWER);
+
+												utility.appendLog("Attendo 6 minuti");
+
+												waitTimer = new CountDownTimer(
+														36000, 36000) {
+
+													public void onTick(
+															long millisUntilFinished) {
+
+													}
+
+													public void onFinish() {
+														utility.appendLog("Setto il valore della temperatura dell'acqua al livello profondo");
+
+														water_label_down.setText(String
+																.valueOf(utility
+																		.getWaterTemperature(
+																				preferences
+																						.getString(
+																								"STRUTTURA",
+																								"Mix"),
+																				"3")));
+
+														inviaComandi(0,
+																MSK_POWER);
+
+														utility.appendLog("Attendo 1 minuto");
+
+														waitTimer = new CountDownTimer(
+																6000, 6000) {
+
+															public void onTick(
+																	long millisUntilFinished) {
+
+															}
+
+															public void onFinish() {
+																utility.appendLog("Setto i 3 parametri al livello profondo");
+
+																deltat_label_down
+																		.setText(String
+																				.valueOf(utility
+																						.getDeltaT(
+																								preferences
+																										.getString(
+																												"STRUTTURA",
+																												"Mix"),
+																								"3")));
+
+																antenna_black_label_down
+																		.setText(String
+																				.valueOf(utility
+																						.getAntenna(
+																								preferences
+																										.getString(
+																												"STRUTTURA",
+																												"Mix"),
+																								"3")));
+
+																time_label_down
+																		.setText(String
+																				.valueOf(utility
+																						.getTime(
+																								preferences
+																										.getString(
+																												"STRUTTURA",
+																												"Mix"),
+																								"3")));
+
+																inviaComandi(0,
+																		MSK_POWER);
+
+																utility.appendLog("Attendo 7 minuti");
+
+																waitTimer = new CountDownTimer(
+																		42000,
+																		42000) {
+
+																	public void onTick(
+																			long millisUntilFinished) {
+
+																	}
+
+																	public void onFinish() {
+
+																	}
+																}.start();
+
+															}
+														}.start();
+
+													}
+												}.start();
+
+											}
+										}.start();
+
+									}
+								}.start();
+
+							}
+						});
+
+					} else {
+
+						utility.appendLog("Inviato comando: PLAY");
+						inviaComandi(PLAY, MSK_CMD);
+
+						button_home.setEnabled(false);
+
+					}
 				}
+				return true;
 			}
 		});
 
@@ -1467,9 +1497,9 @@ public class WorkActivity extends Activity {
 			public void onClick(View v) {
 
 				utility.appendLog("Inviato comando: PAUSE");
-				button_rf_on.setPressed(false);
-
 				inviaComandi(PAUSE, MSK_CMD);
+				button_antenna.setPressed(false);
+				button_time.setPressed(false);
 			}
 		});
 
@@ -1477,8 +1507,6 @@ public class WorkActivity extends Activity {
 			public void onClick(View v) {
 
 				utility.appendLog("Inviato comando: STOP");
-				button_rf_on.setPressed(false);
-
 				inviaComandi(STOP, MSK_CMD);
 				def_value_defaults();
 
@@ -2222,6 +2250,8 @@ public class WorkActivity extends Activity {
 		button_temperature_negative = (Button) findViewById(R.id.button_temperature_negative);
 		button_temperature_positive = (Button) findViewById(R.id.button_temperature_positive);
 		button_rf_on = (Button) findViewById(R.id.button_rf_on);
+		button_antenna = (Button) findViewById(R.id.button_antenna_black);
+		button_time = (Button) findViewById(R.id.button_time);
 
 		antenna_black_label_down = (TextView) findViewById(R.id.antenna_black_label_down);
 		water_label_down = (TextView) findViewById(R.id.water_label_down);

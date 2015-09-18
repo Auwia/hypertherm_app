@@ -108,13 +108,13 @@ public class Utility {
 	public int calcola_check_sum(byte[] buf) {
 
 		int check_sum = 0;
+		String buffer = bytesToHex(buf);
 
 		for (int i = 0; i < 128; i += 2) {
 
 			if (i > 2) {
 
-				check_sum += Integer.parseInt(
-						bytesToHex(buf).substring(i, i + 2), 16);
+				check_sum += Integer.parseInt(buffer.substring(i, i + 2), 16);
 			}
 
 		}
@@ -132,7 +132,7 @@ public class Utility {
 
 				switch (comando) {
 
-				case 256: // START
+				case 100: // START
 					button_play.setPressed(true);
 					button_pause.setPressed(false);
 					button_stop.setPressed(false);
@@ -140,14 +140,14 @@ public class Utility {
 					button_rf_on.setPressed(true);
 					break;
 
-				case 512: // PAUSE
+				case 200: // PAUSE
 					button_play.setPressed(false);
 					button_pause.setPressed(true);
 					button_stop.setPressed(false);
 					button_rf_on.setPressed(false);
 					break;
 
-				case 768: // STOP
+				case 300: // STOP
 					button_play.setPressed(false);
 					button_pause.setPressed(false);
 					button_stop.setPressed(true);
@@ -155,22 +155,22 @@ public class Utility {
 					button_rf_on.setPressed(false);
 					break;
 
-				case 1024: // BOOL-UP
+				case 400: // BOOL-UP
 					button_bolus_up.setPressed(true);
 					button_bolus_down.setPressed(false);
 					break;
 
-				case 1536: // BOOL-UP-STOP
+				case 600: // BOOL-UP-STOP
 					button_bolus_up.setPressed(false);
 					button_bolus_down.setPressed(false);
 					break;
 
-				case 1280: // BOOL-DOWN
+				case 500: // BOOL-DOWN
 					button_bolus_up.setPressed(false);
 					button_bolus_down.setPressed(true);
 					break;
 
-				case 2816: // RESET
+				case 1100: // RESET
 					button_rf_on.setPressed(false);
 					break;
 
@@ -952,6 +952,38 @@ public class Utility {
 		cur.close();
 
 		return Double.parseDouble(risultato);
+
+	}
+
+	public double arrotondaPerEccesso(int value, int numCifreDecimali) {
+
+		value++;
+
+		String app = String.valueOf(value);
+
+		if (app.length() > 2) {
+			app = app.substring(0, app.length() - 2) + "."
+					+ app.substring(app.length() - 2, app.length());
+		}
+
+		if (app.length() == 1) {
+			app = "0.0" + value;
+		}
+
+		if (app.length() == 2) {
+
+			if (app.subSequence(0, 1).equals("-")) {
+				app = "-0.0" + app.substring(1, 2);
+			} else {
+				app = "0." + value;
+			}
+		}
+
+		double flo1 = Double.parseDouble(app);
+
+		double temp = Math.pow(10, numCifreDecimali);
+
+		return (double) (Math.round(flo1 * temp) / temp);
 
 	}
 }
