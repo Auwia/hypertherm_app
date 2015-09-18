@@ -39,7 +39,8 @@ public class WorkActivity extends Activity {
 			button_home, button_play, button_pause, button_stop,
 			button_bolus_up, button_bolus_down, button_power,
 			button_temperature_positive, button_temperature_negative,
-			button_rf_on, button_antenna, button_time;
+			button_rf_on, button_antenna, button_time, button_water,
+			button_deltat, button_ping;
 	private TextView antenna_black_label_down, water_label_down,
 			deltat_label_down, time_label_down, disturbo_label, suggerimenti;
 	private LinearLayout zero, dieci, venti, trenta, quaranta, cinquanta,
@@ -51,6 +52,7 @@ public class WorkActivity extends Activity {
 			iPower;
 
 	private static boolean SIMULATORE = false;
+	private static boolean PING = false;
 
 	public float WATER = 37, DELTAT = 1.2f;
 
@@ -89,6 +91,7 @@ public class WorkActivity extends Activity {
 	private CountDownTimer waitTimerBolusUp = null;
 	private CountDownTimer waitTimer = null;
 	private CountDownTimer waitTimerGrafico = null;
+	private CountDownTimer waitTimerRfOn = null;
 
 	private PC_TO_CY pctocy = new PC_TO_CY();
 
@@ -188,7 +191,10 @@ public class WorkActivity extends Activity {
 
 			while (READ_ENABLE) {
 
-				// inviaComandi(0, MSK_WATER);
+				if (PING) {
+					inviaComandi(0, MSK_WATER);
+				}
+
 				exit += 1;
 
 				try {
@@ -364,7 +370,10 @@ public class WorkActivity extends Activity {
 												+ utility.arrotondaPerEccesso(
 														H2o_temp, 1))));
 
-								utility.setAntenna("" + (int) (Dir_power / 100));
+								utility.setAntenna(""
+										+ (int) Float.parseFloat(""
+												+ utility.arrotondaPerEccesso(
+														Dir_power, 0)));
 
 								// runOnUiThread(new Runnable() {
 								// @Override
@@ -986,6 +995,7 @@ public class WorkActivity extends Activity {
 
 		seek_bar = (SeekBar) findViewById(R.id.seek_bar);
 		seek_bar.setMax(10);
+		seek_bar.setEnabled(false);
 		seek_bar.setProgress(5);
 
 		android.view.ViewGroup.LayoutParams param = seek_bar.getLayoutParams();
@@ -1019,6 +1029,18 @@ public class WorkActivity extends Activity {
 	}
 
 	private void def_value_defaults() {
+
+		button_water.setEnabled(false);
+		button_water.setClickable(false);
+
+		button_deltat.setEnabled(false);
+		button_deltat.setClickable(false);
+
+		button_antenna.setEnabled(false);
+		button_antenna.setClickable(false);
+
+		button_time.setEnabled(false);
+		button_time.setClickable(false);
 
 		water_label_down.setText(String.valueOf(preferences.getFloat("WATER",
 				35)));
@@ -1061,8 +1083,6 @@ public class WorkActivity extends Activity {
 		suggerimenti.setText(utility.get_suggerimento_trattamento());
 
 		button_home.setEnabled(true);
-		button_antenna.setPressed(false);
-		button_time.setPressed(false);
 		button_temperature_negative.setPressed(false);
 		button_temperature_positive.setPressed(false);
 
@@ -1092,7 +1112,7 @@ public class WorkActivity extends Activity {
 
 						button_power.setPressed(true);
 
-						if (pos > 0 && pos < 5) {
+						if (pos >= 0 && pos < 5) {
 							for (int i = 0; i < 5 - pos; i++) {
 
 								funzionalita = button_water_right.getId();
@@ -1104,8 +1124,8 @@ public class WorkActivity extends Activity {
 								increment();
 
 							}
-						} else if (pos > 5 && pos < 10) {
-							for (int i = 0; i < 5 - pos; i++) {
+						} else if (pos > 5 && pos <= 10) {
+							for (int i = 0; i < pos - 5; i++) {
 								funzionalita = button_water_left.getId();
 								decrement();
 								decrement();
@@ -1498,8 +1518,6 @@ public class WorkActivity extends Activity {
 
 				utility.appendLog("Inviato comando: PAUSE");
 				inviaComandi(PAUSE, MSK_CMD);
-				button_antenna.setPressed(false);
-				button_time.setPressed(false);
 			}
 		});
 
@@ -1508,7 +1526,13 @@ public class WorkActivity extends Activity {
 
 				utility.appendLog("Inviato comando: STOP");
 				inviaComandi(STOP, MSK_CMD);
-				def_value_defaults();
+
+				suggerimenti.setText(utility.get_suggerimento_trattamento());
+
+				button_home.setEnabled(true);
+				button_temperature_negative.setPressed(false);
+				button_temperature_positive.setPressed(false);
+				button_rf_on.setPressed(false);
 
 			}
 		});
@@ -1549,6 +1573,8 @@ public class WorkActivity extends Activity {
 
 								public void onFinish() {
 									button_bolus_down.setPressed(false);
+									utility.appendLog("Inviato comando: BOLUS-STOP");
+									inviaComandi(BOLUS_STOP, MSK_CMD);
 								}
 							}.start();
 
@@ -1613,6 +1639,8 @@ public class WorkActivity extends Activity {
 
 								public void onFinish() {
 									button_bolus_up.setPressed(false);
+									utility.appendLog("Inviato comando: BOLUS-STOP");
+									inviaComandi(BOLUS_STOP, MSK_CMD);
 
 								}
 							}.start();
@@ -1642,12 +1670,121 @@ public class WorkActivity extends Activity {
 			}
 		});
 
+		button_rf_on.setOnTouchListener(new OnTouchListener() {
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (button_rf_on.isPressed()) {
+
+						button_rf_on.setPressed(false);
+
+						// if (waitTimerRfOn != null) {
+						// waitTimerRfOn.cancel();
+						// waitTimerRfOn = null;
+						// }
+						//
+						// utility.appendLog("Inviato comando: ONDA QUADRA");
+						// inviaComandi(BOLUS_STOP, MSK_CMD);
+
+						return true;
+
+					} else {
+
+						if (!button_rf_on.isPressed()) {
+
+							button_rf_on.setPressed(true);
+
+							// utility.appendLog("Inviato comando: ONDA QUADRO OFF");
+							// inviaComandi(BOLUS_DOWN, MSK_CMD);
+							//
+							// waitTimerRfOn = new CountDownTimer(30000, 30000)
+							// {
+							//
+							// public void onTick(long millisUntilFinished) {
+							//
+							// }
+							//
+							// public void onFinish() {
+							// button_bolus_down.setPressed(false);
+							// utility.appendLog("Inviato comando: BOLUS-STOP");
+							// inviaComandi(BOLUS_STOP, MSK_CMD);
+							// }
+							// }.start();
+
+							return false;
+
+						} else {
+
+							// if (waitTimerRfOn != null) {
+							// waitTimerRfOn.cancel();
+							// waitTimerRfOn = null;
+							// }
+							//
+							// utility.appendLog("Inviato comando: ONDA QUADRA OFF");
+							// inviaComandi(BOLUS_STOP, MSK_CMD);
+
+							button_rf_on.setPressed(false);
+
+							return true;
+						}
+					}
+				}
+
+				return true;
+
+			}
+		});
+
 		button_home.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 
 				Intent intent = new Intent(WorkActivity.this,
 						MainActivity.class);
 				startActivity(intent);
+
+			}
+		});
+
+		button_ping.setOnTouchListener(new OnTouchListener() {
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					if (button_ping.isPressed()) {
+
+						button_ping.setPressed(false);
+
+						PING = false;
+
+						return true;
+
+					} else {
+
+						if (!button_ping.isPressed()) {
+
+							button_ping.setPressed(true);
+
+							PING = true;
+
+							return false;
+
+						} else {
+
+							button_ping.setPressed(false);
+
+							PING = false;
+
+							return true;
+						}
+					}
+				}
+
+				return true;
 
 			}
 		});
@@ -1711,6 +1848,8 @@ public class WorkActivity extends Activity {
 
 					set_attention();
 
+					attiva_normal();
+
 				}
 				return false;
 			}
@@ -1773,6 +1912,7 @@ public class WorkActivity extends Activity {
 					}
 
 					set_attention();
+					attiva_normal();
 
 				}
 				return false;
@@ -1841,6 +1981,7 @@ public class WorkActivity extends Activity {
 					}
 
 					set_attention();
+					attiva_normal();
 
 				}
 
@@ -1911,6 +2052,7 @@ public class WorkActivity extends Activity {
 					}
 
 					set_attention();
+					attiva_normal();
 
 				}
 
@@ -1974,6 +2116,7 @@ public class WorkActivity extends Activity {
 					}
 
 					set_attention();
+					attiva_normal();
 
 				}
 
@@ -2037,6 +2180,7 @@ public class WorkActivity extends Activity {
 					}
 
 					set_attention();
+					attiva_normal();
 
 				}
 
@@ -2100,6 +2244,8 @@ public class WorkActivity extends Activity {
 						}
 					}
 
+					attiva_normal();
+
 				}
 
 				return false;
@@ -2162,11 +2308,23 @@ public class WorkActivity extends Activity {
 						}
 
 					}
+
+					attiva_normal();
+
 				}
 
 				return false;
 			}
 		});
+
+	}
+
+	protected void attiva_normal() {
+
+		button_temperature_negative.setPressed(false);
+		button_temperature_positive.setPressed(false);
+		button_power.setPressed(true);
+		seek_bar.setProgress(5);
 
 	}
 
@@ -2252,6 +2410,9 @@ public class WorkActivity extends Activity {
 		button_rf_on = (Button) findViewById(R.id.button_rf_on);
 		button_antenna = (Button) findViewById(R.id.button_antenna_black);
 		button_time = (Button) findViewById(R.id.button_time);
+		button_water = (Button) findViewById(R.id.button_water);
+		button_deltat = (Button) findViewById(R.id.button_deltat);
+		button_ping = (Button) findViewById(R.id.button_ping);
 
 		antenna_black_label_down = (TextView) findViewById(R.id.antenna_black_label_down);
 		water_label_down = (TextView) findViewById(R.id.water_label_down);

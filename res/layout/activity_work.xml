@@ -7,14 +7,29 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="15"
-        android:background="#c6ecf1" >
+        android:layout_weight="10"
+        android:background="#c6ecf1"
+        android:baselineAligned="false" >
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
-            android:layout_weight="55"
+            android:layout_weight="15"
+            android:gravity="center_vertical|center_horizontal" >
+
+            <Button
+                android:id="@+id/button_ping"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_play" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:layout_weight="40"
             android:gravity="center_vertical|center_horizontal" >
 
             <TextView
@@ -173,7 +188,8 @@
                     android:id="@+id/button_antenna"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_antenna" />
+                    android:background="@drawable/button_antenna"
+                    android:enabled="false" />
             </LinearLayout>
 
             <LinearLayout
@@ -594,6 +610,7 @@
                     android:id="@+id/seek_bar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:enabled="false"
                     android:maxHeight="4dip"
                     android:minHeight="4dip"
                     android:progressDrawable="@drawable/progress"
@@ -665,8 +682,7 @@
                         android:id="@+id/button_rf_on"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/button_rf_on"
-                        android:enabled="false" />
+                        android:background="@drawable/button_rf_on" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -718,7 +734,8 @@
                         android:id="@+id/button_water"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/button_water" />
+                        android:background="@drawable/button_water"
+                        android:enabled="false" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -831,7 +848,8 @@
                         android:id="@+id/button_deltat"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/button_deltat" />
+                        android:background="@drawable/button_deltat"
+                        android:enabled="false" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -1059,7 +1077,8 @@
                         android:id="@+id/button_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/button_time" />
+                        android:background="@drawable/button_time"
+                        android:enabled="false" />
                 </LinearLayout>
 
                 <LinearLayout

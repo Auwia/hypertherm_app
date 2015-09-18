@@ -137,14 +137,12 @@ public class Utility {
 					button_pause.setPressed(false);
 					button_stop.setPressed(false);
 					button_home.setEnabled(false);
-					button_rf_on.setPressed(true);
 					break;
 
 				case 200: // PAUSE
 					button_play.setPressed(false);
 					button_pause.setPressed(true);
 					button_stop.setPressed(false);
-					button_rf_on.setPressed(false);
 					break;
 
 				case 300: // STOP
@@ -957,8 +955,6 @@ public class Utility {
 
 	public double arrotondaPerEccesso(int value, int numCifreDecimali) {
 
-		value++;
-
 		String app = String.valueOf(value);
 
 		if (app.length() > 2) {
@@ -982,6 +978,13 @@ public class Utility {
 		double flo1 = Double.parseDouble(app);
 
 		double temp = Math.pow(10, numCifreDecimali);
+
+		if (numCifreDecimali == 0) {
+
+			temp = 1;
+
+			return (long) (Math.round(flo1 * temp) / temp);
+		}
 
 		return (double) (Math.round(flo1 * temp) / temp);
 
