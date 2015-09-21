@@ -66,6 +66,7 @@ public class WorkActivity extends Activity {
 	private final static int MSK_WATER = 16;
 	private final static int MSK_POWER = 64;
 	private final static int MSK_ALL_4 = 92;
+	private final static int MSK_NOTHING = 0;
 	private final static int PLAY = 1;
 	private final static int PAUSE = 2;
 	private final static int STOP = 3;
@@ -192,7 +193,7 @@ public class WorkActivity extends Activity {
 			while (READ_ENABLE) {
 
 				if (PING) {
-					inviaComandi(0, MSK_WATER);
+					inviaComandi(0, MSK_NOTHING);
 				}
 
 				exit += 1;
@@ -954,6 +955,8 @@ public class WorkActivity extends Activity {
 
 		READ_ENABLE = false;
 
+		PING = false;
+
 		finish();
 
 	}
@@ -1533,6 +1536,8 @@ public class WorkActivity extends Activity {
 				button_temperature_negative.setPressed(false);
 				button_temperature_positive.setPressed(false);
 				button_rf_on.setPressed(false);
+				button_antenna.setPressed(false);
+				button_time.setPressed(false);
 
 			}
 		});
