@@ -3,19 +3,13 @@ package it.app.hypertherm.activity;
 import it.app.hypertherm.Caricamento;
 import it.app.hypertherm.R;
 import it.app.hypertherm.util.Utility;
-
-import java.io.File;
-
+import it.app.hypertherm.util.carica_configurazione_logo;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 
 public class Splash_Screen_Activity extends Activity {
 
@@ -38,7 +32,7 @@ public class Splash_Screen_Activity extends Activity {
 		setContentView(R.layout.activity_splash_screen);
 
 		utility = new Utility(this);
-		utility.appendLog("splash screen start...");
+		utility.appendLog("D", "splash screen start...");
 
 		try {
 			Thread.sleep(1000);
@@ -49,9 +43,7 @@ public class Splash_Screen_Activity extends Activity {
 
 		settings = (Button) findViewById(R.id.settings);
 
-		new import_configuration_thread().execute();
-
-		new carica_configurazione_logo().execute();
+		new carica_configurazione_logo(this).execute();
 
 		new Caricamento(this);
 
@@ -66,75 +58,9 @@ public class Splash_Screen_Activity extends Activity {
 			}
 		});
 
-		utility.appendLog("splash screen start...OK");
+		utility.appendLog("D", "splash screen start...OK");
 
 		new conteggio_time_out().execute();
-
-	}
-
-	private class carica_configurazione_logo extends
-			AsyncTask<Void, Void, Void> {
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-
-			utility.appendLog("upload logo...");
-		}
-
-		@Override
-		protected Void doInBackground(Void... params) {
-
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-
-					File root = Environment.getExternalStorageDirectory();
-					ImageView logo = (ImageView) findViewById(R.id.logo);
-					Bitmap bMap = BitmapFactory.decodeFile(root
-							+ "/Hypertherm/images/logo.jpg");
-					logo.setImageBitmap(bMap);
-
-				}
-			});
-
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-
-			utility.appendLog("upload logo...OK");
-
-		}
-
-	}
-
-	private class import_configuration_thread extends
-			AsyncTask<Void, Void, Void> {
-		// ProgressDialog pdLoading = new ProgressDialog(
-		// Splash_Screen_Activity.this);
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-
-			utility.appendLog("import file configuration...");
-		}
-
-		@Override
-		protected Void doInBackground(Void... params) {
-
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-
-			utility.appendLog("import file configuration...OK");
-		}
 
 	}
 
@@ -144,7 +70,7 @@ public class Splash_Screen_Activity extends Activity {
 		protected void onPreExecute() {
 			super.onPreExecute();
 
-			utility.appendLog("loading main...");
+			utility.appendLog("D", "loading main...");
 		}
 
 		@Override
@@ -172,7 +98,7 @@ public class Splash_Screen_Activity extends Activity {
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 
-			utility.appendLog("loading main...OK");
+			utility.appendLog("D", "loading main...OK");
 		}
 
 	}

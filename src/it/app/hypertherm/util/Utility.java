@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -49,6 +50,7 @@ public class Utility {
 	private static SQLiteDatabase database;
 	private HyperthermDataSource datasource;
 	private Cursor cur;
+	private ContentValues row = new ContentValues();
 
 	public Utility(Activity activity) {
 
@@ -83,6 +85,18 @@ public class Utility {
 	public Utility() {
 	}
 
+	public String[] bytesToHex3(byte[] array) {
+
+		String[] risultato = new String[array.length];
+
+		for (int k = 0; k < array.length; k++) {
+			risultato[k] = UnicodeFormatter.byteToHex(array[k]).toUpperCase(
+					Locale.getDefault());
+		}
+
+		return risultato;
+	}
+
 	final protected char[] hexArray = "0123456789ABCDEF".toCharArray();
 
 	public String bytesToHex(byte[] bytes) {
@@ -99,13 +113,13 @@ public class Utility {
 		char[] hexChars = new char[bytes.length * 2];
 		for (int j = 0; j < bytes.length; j++) {
 			int v = bytes[j] & 0xFF;
-			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2] = hexArray[v >>> 8];
 			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
 		}
 		return hexChars;
 	}
 
-	public int calcola_check_sum(byte[] buf) {
+	public int calcola_check_sum(byte[] buf, boolean stampa) {
 
 		int check_sum = 0;
 		String buffer = bytesToHex(buf);
@@ -114,12 +128,37 @@ public class Utility {
 
 			if (i > 2) {
 
+				if (stampa) {
+					appendLog(
+							"E",
+							"POS["
+									+ i
+									+ "] "
+									+ Integer.parseInt(
+											buffer.substring(i, i + 2), 16));
+				}
+
 				check_sum += Integer.parseInt(buffer.substring(i, i + 2), 16);
 			}
 
 		}
 
 		return check_sum;
+	}
+
+	public void insertTracciato(int[] value) {
+
+		row.clear();
+
+		for (int i = 0; i < 64; i++) {
+			row.put("col" + i, value[i]);
+		}
+
+		database.beginTransaction();
+		database.insert("tracciati", null, row);
+		database.setTransactionSuccessful();
+		database.endTransaction();
+
 	}
 
 	public void esegui(int cmd) {
@@ -847,7 +886,7 @@ public class Utility {
 		return language;
 	}
 
-	public void appendLog(String text) {
+	public void appendLog(String severity, String text) {
 		File logFile = new File(Environment.getExternalStorageDirectory(),
 				"Hypertherm/log/log.txt");
 		if (!logFile.exists()) {
@@ -870,7 +909,17 @@ public class Utility {
 			buf.newLine();
 			buf.close();
 
-			Log.d(TAG, sdf.format(new Date(yourmilliseconds)) + ": " + text);
+			if (severity.equals("D")) {
+				Log.d(TAG, sdf.format(new Date(yourmilliseconds)) + ": " + text);
+			}
+
+			if (severity.equals("E")) {
+				Log.e(TAG, sdf.format(new Date(yourmilliseconds)) + ": " + text);
+			}
+
+			if (severity.equals("W")) {
+				Log.w(TAG, sdf.format(new Date(yourmilliseconds)) + ": " + text);
+			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -879,14 +928,14 @@ public class Utility {
 
 	public void cancellaStage(String table_name) {
 
-		appendLog("delete Stage Area (" + table_name + ")...");
+		appendLog("D", "delete Stage Area (" + table_name + ")...");
 
 		database.beginTransaction();
 		database.delete(table_name, null, null);
 		database.setTransactionSuccessful();
 		database.endTransaction();
 
-		appendLog("delete Stage Area (" + table_name + ")...OK");
+		appendLog("D", "delete Stage Area (" + table_name + ")...OK");
 	}
 
 	public void spostaFile(File file) {

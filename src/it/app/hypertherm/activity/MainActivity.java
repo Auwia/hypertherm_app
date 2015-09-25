@@ -4,15 +4,11 @@ import it.app.hypertherm.MenuListViewAdapter;
 import it.app.hypertherm.R;
 import it.app.hypertherm.db.HyperthermDB;
 import it.app.hypertherm.util.Utility;
-
-import java.io.File;
-
+import it.app.hypertherm.util.carica_configurazione_logo;
 import net.sf.andpdf.pdfviewer.PdfViewerActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,7 +16,6 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageView;
 import android.widget.ListView;
 
 public class MainActivity extends Activity {
@@ -58,18 +53,7 @@ public class MainActivity extends Activity {
 
 		import_menu_items();
 
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-
-				File root = Environment.getExternalStorageDirectory();
-				ImageView logo = (ImageView) findViewById(R.id.logo);
-				Bitmap bMap = BitmapFactory.decodeFile(root
-						+ "/Hypertherm/images/logo.jpg");
-				logo.setImageBitmap(bMap);
-
-			}
-		});
+		new carica_configurazione_logo(this).execute();
 
 		listaMenuItem.setOnItemClickListener(new OnItemClickListener() {
 

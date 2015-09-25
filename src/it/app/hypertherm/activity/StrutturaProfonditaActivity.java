@@ -95,8 +95,6 @@ public class StrutturaProfonditaActivity extends Activity {
 							button_muscolare.setPressed(true);
 							button_mix.setPressed(false);
 							button_articolare.setPressed(false);
-							utility.appendLog("CIAO:"
-									+ button_muscolare.getText().toString());
 							struttura = button_muscolare.getText().toString();
 						}
 					}

@@ -48,7 +48,7 @@ public class Caricamento {
 
 			if (file.exists()) {
 
-				utility.appendLog("upload dati macchina (ParaPatologie)...");
+				utility.appendLog("D","upload dati macchina (ParaPatologie)...");
 
 				utility.cancellaStage(HyperthermDB.TABLE_STAGE_PATOLOGIE);
 				utility.cancellaStage(HyperthermDB.DISTURBI_MENU);
@@ -63,18 +63,18 @@ public class Caricamento {
 				String strLine = null;
 
 				while ((strLine = br.readLine()) != null) {
-					utility.appendLog(strLine);
+					utility.appendLog("D",strLine);
 					caricaStage(HyperthermDB.TABLE_STAGE_PATOLOGIE,
 							strLine.split("\\|"));
 				}
 
 				in.close();
 
-				utility.appendLog("upload dati macchina (ParaPatologie)...OK");
+				utility.appendLog("D","upload dati macchina (ParaPatologie)...OK");
 
-				utility.appendLog("move file (ParaPatologie)...");
+				utility.appendLog("D","move file (ParaPatologie)...");
 				utility.spostaFile(file);
-				utility.appendLog("move file (ParaPatologie)...OK");
+				utility.appendLog("D","move file (ParaPatologie)...OK");
 
 				caricaTrattamenti();
 				caricaPatologia();
@@ -93,7 +93,7 @@ public class Caricamento {
 
 			if (file.exists()) {
 
-				utility.appendLog("upload dati macchina (ParaStruttura)...");
+				utility.appendLog("D","upload dati macchina (ParaStruttura)...");
 
 				utility.cancellaStage(HyperthermDB.TABLE_STAGE_STRUTTURA);
 
@@ -106,18 +106,18 @@ public class Caricamento {
 				String strLine = null;
 
 				while ((strLine = br.readLine()) != null) {
-					utility.appendLog(strLine);
+					utility.appendLog("D",strLine);
 					caricaStage(HyperthermDB.TABLE_STAGE_STRUTTURA,
 							strLine.split("\\|"));
 				}
 
 				in.close();
 
-				utility.appendLog("upload dati macchina (ParaStruttura)...OK");
+				utility.appendLog("D","upload dati macchina (ParaStruttura)...OK");
 
-				utility.appendLog("move file (ParaStruttura)...");
+				utility.appendLog("D","move file (ParaStruttura)...");
 				utility.spostaFile(file);
-				utility.appendLog("move file (ParaStruttura)...OK");
+				utility.appendLog("D","move file (ParaStruttura)...OK");
 			}
 
 		} catch (Exception e) {
@@ -132,7 +132,7 @@ public class Caricamento {
 
 			if (file.exists()) {
 
-				utility.appendLog("upload dati macchina (ParaDefault)...");
+				utility.appendLog("D","upload dati macchina (ParaDefault)...");
 
 				utility.cancellaStage(HyperthermDB.TABLE_STAGE_DEFAULT);
 
@@ -144,18 +144,18 @@ public class Caricamento {
 				String strLine = null;
 
 				while ((strLine = br.readLine()) != null) {
-					utility.appendLog(strLine);
+					utility.appendLog("D",strLine);
 					caricaStage(HyperthermDB.TABLE_STAGE_DEFAULT,
 							strLine.split("\\|"));
 				}
 
 				in.close();
 
-				utility.appendLog("upload dati macchina (ParaDefault)...OK");
+				utility.appendLog("D","upload dati macchina (ParaDefault)...OK");
 
-				utility.appendLog("move file (ParaDefault)...");
+				utility.appendLog("D","move file (ParaDefault)...");
 				utility.spostaFile(file);
-				utility.appendLog("move file (ParaDefault)...OK");
+				utility.appendLog("D","move file (ParaDefault)...OK");
 			}
 
 		} catch (Exception e) {
@@ -170,7 +170,7 @@ public class Caricamento {
 
 			if (file.exists()) {
 
-				utility.appendLog("upload dati macchina (ParaString)...");
+				utility.appendLog("D","upload dati macchina (ParaString)...");
 
 				utility.cancellaStage(HyperthermDB.TABLE_STAGE_STRING);
 
@@ -182,14 +182,14 @@ public class Caricamento {
 				String strLine = null;
 
 				while ((strLine = br.readLine()) != null) {
-					utility.appendLog(strLine);
+					utility.appendLog("D",strLine);
 					caricaStage(HyperthermDB.TABLE_STAGE_STRING,
 							strLine.split("\\="));
 				}
 
 				in.close();
 
-				utility.appendLog("update Table Menu...");
+				utility.appendLog("D","update Table Menu...");
 
 				database.beginTransaction();
 
@@ -207,13 +207,13 @@ public class Caricamento {
 				database.setTransactionSuccessful();
 				database.endTransaction();
 
-				utility.appendLog("update Table Menu...OK");
+				utility.appendLog("D","update Table Menu...OK");
 
-				utility.appendLog("upload dati macchina (ParaString)...OK");
+				utility.appendLog("D","upload dati macchina (ParaString)...OK");
 
-				utility.appendLog("move file (ParaString)...");
+				utility.appendLog("D","move file (ParaString)...");
 				utility.spostaFile(file);
-				utility.appendLog("move file (ParaString)...OK");
+				utility.appendLog("D","move file (ParaString)...OK");
 
 			}
 
@@ -229,7 +229,7 @@ public class Caricamento {
 
 			if (file.exists()) {
 
-				utility.appendLog("upload dati macchina (ParaConfig)...");
+				utility.appendLog("D","upload dati macchina (ParaConfig)...");
 
 				database.delete(HyperthermDB.TABLE_SETTINGS,
 						HyperthermDB.COLUMN_TIMEOUT_SPLASH + " is not null",
@@ -249,11 +249,11 @@ public class Caricamento {
 
 				in.close();
 
-				utility.appendLog("upload dati macchina (ParaConfig)...OK");
+				utility.appendLog("D","upload dati macchina (ParaConfig)...OK");
 
-				utility.appendLog("move file (ParaConfig)...");
+				utility.appendLog("D","move file (ParaConfig)...");
 				utility.spostaFile(file);
-				utility.appendLog("move file (ParaConfig)...OK");
+				utility.appendLog("D","move file (ParaConfig)...OK");
 
 			}
 
@@ -265,7 +265,7 @@ public class Caricamento {
 
 	public void caricaDisturbi() {
 
-		utility.appendLog("upload Disturbi...");
+		utility.appendLog("D","upload Disturbi...");
 
 		database.beginTransaction();
 
@@ -274,12 +274,12 @@ public class Caricamento {
 		database.setTransactionSuccessful();
 		database.endTransaction();
 
-		utility.appendLog("upload Disturbi...OK");
+		utility.appendLog("D","upload Disturbi...OK");
 	}
 
 	public void caricaPatologia() {
 
-		utility.appendLog("upload Patologie...");
+		utility.appendLog("D","upload Patologie...");
 
 		database.beginTransaction();
 
@@ -288,12 +288,12 @@ public class Caricamento {
 		database.setTransactionSuccessful();
 		database.endTransaction();
 
-		utility.appendLog("upload Patologie...OK");
+		utility.appendLog("D","upload Patologie...OK");
 	}
 
 	public void caricaTrattamenti() {
 
-		utility.appendLog("upload Trattamenti...");
+		utility.appendLog("D","upload Trattamenti...");
 
 		database.beginTransaction();
 
@@ -302,12 +302,12 @@ public class Caricamento {
 		database.setTransactionSuccessful();
 		database.endTransaction();
 
-		utility.appendLog("upload Trattamenti...OK");
+		utility.appendLog("D","upload Trattamenti...OK");
 	}
 
 	public void caricaStage(String table_name, String[] array_items) {
 
-		utility.appendLog("upload Stage Area...");
+		utility.appendLog("D","upload Stage Area...");
 
 		database.beginTransaction();
 
@@ -374,7 +374,7 @@ public class Caricamento {
 		database.setTransactionSuccessful();
 		database.endTransaction();
 
-		utility.appendLog("upload Stage Area...OK");
+		utility.appendLog("D", "upload Stage Area...OK");
 
 	}
 }

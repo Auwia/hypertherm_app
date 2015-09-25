@@ -22,6 +22,7 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	public static final String TABLE_PASSWORD = "PASSWORD";
 	public static final String TABLE_SETTINGS = "SETTINGS";
 	public static final String TABLE_MENU = "MENU";
+	public static final String TABLE_TRACCIATI = "TRACCIATI";
 
 	public static final String STRUTTURA_MENU = "STRUTTURA";
 	public static final String TRATTAMENTI_MENU = "TRATTAMENTI";
@@ -49,6 +50,7 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	public static final String COLUMN_MENU_CLICCABILE = "MENU_CLICCABILE";
 	public static final String COLUMN_MENU_ID_TRATTAMENTO = "ID_TRATTAMENTO";
 	public static final String COLUMN_MENU_ID_PATOLOGIA = "ID_PATOLOGIA";
+	public static String COLUMN_TRACCIATI = "";
 
 	private static final String CREATE_TABLE_STAGE_STRING = "create table "
 			+ TABLE_STAGE_STRING + "(" + COLUMN_MENU_ITEM + " varchar(50), "
@@ -109,6 +111,8 @@ public class HyperthermDB extends SQLiteOpenHelper {
 			+ COLUMN_LANGUAGE + " varchar(3), " + COLUMN_TIMEOUT + " integer, "
 			+ COLUMN_TIMEOUT_SPLASH + " integer);";
 
+	private static String CREATE_TABLE_TRACCIATI;
+
 	public HyperthermDB(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
@@ -119,28 +123,44 @@ public class HyperthermDB extends SQLiteOpenHelper {
 
 		utility = new Utility();
 
+		for (int i = 0; i < 64; i++) {
+
+			if (i == 63) {
+				COLUMN_TRACCIATI += "col" + i + " integer";
+			} else {
+
+				COLUMN_TRACCIATI += "col" + i + " integer,";
+			}
+		}
+
+		CREATE_TABLE_TRACCIATI = "create table " + TABLE_TRACCIATI + "("
+				+ COLUMN_TRACCIATI + ");";
+
 		database.execSQL(CREATE_TABLE_STAGE_PATALOGIE);
-		utility.appendLog("Creo tabella..." + CREATE_TABLE_STAGE_PATALOGIE);
+		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_STAGE_PATALOGIE);
 		database.execSQL(CREATE_TABLE_STAGE_STRUTTURA);
-		utility.appendLog("Creo tabella..." + CREATE_TABLE_STAGE_STRUTTURA);
+		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_STAGE_STRUTTURA);
 		database.execSQL(CREATE_TABLE_STAGE_DEFAULT);
-		utility.appendLog("Creo tabella..." + CREATE_TABLE_STAGE_DEFAULT);
+		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_STAGE_DEFAULT);
 		database.execSQL(CREATE_TABLE_STAGE_STRING);
-		utility.appendLog("Creo tabella..." + CREATE_TABLE_STAGE_STRING);
+		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_STAGE_STRING);
 		database.execSQL(CREATE_TABLE_DISTURBI);
-		utility.appendLog("Creo tabella..." + CREATE_TABLE_DISTURBI);
+		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_DISTURBI);
 		database.execSQL(CREATE_TABLE_TABLE_WORK_TIME);
-		utility.appendLog("Creo tabella..." + CREATE_TABLE_TABLE_WORK_TIME);
+		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_TABLE_WORK_TIME);
 		// database.execSQL(CREATE_TABLE_TABLE_PASSWORD);
-		// utility.appendLog("Creo tabella..." + CREATE_TABLE_TABLE_PASSWORD);
+		// utility.appendLog("D","Creo tabella..." +
+		// CREATE_TABLE_TABLE_PASSWORD);
 		database.execSQL(CREATE_TABLE_MENU);
-		utility.appendLog("Creo tabella..." + CREATE_TABLE_MENU);
+		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_MENU);
 		database.execSQL(CREATE_TABLE_TABLE_SETTINGS);
-		utility.appendLog("Creo tabella..." + CREATE_TABLE_TABLE_SETTINGS);
+		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_TABLE_SETTINGS);
 		database.execSQL(CREATE_TABLE_TRATTAMENTI);
-		utility.appendLog("Creo tabella..." + CREATE_TABLE_TRATTAMENTI);
+		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_TRATTAMENTI);
 		database.execSQL(CREATE_TABLE_PATOLOGIE);
-		utility.appendLog("Creo tabella..." + CREATE_TABLE_PATOLOGIE);
+		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_PATOLOGIE);
+		database.execSQL(CREATE_TABLE_TRACCIATI);
+		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_TRACCIATI);
 
 		try {
 			Thread.sleep(500);
