@@ -2,6 +2,7 @@ package it.app.hypertherm.util;
 
 import it.app.hypertherm.Menu_app;
 import it.app.hypertherm.R;
+import it.app.hypertherm.Tracciato;
 import it.app.hypertherm.db.HyperthermDB;
 import it.app.hypertherm.db.HyperthermDataSource;
 
@@ -19,7 +20,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -50,7 +50,6 @@ public class Utility {
 	private static SQLiteDatabase database;
 	private HyperthermDataSource datasource;
 	private Cursor cur;
-	private ContentValues row = new ContentValues();
 
 	public Utility(Activity activity) {
 
@@ -97,15 +96,74 @@ public class Utility {
 		return risultato;
 	}
 
+	public String bytesToString(byte[] array) {
+
+		String risultato = "";
+
+		String[] c = bytesToHex3(array);
+
+		for (int i = 0; i < Tracciato.PACKET_SIZE; i++) {
+
+			risultato += c[i] + " ";
+
+		}
+
+		return risultato;
+	}
+
+	public int calcola_check_sum(byte[] buffer) {
+
+		int[] risultato = bytearray2intarray(buffer);
+
+		int somma = 0;
+
+		for (int i = 0; i < risultato.length; i++) {
+			if (i > 1) {
+				somma += risultato[i];
+			}
+		}
+		return somma;
+	}
+
+	public int stampa_check_sum(byte[] buffer) {
+
+		int[] risultato = bytearray2intarray(buffer);
+
+		int somma = 0;
+
+		for (int i = 0; i < risultato.length; i++) {
+			if (i > 1) {
+				appendLog("D", "buf[" + i + "] = " + risultato[i]);
+				somma += risultato[i];
+			}
+		}
+		return somma;
+	}
+
+	public int[] bytearray2intarray(byte[] barray) {
+		int[] iarray = new int[barray.length];
+		int i = 0;
+		for (byte b : barray)
+			iarray[i++] = b & 0xff;
+		return iarray;
+	}
+
 	final protected char[] hexArray = "0123456789ABCDEF".toCharArray();
 
 	public String bytesToHex(byte[] bytes) {
-		char[] hexChars = new char[bytes.length * 2];
-		for (int j = 0; j < bytes.length; j++) {
-			int v = bytes[j] & 0xFF;
-			hexChars[j * 2] = hexArray[v >>> 4];
-			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+
+		char[] hexChars = null;
+
+		if (bytes != null) {
+
+			hexChars = new char[bytes.length * 2];
+			for (int j = 0; j < bytes.length; j++) {
+				int v = bytes[j] & 0xFF;
+				hexChars[j * 2] = hexArray[v >>> 4];
+				hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+			}
 		}
+
 		return new String(hexChars);
 	}
 
@@ -117,48 +175,6 @@ public class Utility {
 			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
 		}
 		return hexChars;
-	}
-
-	public int calcola_check_sum(byte[] buf, boolean stampa) {
-
-		int check_sum = 0;
-		String buffer = bytesToHex(buf);
-
-		for (int i = 0; i < 128; i += 2) {
-
-			if (i > 2) {
-
-				if (stampa) {
-					appendLog(
-							"E",
-							"POS["
-									+ i
-									+ "] "
-									+ Integer.parseInt(
-											buffer.substring(i, i + 2), 16));
-				}
-
-				check_sum += Integer.parseInt(buffer.substring(i, i + 2), 16);
-			}
-
-		}
-
-		return check_sum;
-	}
-
-	public void insertTracciato(int[] value) {
-
-		row.clear();
-
-		for (int i = 0; i < 64; i++) {
-			row.put("col" + i, value[i]);
-		}
-
-		database.beginTransaction();
-		database.insert("tracciati", null, row);
-		database.setTransactionSuccessful();
-		database.endTransaction();
-
 	}
 
 	public void esegui(int cmd) {
@@ -215,6 +231,147 @@ public class Utility {
 
 			}
 		});
+	}
+
+	public boolean esegui_buffer(byte[] temp) {
+
+		if (temp.length > 0) {
+
+			int CheckSum = ((int) temp[0]) & 0xFF;
+			CheckSum |= (((int) temp[1]) & 0xFF) << 8;
+			int Ver = ((int) temp[2]) & 0xFF;
+			int TimStmp = ((int) temp[3]) & 0xFF;
+
+			byte[] msk = new byte[4];
+			msk[0] = temp[4];
+			msk[1] = temp[5];
+			msk[2] = temp[6];
+			msk[3] = temp[7];
+			String msk_binary = toBinary(msk);
+			int[] msk1 = new int[4];
+			msk1[0] = temp[4] & 0xFF;
+			msk1[1] = temp[5] & 0xFF;
+			msk1[2] = temp[6] & 0xFF;
+			msk1[3] = temp[7] & 0xFF;
+
+			int Cmd = ((int) temp[12]) & 0xFF;
+			Cmd |= (((int) temp[13]) & 0xFF) << 8;
+			int iTime = ((int) temp[14]) & 0xFF;
+			iTime |= (((int) temp[15]) & 0xFF) << 8;
+			int iD_temp = ((int) temp[16]) & 0xFF;
+			iD_temp |= (((int) temp[17]) & 0xFF) << 8;
+			int iH2o_temp = ((int) temp[18]) & 0xFF;
+			iH2o_temp |= (((int) temp[19]) & 0xFF) << 8;
+			int iColdHp_temp = ((int) temp[20]) & 0xFF;
+			iColdHp_temp |= (((int) temp[21]) & 0xFF) << 8;
+			int iPower = ((int) temp[22]) & 0xFF;
+			iPower |= (((int) temp[23]) & 0xFF) << 8;
+
+			int Gain_D_temp = ((int) temp[24]) & 0xFF;
+			Gain_D_temp |= (((int) temp[25]) & 0xFF) << 8;
+			int Offset_D_temp = ((int) temp[26]) & 0xFF;
+			Offset_D_temp |= (((int) temp[27]) & 0xFF) << 8;
+			int Gain_H2o_temp = ((int) temp[28]) & 0xFF;
+			Gain_H2o_temp |= (((int) temp[29]) & 0xFF) << 8;
+			int Offset_H2o_temp = ((int) temp[30]) & 0xFF;
+			Offset_H2o_temp |= (((int) temp[31]) & 0xFF) << 8;
+			int Gain_Cold_temp = ((int) temp[32]) & 0xFF;
+			Gain_Cold_temp |= (((int) temp[33]) & 0xFF) << 8;
+			int Offset_Cold_temp = ((int) temp[34]) & 0xFF;
+			Offset_Cold_temp |= (((int) temp[35]) & 0xFF) << 8;
+			int Gain_Boil_temp = ((int) temp[36]) & 0xFF;
+			Gain_Boil_temp |= (((int) temp[37]) & 0xFF) << 8;
+			int Offset_Boil_temp = ((int) temp[38]) & 0xFF;
+			Offset_Boil_temp |= (((int) temp[39]) & 0xFF) << 8;
+			int Req_power = ((int) temp[40]) & 0xFF;
+			Req_power |= (((int) temp[41]) & 0xFF) << 8;
+
+			int Dir_power = ((int) temp[42]) & 0xFF;
+			Dir_power |= (((int) temp[43]) & 0xFF) << 8;
+			int Ref_power = ((int) temp[44]) & 0xFF;
+			Ref_power |= (((int) temp[45]) & 0xFF) << 8;
+			int D_temp = ((int) temp[46]) & 0xFF;
+			D_temp |= (((int) temp[47]) & 0xFF) << 8;
+			int H2o_temp = ((int) temp[48]) & 0xFF;
+			H2o_temp |= (((int) temp[49]) & 0xFF) << 8;
+
+			int ColdHp_temp = ((int) temp[50]) & 0xFF;
+			ColdHp_temp |= (((int) temp[51]) & 0xFF) << 8;
+			int Boil_temp = ((int) temp[52]) & 0xFF;
+			Boil_temp |= (((int) temp[53]) & 0xFF) << 8;
+
+			int runningTime = ((int) temp[54]) & 0xFF;
+			runningTime |= (((int) temp[55]) & 0xFF) << 8;
+
+			int pwmRes = ((int) temp[56]) & 0xFF;
+			int pwmPomp = ((int) temp[57]) & 0xFF;
+			int pwmFan = ((int) temp[58]) & 0xFF;
+
+			int[] last = new int[5];
+			last[0] = temp[59] & 0xFF;
+			last[1] = temp[60] & 0xFF;
+			last[2] = temp[61] & 0xFF;
+			last[3] = temp[62] & 0xFF;
+			last[4] = temp[63] & 0xFF;
+
+			// appendLog("I", "COMANDO_RICEVUTO:" + "CheckSum=" +
+			// CheckSum
+			// + " Ver=" + Ver + " TimStmp=" + TimStmp + " Msk="
+			// + msk_binary + " Cmd=" + Cmd + " iTime=" + iTime
+			// + " iD_temp=" + iD_temp + " iH2o_temp=" + iH2o_temp
+			// + " iPower=" + iPower + " Dir_power=" + Dir_power
+			// + " Ref_power=" + Ref_power + " D_temp=" + D_temp
+			// + " H2o_temp=" + H2o_temp + " runningTime=" + runningTime
+			// + " runningTime=" + runningTime);
+
+			if (calcola_check_sum(temp) == CheckSum) {
+
+				stampa_tracciato(temp, "D", "in");
+
+				esegui(Cmd);
+
+				SetTime(convertSecondsToMmSs(runningTime));
+
+				int d_temp = 0;
+				if (D_temp >= 60000) {
+					d_temp = (D_temp - 65536);
+				} else {
+					d_temp = D_temp;
+				}
+
+				if (d_temp > 0) {
+
+					setDeltaT("+" + arrotondaPerEccesso(d_temp, 1));
+
+				} else {
+
+					setDeltaT("" + arrotondaPerEccesso(d_temp, 1));
+
+				}
+
+				setWaterTemperature(String.valueOf(Float.parseFloat(""
+						+ arrotondaPerEccesso(H2o_temp, 1))));
+
+				setAntenna(""
+						+ (int) Float.parseFloat(""
+								+ arrotondaPerEccesso(Dir_power, 0)));
+
+				return true;
+
+			} else {
+				appendLog("E", "Tracciato non conforme al checksum atteso="
+						+ CheckSum + " checksum ricevuto="
+						+ calcola_check_sum(temp));
+
+				stampa_tracciato(temp, "E", "in");
+
+				// stampa_check_sum(temp);
+
+				return false;
+			}
+
+		}
+		return false;
 	}
 
 	public int getPmaxRF(float deltat, float twater) {
@@ -803,24 +960,6 @@ public class Utility {
 		return result;
 	}
 
-	public int get_time_out_splash() {
-
-		cur = database.query("SETTINGS", new String[] { "TIMEOUT_SPLASH" },
-				null, null, null, null, null);
-
-		cur.moveToFirst();
-
-		int timeout = 2000;
-
-		while (cur.getCount() > 0 && !cur.isAfterLast()) {
-			timeout = cur.getInt(0);
-			cur.moveToNext();
-		}
-		cur.close();
-
-		return timeout;
-	}
-
 	public ArrayList<Menu_app> get_menu_items(String table_name) {
 
 		cur = database.query(table_name, new String[] { "MENU_ITEM",
@@ -870,8 +1009,8 @@ public class Utility {
 
 	public String getLanguage() {
 
-		cur = database.query("SETTINGS", new String[] { "LANGUAGE" }, null,
-				null, null, null, null);
+		cur = database.query(HyperthermDB.TABLE_SETTINGS,
+				new String[] { "LANGUAGE" }, null, null, null, null, null);
 
 		cur.moveToFirst();
 
@@ -919,6 +1058,10 @@ public class Utility {
 
 			if (severity.equals("W")) {
 				Log.w(TAG, sdf.format(new Date(yourmilliseconds)) + ": " + text);
+			}
+
+			if (severity.equals("I")) {
+				Log.i(TAG, sdf.format(new Date(yourmilliseconds)) + ": " + text);
 			}
 
 		} catch (IOException e) {
@@ -985,8 +1128,11 @@ public class Utility {
 
 	public double getDoubleOperation(String operazione) {
 
-		cur = database.query("SETTINGS", new String[] { operazione.substring(0,
-				operazione.length() - 10) }, null, null, null, null, null);
+		cur = database
+				.query(HyperthermDB.TABLE_SETTINGS,
+						new String[] { operazione.substring(0,
+								operazione.length() - 10) }, null, null, null,
+						null, null);
 
 		cur.moveToFirst();
 
@@ -1038,4 +1184,98 @@ public class Utility {
 		return (double) (Math.round(flo1 * temp) / temp);
 
 	}
+
+	public void stampa_tracciato(byte[] buf, String severity, String inout) {
+
+		if (inout.equals("out")) {
+			appendLog(severity, "---> TX (" + calcola_check_sum(buf) + ") --->"
+					+ bytesToString(buf));
+		}
+
+		if (inout.equals("in")) {
+			appendLog(severity, "<--- RX (" + calcola_check_sum(buf) + ") <---"
+					+ bytesToString(buf));
+		}
+
+	}
+
+	// GESTIONE TIMEOUT
+	public int get_time_out_splash() {
+
+		cur = database.query(HyperthermDB.TABLE_SETTINGS,
+				new String[] { HyperthermDB.COLUMN_TIMEOUT_SPLASH }, null,
+				null, null, null, null);
+
+		cur.moveToFirst();
+
+		int timeout = 2000;
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			timeout = cur.getInt(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return timeout;
+	}
+
+	public int get_time_out_ping() {
+
+		cur = database.query(HyperthermDB.TABLE_SETTINGS,
+				new String[] { HyperthermDB.COLUMN_TIMEOUT_PING }, null, null,
+				null, null, null);
+
+		cur.moveToFirst();
+
+		int timeout = 1000;
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			timeout = cur.getInt(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return timeout;
+	}
+
+	public int get_time_out_write() {
+
+		cur = database.query(HyperthermDB.TABLE_SETTINGS,
+				new String[] { HyperthermDB.COLUMN_TIMEOUT_WRITE }, null, null,
+				null, null, null);
+
+		cur.moveToFirst();
+
+		int timeout = 500;
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			timeout = cur.getInt(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return timeout;
+	}
+
+	public int get_time_out_read() {
+
+		cur = database.query(HyperthermDB.TABLE_SETTINGS,
+				new String[] { HyperthermDB.COLUMN_TIMEOUT_READ }, null, null,
+				null, null, null);
+
+		cur.moveToFirst();
+
+		int timeout = 500;
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			timeout = cur.getInt(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return timeout;
+	}
+
+	// FINE GESTIONE TIMEOUT
+
 }

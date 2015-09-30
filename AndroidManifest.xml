@@ -64,10 +64,6 @@
             android:label="@string/title_activity_tessuto" >
         </activity>
         <activity
-            android:name=".activity.Tessuto2Activity"
-            android:label="@string/title_activity_tessuto2" >
-        </activity>
-        <activity
             android:name=".activity.PatologiaActivity"
             android:label="@string/title_activity_patologia" >
         </activity>

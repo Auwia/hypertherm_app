@@ -22,7 +22,6 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	public static final String TABLE_PASSWORD = "PASSWORD";
 	public static final String TABLE_SETTINGS = "SETTINGS";
 	public static final String TABLE_MENU = "MENU";
-	public static final String TABLE_TRACCIATI = "TRACCIATI";
 
 	public static final String STRUTTURA_MENU = "STRUTTURA";
 	public static final String TRATTAMENTI_MENU = "TRATTAMENTI";
@@ -43,14 +42,16 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	public static final String COLUMN_PHYSIO = "PHYSIO";
 	public static final String COLUMN_SERIAL_NUMBER = "SERIAL_NUMBER";
 	public static final String COLUMN_LANGUAGE = "LANGUAGE";
-	public static final String COLUMN_TIMEOUT = "TIMEOUT";
-	public static final String COLUMN_TIMEOUT_SPLASH = "TIMEOUT_SPLASH";
 	public static final String COLUMN_MENU_ITEM = "MENU_ITEM";
 	public static final String COLUMN_MENU_VALUE = "VALUE";
 	public static final String COLUMN_MENU_CLICCABILE = "MENU_CLICCABILE";
 	public static final String COLUMN_MENU_ID_TRATTAMENTO = "ID_TRATTAMENTO";
 	public static final String COLUMN_MENU_ID_PATOLOGIA = "ID_PATOLOGIA";
-	public static String COLUMN_TRACCIATI = "";
+	public static final String COLUMN_TIMEOUT = "TIMEOUT";
+	public static final String COLUMN_TIMEOUT_SPLASH = "TIMEOUT_SPLASH";
+	public static final String COLUMN_TIMEOUT_PING = "TIMEOUT_PING";
+	public static final String COLUMN_TIMEOUT_READ = "TIMEOUT_READ";
+	public static final String COLUMN_TIMEOUT_WRITE = "TIMEOUT_WRITE";
 
 	private static final String CREATE_TABLE_STAGE_STRING = "create table "
 			+ TABLE_STAGE_STRING + "(" + COLUMN_MENU_ITEM + " varchar(50), "
@@ -109,9 +110,9 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	private static final String CREATE_TABLE_TABLE_SETTINGS = "create table "
 			+ TABLE_SETTINGS + "(" + COLUMN_SERIAL_NUMBER + " VARCHAR(20), "
 			+ COLUMN_LANGUAGE + " varchar(3), " + COLUMN_TIMEOUT + " integer, "
+			+ COLUMN_TIMEOUT_PING + " integer, " + COLUMN_TIMEOUT_READ
+			+ " integer, " + COLUMN_TIMEOUT_WRITE + " integer, "
 			+ COLUMN_TIMEOUT_SPLASH + " integer);";
-
-	private static String CREATE_TABLE_TRACCIATI;
 
 	public HyperthermDB(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -122,19 +123,6 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase database) {
 
 		utility = new Utility();
-
-		for (int i = 0; i < 64; i++) {
-
-			if (i == 63) {
-				COLUMN_TRACCIATI += "col" + i + " integer";
-			} else {
-
-				COLUMN_TRACCIATI += "col" + i + " integer,";
-			}
-		}
-
-		CREATE_TABLE_TRACCIATI = "create table " + TABLE_TRACCIATI + "("
-				+ COLUMN_TRACCIATI + ");";
 
 		database.execSQL(CREATE_TABLE_STAGE_PATALOGIE);
 		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_STAGE_PATALOGIE);
@@ -159,8 +147,6 @@ public class HyperthermDB extends SQLiteOpenHelper {
 		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_TRATTAMENTI);
 		database.execSQL(CREATE_TABLE_PATOLOGIE);
 		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_PATOLOGIE);
-		database.execSQL(CREATE_TABLE_TRACCIATI);
-		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_TRACCIATI);
 
 		try {
 			Thread.sleep(500);
@@ -178,6 +164,9 @@ public class HyperthermDB extends SQLiteOpenHelper {
 		row.put(COLUMN_LANGUAGE, "Ita");
 		row.put(COLUMN_TIMEOUT, 3);
 		row.put(COLUMN_TIMEOUT_SPLASH, 2500);
+		row.put(COLUMN_TIMEOUT_PING, 1000);
+		row.put(COLUMN_TIMEOUT_READ, 500);
+		row.put(COLUMN_TIMEOUT_WRITE, 500);
 		database.insert(TABLE_SETTINGS, null, row);
 		row.clear();
 
