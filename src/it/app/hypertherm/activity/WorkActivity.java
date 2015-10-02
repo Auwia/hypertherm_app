@@ -919,14 +919,14 @@ public class WorkActivity extends Activity {
 										.equals(utility.getMenuItemDefault())) {
 
 									float potenza = utility.getPmaxRF(
-											tracciato_in.getPowerIn() / 10,
-											tracciato_in.getWaterIn() / 10);
+											tracciato_out.getPowerOut() / 10,
+											tracciato_out.getWaterOut() / 10);
 
 									antenna_black_label_down.setText(""
 											+ potenza);
 
 									tracciato_in
-											.setPowerIn((int) (potenza * 10));
+											.setPowerOut((int) (potenza * 10));
 								}
 
 								if (seek_bar.getProgress() == 5) {
@@ -978,8 +978,8 @@ public class WorkActivity extends Activity {
 								.equals(utility.getMenuItemDefault())) {
 
 							float potenza = utility.getPmaxRF(
-									tracciato_in.getPowerIn() / 10,
-									tracciato_in.getWaterIn() / 10);
+									tracciato_out.getPowerOut() / 10,
+									tracciato_out.getWaterOut() / 10);
 
 							antenna_black_label_down.setText("" + potenza);
 
@@ -2356,22 +2356,20 @@ public class WorkActivity extends Activity {
 
 		if (funzionalita == button_antenna_left.getId()) {
 
-			if (antenna_black_label_down.getText().equals("-00.0")) {
-				antenna_black_label_down.setText("0");
+			int tot = Integer.parseInt(antenna_black_label_down.getText()
+					.toString()) - 1;
+
+			if (tot > 0) {
+				antenna_black_label_down.setText("" + tot);
+			} else {
+				antenna_black_label_down.setText(String.valueOf(tot));
 			}
 
-			if (Integer.parseInt(antenna_black_label_down.getText().toString()) > 0) {
+			if (tot < 99) {
+				antenna_black_label_down.setText("" + tot);
 
-				antenna_black_label_down
-						.setText(String.valueOf(Integer
-								.parseInt(antenna_black_label_down.getText()
-										.toString()) - 1));
-
-				tracciato_out
-						.setPowerOut(Integer.parseInt(antenna_black_label_down
-								.getText().toString()) - 1);
+				tracciato_out.setPowerOut((int) (tot * 100));
 				tracciato_out.setBuf();
-
 			}
 
 		}
@@ -2446,22 +2444,20 @@ public class WorkActivity extends Activity {
 
 		if (funzionalita == button_antenna_right.getId()) {
 
-			if (antenna_black_label_down.getText().equals("-00.0")) {
-				antenna_black_label_down.setText("0");
+			int tot = Integer.parseInt(antenna_black_label_down.getText()
+					.toString()) + 1;
+
+			if (tot > 0) {
+				antenna_black_label_down.setText("" + tot);
+			} else {
+				antenna_black_label_down.setText(String.valueOf(tot));
 			}
 
-			if (Integer.parseInt(antenna_black_label_down.getText().toString()) < 99) {
+			if (tot < 99) {
+				antenna_black_label_down.setText("" + (tot));
 
-				antenna_black_label_down
-						.setText(String.valueOf(Integer
-								.parseInt(antenna_black_label_down.getText()
-										.toString()) + 1));
-
-				tracciato_out
-						.setPowerOut(Integer.parseInt(antenna_black_label_down
-								.getText().toString()) + 1);
+				tracciato_out.setPowerOut((int) (tot * 100));
 				tracciato_out.setBuf();
-
 			}
 
 		}

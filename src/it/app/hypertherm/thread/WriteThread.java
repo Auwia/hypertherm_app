@@ -18,7 +18,7 @@ public class WriteThread implements Runnable {
 	public WriteThread(BlockingQueue<byte[]> queue, Utility utility,
 			OutputStream mWriteThread) {
 
-		this.utility = new Utility();
+		this.utility = utility;
 
 		this.queue = queue;
 

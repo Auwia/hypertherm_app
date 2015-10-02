@@ -41,7 +41,8 @@ public class Utility {
 			time_label_up;
 
 	private Button button_play, button_stop, button_pause, button_bolus_down,
-			button_bolus_up, button_home, button_rf_on;
+			button_bolus_up, button_home, button_rf_on, button_antenna,
+			button_time;
 
 	private int comando;
 
@@ -78,6 +79,8 @@ public class Utility {
 		button_bolus_up = (Button) activity.findViewById(R.id.button_bolus_up);
 		button_home = (Button) activity.findViewById(R.id.button_home);
 		button_rf_on = (Button) activity.findViewById(R.id.button_rf_on);
+		button_antenna = (Button) activity.findViewById(R.id.button_antenna);
+		button_time = (Button) activity.findViewById(R.id.button_time);
 
 	}
 
@@ -117,10 +120,15 @@ public class Utility {
 
 		int somma = 0;
 
-		for (int i = 0; i < risultato.length; i++) {
-			if (i > 1) {
-				somma += risultato[i];
+		if (risultato.length == 64) {
+
+			for (int i = 0; i < risultato.length; i++) {
+				if (i > 1) {
+					somma += risultato[i];
+				}
 			}
+		} else {
+			appendLog("E", "TRACCIATO ERRATO PER CALCOLO CHECK SUM");
 		}
 		return somma;
 	}
@@ -206,6 +214,8 @@ public class Utility {
 					button_stop.setPressed(true);
 					button_home.setEnabled(true);
 					button_rf_on.setPressed(false);
+					button_antenna.setPressed(false);
+					button_time.setPressed(false);
 					break;
 
 				case 400: // BOOL-UP
@@ -370,6 +380,8 @@ public class Utility {
 				return false;
 			}
 
+		} else {
+			appendLog("E", "Comando CORROTTO!!!");
 		}
 		return false;
 	}

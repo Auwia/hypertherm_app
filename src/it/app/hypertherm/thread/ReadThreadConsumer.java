@@ -5,6 +5,8 @@ import it.app.hypertherm.util.Utility;
 
 import java.util.concurrent.BlockingQueue;
 
+import android.util.Log;
+
 public class ReadThreadConsumer implements Runnable {
 
 	private BlockingQueue<byte[]> queue = null;
@@ -34,6 +36,8 @@ public class ReadThreadConsumer implements Runnable {
 				if (buf != null) {
 
 					utility.esegui_buffer(buf);
+
+					utility.stampa_tracciato(buf, "D", "in");
 
 					Thread.sleep(TIME_OUT_READ);
 

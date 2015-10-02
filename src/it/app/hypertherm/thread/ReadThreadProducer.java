@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.BlockingQueue;
 
-import android.util.Log;
-
 public class ReadThreadProducer implements Runnable {
 
 	private BlockingQueue<byte[]> queue = null;
@@ -48,6 +46,8 @@ public class ReadThreadProducer implements Runnable {
 								Tracciato.PACKET_SIZE - total)) >= 0) {
 					total += read;
 					somma += read;
+
+					Thread.sleep(50);
 				}
 
 				if (read != -1) {
@@ -57,9 +57,10 @@ public class ReadThreadProducer implements Runnable {
 						queue.add(buffer);
 
 					} else {
-						Log.d("MAX", "SOMMA=" + somma + " - READ=" + read);
+						utility.appendLog("E", "MESSAGGIO CORRETTO BYTES = "
+								+ buffer.length + "READ = " + read
+								+ " - SOMMA = " + somma);
 					}
-
 				}
 
 				Thread.sleep(TIME_OUT_READ);
