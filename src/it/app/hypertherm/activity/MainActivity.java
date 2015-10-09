@@ -138,12 +138,14 @@ public class MainActivity extends Activity {
 					.commit();
 
 			intent = new Intent(MainActivity.this, WorkActivity.class);
+			intent.putExtra("DEMO", false);
 			startActivity(intent);
 
 			break;
 		case 3:
 
 			intent = new Intent(MainActivity.this, WorkActivity.class);
+			intent.putExtra("DEMO", true);
 			startActivity(intent);
 
 			break;

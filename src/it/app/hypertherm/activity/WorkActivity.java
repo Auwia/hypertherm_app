@@ -1,6 +1,7 @@
 package it.app.hypertherm.activity;
 
 import it.app.hypertherm.R;
+import it.app.hypertherm.Simulatore;
 import it.app.hypertherm.Tracciato;
 import it.app.hypertherm.thread.InviaComandiThread;
 import it.app.hypertherm.thread.ReadThreadConsumer;
@@ -58,7 +59,7 @@ public class WorkActivity extends Activity {
 
 	private BlockingQueue<byte[]> bq_out, bq_in;
 
-	private static boolean SIMULATORE = false;
+	public static boolean SIMULATORE = false;
 	private static boolean PING = false;
 	public static boolean COMMUNICATION_READY = true;
 
@@ -78,6 +79,7 @@ public class WorkActivity extends Activity {
 	private final static int PLAY = 1;
 	private final static int PAUSE = 2;
 	private final static int STOP = 3;
+	private static int CMD = 0;
 	private final static int BOLUS_UP = 4;
 	private final static int BOLUS_DOWN = 5;
 	private final static int BOLUS_STOP = 6;
@@ -90,6 +92,7 @@ public class WorkActivity extends Activity {
 	private SerialPortOpt serialPort;
 
 	private ReadThreadProducer mReadThreadProducer;
+	private Simulatore sim;
 	private ReadThreadConsumer mReadThreadConsumer;
 	private WriteThread mWriteThread;
 	private WritePing mWritePing;
@@ -97,7 +100,6 @@ public class WorkActivity extends Activity {
 	private CountDownTimer waitTimerBolusUp = null;
 	private CountDownTimer waitTimer = null;
 	private CountDownTimer waitTimerGrafico = null;
-	private CountDownTimer waitTimerRfOn = null;
 
 	private Tracciato tracciato_in = new Tracciato();
 	private Tracciato tracciato_out = new Tracciato();
@@ -133,12 +135,14 @@ public class WorkActivity extends Activity {
 					if (COMMUNICATION_READY) {
 
 						if (PING) {
-							inviaComandi(0, MSK_NOTHING);
+							inviaComandi(CMD, MSK_NOTHING);
 						}
 
 					} else {
 
-						utility.appendLog("D", "ESCO DALLO SCRIVO");
+						utility.appendLog("D", "ESCO DALL'INVIO PING!");
+
+						cancel();
 
 					}
 				}
@@ -190,8 +194,16 @@ public class WorkActivity extends Activity {
 
 		mWriteThread = new WriteThread(bq_out, utility, mOutputStream);
 
-		mReadThreadProducer = new ReadThreadProducer(bq_in, utility,
-				mInputStream);
+		if (SIMULATORE) {
+
+			sim = new Simulatore(bq_in, utility, this);
+
+		} else {
+
+			mReadThreadProducer = new ReadThreadProducer(bq_in, utility,
+					mInputStream);
+
+		}
 
 		mReadThreadConsumer = new ReadThreadConsumer(bq_in, utility);
 
@@ -199,7 +211,14 @@ public class WorkActivity extends Activity {
 
 		new Thread(mWriteThread).start();
 
-		Thread t = new Thread(mReadThreadProducer);
+		Thread t;
+		if (SIMULATORE) {
+			t = new Thread(sim);
+
+		} else {
+			t = new Thread(mReadThreadProducer);
+
+		}
 		t.setPriority(Thread.MAX_PRIORITY);
 		t.start();
 
@@ -211,6 +230,11 @@ public class WorkActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_work);
+
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			SIMULATORE = extras.getBoolean("DEMO");
+		}
 
 		utility = new Utility(this);
 
@@ -241,11 +265,6 @@ public class WorkActivity extends Activity {
 		def_bottun_click();
 
 		def_value_defaults();
-
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-		}
 
 		inviaComandi(0, MSK_ALL_4);
 
@@ -509,6 +528,7 @@ public class WorkActivity extends Activity {
 
 					button_antenna.setPressed(true);
 					button_time.setPressed(true);
+					CMD = 1;
 
 					runOnUiThread(new Runnable() {
 
@@ -534,7 +554,8 @@ public class WorkActivity extends Activity {
 												"CHIUDO IL GRAFICO");
 
 										// COMANDO STOP SIMULATION
-										utility.esegui(300);
+										utility.esegui(768);
+										CMD = 3;
 
 									}
 
@@ -811,6 +832,7 @@ public class WorkActivity extends Activity {
 
 				utility.appendLog("D", "Inviato comando: PAUSE");
 				inviaComandi(PAUSE, MSK_CMD);
+				CMD = 2;
 			}
 		});
 
@@ -819,6 +841,7 @@ public class WorkActivity extends Activity {
 
 				utility.appendLog("D", "Inviato comando: STOP");
 				inviaComandi(STOP, MSK_CMD);
+				CMD = 3;
 
 				suggerimenti.setText(utility.get_suggerimento_trattamento());
 
@@ -1779,11 +1802,7 @@ public class WorkActivity extends Activity {
 
 			for (int y = 0; y < count; y++) {
 
-				if (SIMULATORE) {
-					f = function(x, y, t++);
-				} else {
-					f = function(x, y, 0);
-				}
+				f = function(x, y, 0);
 
 				DataPoint v = new DataPoint(x, f);
 				values[i++] = v;

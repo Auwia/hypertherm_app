@@ -335,6 +335,7 @@ public class StrutturaProfonditaActivity extends Activity {
 
 				Intent intent = new Intent(StrutturaProfonditaActivity.this,
 						WorkActivity.class);
+				intent.putExtra("DEMO", false);
 				startActivity(intent);
 			}
 		});

@@ -1,5 +1,6 @@
 package it.app.hypertherm.thread;
 
+import it.app.hypertherm.Simulatore;
 import it.app.hypertherm.Tracciato;
 import it.app.hypertherm.activity.WorkActivity;
 import it.app.hypertherm.util.Utility;
@@ -35,26 +36,46 @@ public class WriteThread implements Runnable {
 
 		while (WorkActivity.COMMUNICATION_READY) {
 
-			try {
+			byte[] buf = (byte[]) queue.poll();
 
-				byte[] buf = (byte[]) queue.poll();
+			if (buf != null) {
 
-				if (buf != null) {
+				utility.stampa_tracciato(buf, "D", "out");
 
-					utility.stampa_tracciato(buf, "D", "out");
+				if (WorkActivity.SIMULATORE) {
 
-					mWriteThread.write(buf, 0, Tracciato.PACKET_SIZE);
+					Simulatore.simulate(buf);
 
-					mWriteThread.flush();
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					Simulatore.INVIA = true;
+
+				} else {
+
+					try {
+
+						mWriteThread.write(buf, 0, Tracciato.PACKET_SIZE);
+
+						mWriteThread.flush();
+
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+
+				try {
 
 					Thread.sleep(TIME_OUT_WRITE);
 
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
 

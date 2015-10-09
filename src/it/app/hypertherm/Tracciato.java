@@ -54,7 +54,7 @@ public class Tracciato {
 		Ver = 0;
 		In_Output = 0;
 		TimeStamp = 0;
-		comando = time_in = deltat_in = water_in = iColdHp_temp = Gain_deltat_out = Offset_deltat_out = Gain_water_out = Offset_water_out = Gain_Cold_temp = Offset_Cold_temp = Gain_Boil_temp = Offset_Boil_temp = power_in = maschera = Boil_temp = ColdHp_temp = req_power = pwmFan = pwmPomp = pwmRes = 0;
+		comando = time_in = deltat_in = water_in = iColdHp_temp = Gain_deltat_out = Offset_deltat_out = Gain_water_out = Offset_water_out = Gain_Cold_temp = Offset_Cold_temp = Gain_Boil_temp = Offset_Boil_temp = power_in = power_out = Dir_power = maschera = Boil_temp = ColdHp_temp = req_power = pwmFan = pwmPomp = pwmRes = 0;
 
 	}
 
@@ -202,6 +202,14 @@ public class Tracciato {
 
 	public int getPowerOut() {
 		return power_out;
+	}
+
+	public void setDirPower(int Dir_power) {
+		this.Dir_power = Dir_power;
+	}
+
+	public int getDirPower() {
+		return Dir_power;
 	}
 
 	public void clearTracciato() {

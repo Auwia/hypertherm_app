@@ -213,6 +213,7 @@ public class PatologiaActivity extends Activity {
 
 				Intent intent = new Intent(PatologiaActivity.this,
 						WorkActivity.class);
+				intent.putExtra("DEMO", false);
 				startActivity(intent);
 			}
 		});

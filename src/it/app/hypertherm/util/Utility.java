@@ -3,6 +3,7 @@ package it.app.hypertherm.util;
 import it.app.hypertherm.Menu_app;
 import it.app.hypertherm.R;
 import it.app.hypertherm.Tracciato;
+import it.app.hypertherm.activity.WorkActivity;
 import it.app.hypertherm.db.HyperthermDB;
 import it.app.hypertherm.db.HyperthermDataSource;
 
@@ -49,10 +50,7 @@ public class Utility {
 	private LinearLayout zero, dieci, venti, trenta, quaranta, cinquanta,
 			sessanta, settanta, ottanta, novanta;
 
-	private int comando;
-
-	private int Ref_power;
-	private int Dir_power;
+	private int Ref_power, Dir_power, iPower, comando;
 
 	private final static int ROSSO = Color.parseColor("#ccff00");
 	private final static int VERDE = Color.parseColor("#0000cc");
@@ -91,7 +89,8 @@ public class Utility {
 				.findViewById(R.id.button_bolus_down);
 		button_bolus_up = (Button) activity.findViewById(R.id.button_bolus_up);
 		button_home = (Button) activity.findViewById(R.id.button_home);
-		button_onda_quadra = (Button) activity.findViewById(R.id.button_onda_quadra);
+		button_onda_quadra = (Button) activity
+				.findViewById(R.id.button_onda_quadra);
 		button_antenna = (Button) activity.findViewById(R.id.button_antenna);
 		button_time = (Button) activity.findViewById(R.id.button_time);
 
@@ -219,20 +218,22 @@ public class Utility {
 
 				switch (comando) {
 
-				case 100: // START
+				case 256: // START
 					button_play.setPressed(true);
 					button_pause.setPressed(false);
 					button_stop.setPressed(false);
 					button_home.setEnabled(false);
+					button_antenna.setPressed(true);
+					button_time.setPressed(true);
 					break;
 
-				case 200: // PAUSE
+				case 512: // PAUSE
 					button_play.setPressed(false);
 					button_pause.setPressed(true);
 					button_stop.setPressed(false);
 					break;
 
-				case 300: // STOP
+				case 768: // STOP
 					button_play.setPressed(false);
 					button_pause.setPressed(false);
 					button_stop.setPressed(true);
@@ -242,17 +243,17 @@ public class Utility {
 					button_time.setPressed(false);
 					break;
 
-				case 400: // BOOL-UP
+				case 1024: // BOOL-UP
 					button_bolus_up.setPressed(true);
 					button_bolus_down.setPressed(false);
 					break;
 
-				case 600: // BOOL-UP-STOP
+				case 1536: // BOOL-UP-STOP
 					button_bolus_up.setPressed(false);
 					button_bolus_down.setPressed(false);
 					break;
 
-				case 500: // BOOL-DOWN
+				case 1280: // BOOL-DOWN
 					button_bolus_up.setPressed(false);
 					button_bolus_down.setPressed(true);
 					break;
@@ -306,7 +307,7 @@ public class Utility {
 			iH2o_temp |= (((int) temp[19]) & 0xFF) << 8;
 			int iColdHp_temp = ((int) temp[20]) & 0xFF;
 			iColdHp_temp |= (((int) temp[21]) & 0xFF) << 8;
-			int iPower = ((int) temp[22]) & 0xFF;
+			iPower = ((int) temp[22]) & 0xFF;
 			iPower |= (((int) temp[23]) & 0xFF) << 8;
 
 			int Gain_D_temp = ((int) temp[24]) & 0xFF;
@@ -374,12 +375,34 @@ public class Utility {
 					@Override
 					public void run() {
 
-						setColoriPiramide(Dir_power);
+						setColoriPiramide();
 
 					}
 				});
 
-				esegui(Cmd);
+				if (WorkActivity.SIMULATORE) {
+
+					esegui(Cmd);
+
+				} else {
+					if (In_Output.substring(1, 2).equals("0")
+							&& In_Output.substring(3, 4).equals("0")) {
+						// STOP
+						esegui(768);
+					}
+
+					if (In_Output.substring(1, 2).equals("1")
+							&& In_Output.substring(3, 4).equals("1")) {
+						// PLAY
+						esegui(256);
+					}
+
+					if (In_Output.substring(1, 2).equals("1")
+							&& In_Output.substring(3, 4).equals("0")) {
+						// PAUSE
+						esegui(512);
+					}
+				}
 
 				SetTime(convertSecondsToMmSs(runningTime));
 
@@ -406,24 +429,6 @@ public class Utility {
 				setAntenna(""
 						+ (int) Float.parseFloat(""
 								+ arrotondaPerEccesso(Dir_power, 0)));
-
-				if (In_Output.substring(1, 2).equals("0")
-						&& In_Output.substring(3, 4).equals("0")) {
-					// STOP
-					esegui(300);
-				}
-
-				if (In_Output.substring(1, 2).equals("1")
-						&& In_Output.substring(3, 4).equals("1")) {
-					// PLAY
-					esegui(100);
-				}
-
-				if (In_Output.substring(1, 2).equals("1")
-						&& In_Output.substring(3, 4).equals("0")) {
-					// PAUSE
-					esegui(200);
-				}
 
 				return true;
 
@@ -1348,523 +1353,575 @@ public class Utility {
 	}
 
 	// FINE GESTIONE TIMEOUT
-	protected void setColoriPiramide(int i) {
+	protected void setColoriPiramide() {
 
-		int MAX = (int) Float.parseFloat(antenna_black_label_down.getText()
-				.toString()) * 1000;
+		if (iPower != 0) {
 
-		if (Ref_power == MAX) {
+			int BARRA_VERDE = 100 * (Dir_power - Ref_power) / iPower;
 
-			zero.setBackgroundColor(VERDE);
+			int BARRA_ROSSA = 100 * Ref_power / iPower;
 
-			dieci.setBackgroundColor(VERDE);
+			if (BARRA_VERDE == iPower) {
 
-			venti.setBackgroundColor(VERDE);
+				zero.setBackgroundColor(VERDE);
 
-			trenta.setBackgroundColor(VERDE);
+				dieci.setBackgroundColor(VERDE);
 
-			quaranta.setBackgroundColor(VERDE);
+				venti.setBackgroundColor(VERDE);
 
-			cinquanta.setBackgroundColor(VERDE);
+				trenta.setBackgroundColor(VERDE);
 
-			sessanta.setBackgroundColor(VERDE);
+				quaranta.setBackgroundColor(VERDE);
 
-			settanta.setBackgroundColor(VERDE);
+				cinquanta.setBackgroundColor(VERDE);
 
-			ottanta.setBackgroundColor(VERDE);
+				sessanta.setBackgroundColor(VERDE);
 
-			novanta.setBackgroundColor(VERDE);
+				settanta.setBackgroundColor(VERDE);
 
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_ROSSA == iPower) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(ROSSO);
+
+				quaranta.setBackgroundColor(ROSSO);
+
+				cinquanta.setBackgroundColor(ROSSO);
+
+				sessanta.setBackgroundColor(ROSSO);
+
+				settanta.setBackgroundColor(ROSSO);
+
+				ottanta.setBackgroundColor(ROSSO);
+
+				novanta.setBackgroundColor(ROSSO);
+
+			}
+
+			if (BARRA_ROSSA < 10) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(VERDE);
+
+				venti.setBackgroundColor(VERDE);
+
+				trenta.setBackgroundColor(VERDE);
+
+				quaranta.setBackgroundColor(VERDE);
+
+				cinquanta.setBackgroundColor(VERDE);
+
+				sessanta.setBackgroundColor(VERDE);
+
+				settanta.setBackgroundColor(VERDE);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_VERDE < 10) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(ROSSO);
+
+				quaranta.setBackgroundColor(ROSSO);
+
+				cinquanta.setBackgroundColor(ROSSO);
+
+				sessanta.setBackgroundColor(ROSSO);
+
+				settanta.setBackgroundColor(ROSSO);
+
+				ottanta.setBackgroundColor(ROSSO);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_ROSSA > 10 && BARRA_ROSSA < 20) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(VERDE);
+
+				trenta.setBackgroundColor(VERDE);
+
+				quaranta.setBackgroundColor(VERDE);
+
+				cinquanta.setBackgroundColor(VERDE);
+
+				sessanta.setBackgroundColor(VERDE);
+
+				settanta.setBackgroundColor(VERDE);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_VERDE > 10 && BARRA_VERDE < 20) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(ROSSO);
+
+				quaranta.setBackgroundColor(ROSSO);
+
+				cinquanta.setBackgroundColor(ROSSO);
+
+				sessanta.setBackgroundColor(ROSSO);
+
+				settanta.setBackgroundColor(ROSSO);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_ROSSA > 20 && BARRA_ROSSA < 30) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(VERDE);
+
+				quaranta.setBackgroundColor(VERDE);
+
+				cinquanta.setBackgroundColor(VERDE);
+
+				sessanta.setBackgroundColor(VERDE);
+
+				settanta.setBackgroundColor(VERDE);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_VERDE > 20 && BARRA_VERDE < 30) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(VERDE);
+
+				quaranta.setBackgroundColor(VERDE);
+
+				cinquanta.setBackgroundColor(VERDE);
+
+				sessanta.setBackgroundColor(VERDE);
+
+				settanta.setBackgroundColor(VERDE);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_ROSSA > 30 && BARRA_ROSSA < 40) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(ROSSO);
+
+				quaranta.setBackgroundColor(VERDE);
+
+				cinquanta.setBackgroundColor(VERDE);
+
+				sessanta.setBackgroundColor(VERDE);
+
+				settanta.setBackgroundColor(VERDE);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_VERDE > 30 && BARRA_VERDE < 40) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(ROSSO);
+
+				quaranta.setBackgroundColor(ROSSO);
+
+				cinquanta.setBackgroundColor(ROSSO);
+
+				sessanta.setBackgroundColor(VERDE);
+
+				settanta.setBackgroundColor(VERDE);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_ROSSA > 40 && BARRA_ROSSA < 50) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(ROSSO);
+
+				quaranta.setBackgroundColor(ROSSO);
+
+				cinquanta.setBackgroundColor(ROSSO);
+
+				sessanta.setBackgroundColor(VERDE);
+
+				settanta.setBackgroundColor(VERDE);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_VERDE > 40 && BARRA_VERDE < 50) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(ROSSO);
+
+				quaranta.setBackgroundColor(ROSSO);
+
+				cinquanta.setBackgroundColor(VERDE);
+
+				sessanta.setBackgroundColor(VERDE);
+
+				settanta.setBackgroundColor(VERDE);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_ROSSA > 50 && BARRA_ROSSA < 60) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(ROSSO);
+
+				quaranta.setBackgroundColor(ROSSO);
+
+				cinquanta.setBackgroundColor(ROSSO);
+
+				sessanta.setBackgroundColor(ROSSO);
+
+				settanta.setBackgroundColor(VERDE);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_VERDE > 50 && BARRA_VERDE < 60) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(ROSSO);
+
+				quaranta.setBackgroundColor(VERDE);
+
+				cinquanta.setBackgroundColor(VERDE);
+
+				sessanta.setBackgroundColor(VERDE);
+
+				settanta.setBackgroundColor(VERDE);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_ROSSA > 60 && BARRA_ROSSA < 70) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(ROSSO);
+
+				quaranta.setBackgroundColor(ROSSO);
+
+				cinquanta.setBackgroundColor(ROSSO);
+
+				sessanta.setBackgroundColor(ROSSO);
+
+				settanta.setBackgroundColor(ROSSO);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_VERDE > 60 && BARRA_VERDE < 70) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(VERDE);
+
+				quaranta.setBackgroundColor(VERDE);
+
+				cinquanta.setBackgroundColor(VERDE);
+
+				sessanta.setBackgroundColor(VERDE);
+
+				settanta.setBackgroundColor(VERDE);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_ROSSA > 70 && BARRA_ROSSA < 80) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(ROSSO);
+
+				quaranta.setBackgroundColor(ROSSO);
+
+				cinquanta.setBackgroundColor(ROSSO);
+
+				sessanta.setBackgroundColor(ROSSO);
+
+				settanta.setBackgroundColor(ROSSO);
+
+				ottanta.setBackgroundColor(ROSSO);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_VERDE > 70 && BARRA_VERDE < 80) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(VERDE);
+
+				trenta.setBackgroundColor(VERDE);
+
+				quaranta.setBackgroundColor(VERDE);
+
+				cinquanta.setBackgroundColor(VERDE);
+
+				sessanta.setBackgroundColor(VERDE);
+
+				settanta.setBackgroundColor(VERDE);
+
+				ottanta.setBackgroundColor(ROSSO);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_ROSSA > 80 && BARRA_ROSSA < 90) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(ROSSO);
+
+				quaranta.setBackgroundColor(ROSSO);
+
+				cinquanta.setBackgroundColor(ROSSO);
+
+				sessanta.setBackgroundColor(ROSSO);
+
+				settanta.setBackgroundColor(ROSSO);
+
+				ottanta.setBackgroundColor(ROSSO);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_VERDE > 80 && BARRA_VERDE < 90) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(VERDE);
+
+				venti.setBackgroundColor(VERDE);
+
+				trenta.setBackgroundColor(VERDE);
+
+				quaranta.setBackgroundColor(VERDE);
+
+				cinquanta.setBackgroundColor(VERDE);
+
+				sessanta.setBackgroundColor(VERDE);
+
+				settanta.setBackgroundColor(VERDE);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_ROSSA > 90) {
+
+				zero.setBackgroundColor(ROSSO);
+
+				dieci.setBackgroundColor(ROSSO);
+
+				venti.setBackgroundColor(ROSSO);
+
+				trenta.setBackgroundColor(ROSSO);
+
+				quaranta.setBackgroundColor(ROSSO);
+
+				cinquanta.setBackgroundColor(ROSSO);
+
+				sessanta.setBackgroundColor(ROSSO);
+
+				settanta.setBackgroundColor(ROSSO);
+
+				ottanta.setBackgroundColor(ROSSO);
+
+				novanta.setBackgroundColor(ROSSO);
+
+			}
+
+			if (BARRA_VERDE > 90) {
+
+				zero.setBackgroundColor(VERDE);
+
+				dieci.setBackgroundColor(VERDE);
+
+				venti.setBackgroundColor(VERDE);
+
+				trenta.setBackgroundColor(VERDE);
+
+				quaranta.setBackgroundColor(VERDE);
+
+				cinquanta.setBackgroundColor(VERDE);
+
+				sessanta.setBackgroundColor(VERDE);
+
+				settanta.setBackgroundColor(VERDE);
+
+				ottanta.setBackgroundColor(VERDE);
+
+				novanta.setBackgroundColor(VERDE);
+
+			}
+
+			if (BARRA_VERDE == 0 && BARRA_ROSSA == 0) {
+
+				zero.setBackground(activity.getResources().getDrawable(
+						R.drawable.cell_shape_bottom_white));
+
+				dieci.setBackground(activity.getResources().getDrawable(
+						R.drawable.cell_shape_bottom_white));
+
+				venti.setBackground(activity.getResources().getDrawable(
+						R.drawable.cell_shape_bottom_white));
+
+				trenta.setBackground(activity.getResources().getDrawable(
+						R.drawable.cell_shape_bottom_white));
+
+				quaranta.setBackground(activity.getResources().getDrawable(
+						R.drawable.cell_shape_bottom_white));
+
+				cinquanta.setBackground(activity.getResources().getDrawable(
+						R.drawable.cell_shape_bottom_white));
+
+				sessanta.setBackground(activity.getResources().getDrawable(
+						R.drawable.cell_shape_bottom_white));
+
+				settanta.setBackground(activity.getResources().getDrawable(
+						R.drawable.cell_shape_bottom_white));
+
+				ottanta.setBackground(activity.getResources().getDrawable(
+						R.drawable.cell_shape_bottom_white));
+
+				novanta.setBackground(activity.getResources().getDrawable(
+						R.drawable.cell_shape_bottom_white));
+
+			}
 		}
-
-		if (Ref_power < MAX / 10) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(VERDE);
-
-			venti.setBackgroundColor(VERDE);
-
-			trenta.setBackgroundColor(VERDE);
-
-			quaranta.setBackgroundColor(VERDE);
-
-			cinquanta.setBackgroundColor(VERDE);
-
-			sessanta.setBackgroundColor(VERDE);
-
-			settanta.setBackgroundColor(VERDE);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power + Dir_power < MAX / 10) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(ROSSO);
-
-			quaranta.setBackgroundColor(ROSSO);
-
-			cinquanta.setBackgroundColor(ROSSO);
-
-			sessanta.setBackgroundColor(ROSSO);
-
-			settanta.setBackgroundColor(ROSSO);
-
-			ottanta.setBackgroundColor(ROSSO);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power < MAX / 10 * 2 && Ref_power > MAX / 10) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(VERDE);
-
-			trenta.setBackgroundColor(VERDE);
-
-			quaranta.setBackgroundColor(VERDE);
-
-			cinquanta.setBackgroundColor(VERDE);
-
-			sessanta.setBackgroundColor(VERDE);
-
-			settanta.setBackgroundColor(VERDE);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power + Dir_power < MAX / 10 * 2
-				&& Ref_power + Dir_power > MAX / 10) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(ROSSO);
-
-			quaranta.setBackgroundColor(ROSSO);
-
-			cinquanta.setBackgroundColor(ROSSO);
-
-			sessanta.setBackgroundColor(ROSSO);
-
-			settanta.setBackgroundColor(ROSSO);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power < MAX / 10 * 3 && Ref_power > MAX / 10 * 2) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(VERDE);
-
-			quaranta.setBackgroundColor(VERDE);
-
-			cinquanta.setBackgroundColor(VERDE);
-
-			sessanta.setBackgroundColor(VERDE);
-
-			settanta.setBackgroundColor(VERDE);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power + Dir_power < MAX / 10 * 3
-				&& Ref_power + Dir_power > MAX / 10 * 2) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(VERDE);
-
-			quaranta.setBackgroundColor(VERDE);
-
-			cinquanta.setBackgroundColor(VERDE);
-
-			sessanta.setBackgroundColor(VERDE);
-
-			settanta.setBackgroundColor(VERDE);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power < MAX / 10 * 4 && Ref_power > MAX / 10 * 3) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(ROSSO);
-
-			quaranta.setBackgroundColor(VERDE);
-
-			cinquanta.setBackgroundColor(VERDE);
-
-			sessanta.setBackgroundColor(VERDE);
-
-			settanta.setBackgroundColor(VERDE);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power + Dir_power < MAX / 10 * 4
-				&& Ref_power + Dir_power > MAX / 10 * 3) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(ROSSO);
-
-			quaranta.setBackgroundColor(ROSSO);
-
-			cinquanta.setBackgroundColor(ROSSO);
-
-			sessanta.setBackgroundColor(VERDE);
-
-			settanta.setBackgroundColor(VERDE);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power < MAX / 10 * 5 && Ref_power > MAX / 10 * 4) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(ROSSO);
-
-			quaranta.setBackgroundColor(ROSSO);
-
-			cinquanta.setBackgroundColor(ROSSO);
-
-			sessanta.setBackgroundColor(VERDE);
-
-			settanta.setBackgroundColor(VERDE);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power + Dir_power < MAX / 10 * 5
-				&& Ref_power + Dir_power > MAX / 10 * 4) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(ROSSO);
-
-			quaranta.setBackgroundColor(ROSSO);
-
-			cinquanta.setBackgroundColor(VERDE);
-
-			sessanta.setBackgroundColor(VERDE);
-
-			settanta.setBackgroundColor(VERDE);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power < MAX / 10 * 6 && Ref_power > MAX / 10 * 5) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(ROSSO);
-
-			quaranta.setBackgroundColor(ROSSO);
-
-			cinquanta.setBackgroundColor(ROSSO);
-
-			sessanta.setBackgroundColor(ROSSO);
-
-			settanta.setBackgroundColor(VERDE);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power + Dir_power < MAX / 10 * 6
-				&& Ref_power + Dir_power > MAX / 10 * 5) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(ROSSO);
-
-			quaranta.setBackgroundColor(VERDE);
-
-			cinquanta.setBackgroundColor(VERDE);
-
-			sessanta.setBackgroundColor(VERDE);
-
-			settanta.setBackgroundColor(VERDE);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power < MAX / 10 * 7 && Ref_power > MAX / 10 * 6) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(ROSSO);
-
-			quaranta.setBackgroundColor(ROSSO);
-
-			cinquanta.setBackgroundColor(ROSSO);
-
-			sessanta.setBackgroundColor(ROSSO);
-
-			settanta.setBackgroundColor(ROSSO);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power + Dir_power < MAX / 70
-				&& Ref_power + Dir_power > MAX / 60) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(VERDE);
-
-			quaranta.setBackgroundColor(VERDE);
-
-			cinquanta.setBackgroundColor(VERDE);
-
-			sessanta.setBackgroundColor(VERDE);
-
-			settanta.setBackgroundColor(VERDE);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power < MAX / 80 && Ref_power > MAX / 70) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(ROSSO);
-
-			quaranta.setBackgroundColor(ROSSO);
-
-			cinquanta.setBackgroundColor(ROSSO);
-
-			sessanta.setBackgroundColor(ROSSO);
-
-			settanta.setBackgroundColor(ROSSO);
-
-			ottanta.setBackgroundColor(ROSSO);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power + Dir_power < MAX / 80
-				&& Ref_power + Dir_power > MAX / 70) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(VERDE);
-
-			trenta.setBackgroundColor(VERDE);
-
-			quaranta.setBackgroundColor(VERDE);
-
-			cinquanta.setBackgroundColor(VERDE);
-
-			sessanta.setBackgroundColor(VERDE);
-
-			settanta.setBackgroundColor(VERDE);
-
-			ottanta.setBackgroundColor(ROSSO);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power < MAX / 90 && Ref_power > MAX / 80) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(ROSSO);
-
-			quaranta.setBackgroundColor(ROSSO);
-
-			cinquanta.setBackgroundColor(ROSSO);
-
-			sessanta.setBackgroundColor(ROSSO);
-
-			settanta.setBackgroundColor(ROSSO);
-
-			ottanta.setBackgroundColor(ROSSO);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power + Dir_power < MAX / 90
-				&& Ref_power + Dir_power > MAX / 80) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(VERDE);
-
-			venti.setBackgroundColor(VERDE);
-
-			trenta.setBackgroundColor(VERDE);
-
-			quaranta.setBackgroundColor(VERDE);
-
-			cinquanta.setBackgroundColor(VERDE);
-
-			sessanta.setBackgroundColor(VERDE);
-
-			settanta.setBackgroundColor(VERDE);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
-		if (Ref_power < MAX / 100 && Ref_power > MAX / 90) {
-
-			zero.setBackgroundColor(ROSSO);
-
-			dieci.setBackgroundColor(ROSSO);
-
-			venti.setBackgroundColor(ROSSO);
-
-			trenta.setBackgroundColor(ROSSO);
-
-			quaranta.setBackgroundColor(ROSSO);
-
-			cinquanta.setBackgroundColor(ROSSO);
-
-			sessanta.setBackgroundColor(ROSSO);
-
-			settanta.setBackgroundColor(ROSSO);
-
-			ottanta.setBackgroundColor(ROSSO);
-
-			novanta.setBackgroundColor(ROSSO);
-
-		}
-
-		if (Ref_power + Dir_power < MAX / 100
-				&& Ref_power + Dir_power > MAX / 90) {
-
-			zero.setBackgroundColor(VERDE);
-
-			dieci.setBackgroundColor(VERDE);
-
-			venti.setBackgroundColor(VERDE);
-
-			trenta.setBackgroundColor(VERDE);
-
-			quaranta.setBackgroundColor(VERDE);
-
-			cinquanta.setBackgroundColor(VERDE);
-
-			sessanta.setBackgroundColor(VERDE);
-
-			settanta.setBackgroundColor(VERDE);
-
-			ottanta.setBackgroundColor(VERDE);
-
-			novanta.setBackgroundColor(VERDE);
-
-		}
-
 	}
 }
