@@ -48,7 +48,7 @@ public class WorkActivity extends Activity {
 			button_bolus_up, button_bolus_down, button_power,
 			button_temperature_positive, button_temperature_negative,
 			button_onda_quadra, button_antenna, button_time, button_water,
-			button_deltat, button_ping;
+			button_deltat;
 	private TextView antenna_black_label_down, water_label_down,
 			deltat_label_down, time_label_down, disturbo_label, suggerimenti;
 
@@ -76,14 +76,19 @@ public class WorkActivity extends Activity {
 	private final static int MSK_POWER = 64;
 	private final static int MSK_ALL_4 = 92;
 	private final static int MSK_NOTHING = 0;
+	private static int CMD = 0;
 	private final static int PLAY = 1;
 	private final static int PAUSE = 2;
 	private final static int STOP = 3;
-	private static int CMD = 0;
 	private final static int BOLUS_UP = 4;
 	private final static int BOLUS_DOWN = 5;
 	private final static int BOLUS_STOP = 6;
 	private final static int RESET = 11;
+	private final static int RF_OFF = 12;
+	private final static int RF_ON = 13;
+	private static int RF_ON_OFF = 1;
+	private static int RF_ENA = 1;
+	private static int TRAT_RUN = 1;
 
 	private LineGraphSeries<DataPoint> mSeries1;
 
@@ -155,6 +160,9 @@ public class WorkActivity extends Activity {
 	public void onPause() {
 		super.onPause();
 
+		utility.appendLog("D", "Inviato comando: RF_On_Off = OFF");
+		inviaComandi(RF_OFF, MSK_CMD);
+
 		utility.appendLog("D", "STO USCENDO");
 
 		COMMUNICATION_READY = false;
@@ -224,6 +232,33 @@ public class WorkActivity extends Activity {
 
 		new Thread(mReadThreadConsumer).start();
 
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		utility.appendLog("D", "Inviato comando: RESET");
+		inviaComandi(RESET, MSK_CMD);
+
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		RF_ON_OFF = 1;
+
+		utility.appendLog("D", "Inviato comando: RF_On_Off = ON");
+		inviaComandi(RF_ON, MSK_CMD);
+
+		PING = true;
+		mWritePing = new WritePing();
+		mWritePing.setName("Thread_PING");
+		mWritePing.start();
+
 	}
 
 	@Override
@@ -265,8 +300,6 @@ public class WorkActivity extends Activity {
 		def_bottun_click();
 
 		def_value_defaults();
-
-		inviaComandi(0, MSK_ALL_4);
 
 	}
 
@@ -529,6 +562,9 @@ public class WorkActivity extends Activity {
 					button_antenna.setPressed(true);
 					button_time.setPressed(true);
 					CMD = 1;
+					RF_ON_OFF = 1;
+					RF_ENA = 1;
+					TRAT_RUN = 1;
 
 					runOnUiThread(new Runnable() {
 
@@ -545,7 +581,11 @@ public class WorkActivity extends Activity {
 
 									public void onTick(long millisUntilFinished) {
 
-										mSeries1.resetData(generateData(t));
+										if (t == 30) {
+											t = 0;
+										}
+
+										mSeries1.resetData(generateData(t++));
 
 									}
 
@@ -832,7 +872,12 @@ public class WorkActivity extends Activity {
 
 				utility.appendLog("D", "Inviato comando: PAUSE");
 				inviaComandi(PAUSE, MSK_CMD);
+
 				CMD = 2;
+
+				RF_ENA = 0;
+				RF_ON_OFF = 1;
+				TRAT_RUN = 1;
 			}
 		});
 
@@ -841,7 +886,12 @@ public class WorkActivity extends Activity {
 
 				utility.appendLog("D", "Inviato comando: STOP");
 				inviaComandi(STOP, MSK_CMD);
+
 				CMD = 3;
+
+				RF_ENA = 0;
+				RF_ON_OFF = 1;
+				TRAT_RUN = 0;
 
 				suggerimenti.setText(utility.get_suggerimento_trattamento());
 
@@ -1069,51 +1119,6 @@ public class WorkActivity extends Activity {
 				Intent intent = new Intent(WorkActivity.this,
 						MainActivity.class);
 				startActivity(intent);
-
-			}
-		});
-
-		button_ping.setOnTouchListener(new OnTouchListener() {
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-
-					if (button_ping.isPressed()) {
-
-						button_ping.setPressed(false);
-
-						PING = false;
-
-						return true;
-
-					} else {
-
-						if (!button_ping.isPressed()) {
-
-							button_ping.setPressed(true);
-
-							PING = true;
-
-							mWritePing = new WritePing();
-							mWritePing.setName("Thread_PING");
-							mWritePing.start();
-
-							return false;
-
-						} else {
-
-							button_ping.setPressed(false);
-
-							PING = false;
-
-							return true;
-						}
-					}
-				}
-
-				return true;
 
 			}
 		});
@@ -1704,6 +1709,29 @@ public class WorkActivity extends Activity {
 
 	}
 
+	private float function(double x, double y) {
+
+		int B = 3;
+		float Tw = WATER;
+		double b = 0.19;
+		int Tb = 37;
+		float Dt = DELTAT;
+		double a = 0.035;
+		double A = (B + 1) * Dt + Tw - Tb;
+		// double h = 0.011522;
+		double h = 0.011;
+		double k = 0.011513;
+		int x0 = 70;
+
+		double equation = Tb
+				+ ((B * Tw * Math.exp(-b * y) + Tb + A * Math.exp(-a * y))
+						/ (B * Math.exp(-b * y) + 1) - Tb)
+				* Math.exp(-h * Math.pow(x - x0, 2));
+
+		return new Double(equation).floatValue();
+
+	}
+
 	protected void set_attention() {
 
 		if (!disturbo_label.getText().equals(utility.getMenuItemDefault())) {
@@ -1765,7 +1793,6 @@ public class WorkActivity extends Activity {
 		button_time = (Button) findViewById(R.id.button_time);
 		button_water = (Button) findViewById(R.id.button_water);
 		button_deltat = (Button) findViewById(R.id.button_deltat);
-		button_ping = (Button) findViewById(R.id.button_ping);
 
 		antenna_black_label_down = (TextView) findViewById(R.id.antenna_black_label_down);
 		water_label_down = (TextView) findViewById(R.id.water_label_down);
@@ -1802,7 +1829,9 @@ public class WorkActivity extends Activity {
 
 			for (int y = 0; y < count; y++) {
 
-				f = function(x, y, 0);
+				f = function(x, y, t);
+
+				// f = function(x, y);
 
 				DataPoint v = new DataPoint(x, f);
 				values[i++] = v;

@@ -164,7 +164,7 @@ public class HyperthermDB extends SQLiteOpenHelper {
 		row.put(COLUMN_LANGUAGE, "Ita");
 		row.put(COLUMN_TIMEOUT, 3);
 		row.put(COLUMN_TIMEOUT_SPLASH, 2500);
-		row.put(COLUMN_TIMEOUT_PING, 1000);
+		row.put(COLUMN_TIMEOUT_PING, 100);
 		row.put(COLUMN_TIMEOUT_READ, 500);
 		row.put(COLUMN_TIMEOUT_WRITE, 500);
 		database.insert(TABLE_SETTINGS, null, row);

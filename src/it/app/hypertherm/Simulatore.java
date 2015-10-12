@@ -32,6 +32,8 @@ public class Simulatore implements Runnable {
 
 		tracciato = new Tracciato();
 
+		TIME = 1800;
+
 	}
 
 	public void run() {
@@ -159,15 +161,23 @@ public class Simulatore implements Runnable {
 
 		if (utility.calcola_check_sum(buffer) == CheckSum) {
 
-			if (!START) {
-				TIME = iTime;
-			}
-
 			POTENZA_IN = simulatePotenza(iPower);
 			POTENZA_OUT = iPower;
 			POTENZA_DIR = simulatePotenza(iPower);
 			DELTAT = simulateDeltaT(iD_temp);
 			WATER = simulateWater(iH2o_temp);
+
+			if (CMD == 3) {
+				TIME = iTime;
+				POTENZA_IN = simulatePotenza(0);
+				POTENZA_DIR = simulatePotenza(0);
+
+			}
+
+			if (CMD == 2) {
+				POTENZA_IN = simulatePotenza(0);
+				POTENZA_DIR = simulatePotenza(0);
+			}
 
 			switch (Cmd) {
 
@@ -200,7 +210,6 @@ public class Simulatore implements Runnable {
 
 			case 512: // PAUSE
 				START = false;
-				TIME = iTime;
 				if (waitTimer != null) {
 					waitTimer.cancel();
 				}
