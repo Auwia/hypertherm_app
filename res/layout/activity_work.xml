@@ -17,6 +17,12 @@
             android:layout_gravity="center_vertical|center_horizontal"
             android:layout_weight="15"
             android:gravity="center_vertical|center_horizontal" >
+
+            <Button
+                android:id="@+id/button_ping"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_play" />
         </LinearLayout>
 
         <LinearLayout

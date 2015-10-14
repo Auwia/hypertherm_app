@@ -19,11 +19,11 @@ public class Tracciato {
 	private int power_in;
 	private int power_out;
 	private int Dir_power;
+	private int In_Output;
 
 	// NON UTILIZZATI
 	private byte Ver;
 	private byte TimeStamp;
-	private long In_Output;
 	private int iColdHp_temp;
 	private int Gain_deltat_out;
 	private int Offset_deltat_out;
@@ -136,8 +136,16 @@ public class Tracciato {
 		this.maschera = maschera;
 	}
 
+	public void setInOutput(int In_Output) {
+		this.In_Output = In_Output;
+	}
+
 	public int getMaschera() {
 		return maschera;
+	}
+
+	public int getInOutput() {
+		return In_Output;
 	}
 
 	public void setDeltaTIn(int deltat_in) {
