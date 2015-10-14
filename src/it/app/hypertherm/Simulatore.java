@@ -17,9 +17,10 @@ public class Simulatore implements Runnable {
 	private static boolean START = false;
 	public static boolean INVIA = false;
 	private static int TIME, POTENZA_IN, POTENZA_OUT, POTENZA_DIR, DELTAT,
-			WATER, CMD;
+			WATER, CMD, INOUT;
 	private static CountDownTimer waitTimer = null;
 	private static Activity activity;
+	private static byte[] In_Output_buffer;
 
 	public Simulatore(BlockingQueue<byte[]> queue, Utility utility,
 			Activity activity) {
@@ -32,7 +33,7 @@ public class Simulatore implements Runnable {
 
 		tracciato = new Tracciato();
 
-		TIME = 1800;
+		TIME = 0;
 
 	}
 
@@ -58,6 +59,7 @@ public class Simulatore implements Runnable {
 				tracciato.setDeltaTIn(DELTAT);
 				tracciato.setWaterIn(WATER);
 				tracciato.setComando(CMD);
+				tracciato.setInOutput(INOUT);
 
 				tracciato.setCheckSum(utility.calcola_check_sum(tracciato
 						.setBuf()));
@@ -91,7 +93,7 @@ public class Simulatore implements Runnable {
 		msk1[2] = buffer[6] & 0xFF;
 		msk1[3] = buffer[7] & 0xFF;
 
-		byte[] In_Output_buffer = new byte[4];
+		In_Output_buffer = new byte[4];
 		In_Output_buffer[0] = buffer[8];
 		In_Output_buffer[1] = buffer[9];
 		In_Output_buffer[2] = buffer[10];
@@ -166,6 +168,7 @@ public class Simulatore implements Runnable {
 			POTENZA_DIR = simulatePotenza(iPower);
 			DELTAT = simulateDeltaT(iD_temp);
 			WATER = simulateWater(iH2o_temp);
+			INOUT = In_Output_buffer[0];
 
 			if (CMD == 3) {
 				TIME = iTime;
@@ -183,14 +186,16 @@ public class Simulatore implements Runnable {
 
 			case 256: // START
 
+				INOUT = 125;
+
 				if (!START) {
 					activity.runOnUiThread(new Runnable() {
 						public void run() {
-							waitTimer = new CountDownTimer(TIME * 1000, 1000) {
+							waitTimer = new CountDownTimer(1800000, 1000) {
 
 								public void onTick(long millisUntilFinished) {
 
-									TIME -= 1;
+									TIME += 1;
 
 								}
 
@@ -214,6 +219,7 @@ public class Simulatore implements Runnable {
 					waitTimer.cancel();
 				}
 				CMD = 2;
+				INOUT = 109;
 				break;
 
 			case 768: // STOP
@@ -222,6 +228,7 @@ public class Simulatore implements Runnable {
 				if (waitTimer != null) {
 					waitTimer.cancel();
 				}
+				INOUT = 45;
 				CMD = 3;
 				break;
 
@@ -235,6 +242,7 @@ public class Simulatore implements Runnable {
 
 			case 1280: // BOOL-DOWN
 				CMD = 5;
+				INOUT = 12;
 				break;
 
 			case 1100: // RESET
