@@ -2,8 +2,8 @@ package it.app.hypertherm.activity;
 
 import it.app.hypertherm.R;
 import it.app.hypertherm.TessutoListViewAdapter;
+import it.app.hypertherm.thread.carica_configurazione_logo;
 import it.app.hypertherm.util.Utility;
-import it.app.hypertherm.util.carica_configurazione_logo;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -113,7 +113,7 @@ public class TessutoActivity extends Activity {
 			}
 		});
 
-		new carica_configurazione_logo(this).execute();
+		runOnUiThread(new carica_configurazione_logo(this));
 
 		listaMenuItem.setItemChecked(0, true);
 	}

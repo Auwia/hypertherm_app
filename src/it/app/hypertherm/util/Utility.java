@@ -54,8 +54,9 @@ public class Utility {
 
 	private byte[] In_Output_temp;
 
-	private final static int BLUE = Color.parseColor("#0000cc");
-	private final static int VERDE = Color.parseColor("#ccff00");
+	private final static int ARANCIONE = Color.parseColor("#ffa500");
+	// private final static int VERDE = Color.parseColor("#ccff00");
+	private final static int VERDE = Color.GREEN;
 
 	// VARIABILI DATA BASE
 	private static final String DATABASE_NAME = "Hypertherm.db";
@@ -240,7 +241,6 @@ public class Utility {
 					button_pause.setPressed(false);
 					button_stop.setPressed(true);
 					button_home.setEnabled(true);
-					button_onda_quadra.setPressed(false);
 					button_time.setPressed(false);
 					break;
 
@@ -260,7 +260,6 @@ public class Utility {
 					break;
 
 				case 1100: // RESET
-					button_onda_quadra.setPressed(false);
 					break;
 
 				}
@@ -442,13 +441,18 @@ public class Utility {
 					@Override
 					public void run() {
 
-						if (In_Output_temp[0] == 12 || In_Output_temp[0] == 109
-								|| In_Output_temp[0] == 45
-								|| In_Output_temp[0] == 93
-								|| In_Output_temp[0] == 0) {
-							button_antenna.setPressed(false);
+						if (button_play.isPressed()) {
+							if (In_Output_temp[0] == 12
+									|| In_Output_temp[0] == 109
+									|| In_Output_temp[0] == 45
+									|| In_Output_temp[0] == 93
+									|| In_Output_temp[0] == 0) {
+								button_antenna.setPressed(false);
+							} else {
+								button_antenna.setPressed(true);
+							}
 						} else {
-							button_antenna.setPressed(true);
+							button_antenna.setPressed(false);
 						}
 
 					}
@@ -1383,10 +1387,10 @@ public class Utility {
 
 			int BARRA_VERDE = 100 * Dir_power / iPower;
 
-			int BARRA_BLUE = 100 * Ref_power / iPower;
+			int BARRA_ARANCIONE = 100 * Ref_power / iPower;
 
-			appendLog("D", "VERDE=" + BARRA_VERDE + "% - BLUE=" + BARRA_BLUE
-					+ "%");
+			// appendLog("D", "VERDE=" + BARRA_VERDE + "% - ARANCIONE="
+			// + BARRA_ARANCIONE + "%");
 
 			zero.setBackgroundColor(Color.TRANSPARENT);
 			dieci.setBackgroundColor(Color.TRANSPARENT);
@@ -1420,7 +1424,7 @@ public class Utility {
 			novanta.setBackground(activity.getResources().getDrawable(
 					R.drawable.cell_shape_bottom_white));
 
-			if (BARRA_VERDE < 10) {
+			if (BARRA_VERDE > 0 && BARRA_VERDE < 10) {
 				zero.setBackgroundColor(VERDE);
 			}
 
@@ -1469,16 +1473,6 @@ public class Utility {
 				sessanta.setBackgroundColor(VERDE);
 			}
 
-			if (BARRA_BLUE > 60 && BARRA_BLUE < 70) {
-				zero.setBackgroundColor(BLUE);
-				dieci.setBackgroundColor(BLUE);
-				venti.setBackgroundColor(BLUE);
-				trenta.setBackgroundColor(BLUE);
-				quaranta.setBackgroundColor(BLUE);
-				cinquanta.setBackgroundColor(BLUE);
-				sessanta.setBackgroundColor(BLUE);
-			}
-
 			if (BARRA_VERDE > 70 && BARRA_VERDE < 80) {
 				zero.setBackgroundColor(VERDE);
 				dieci.setBackgroundColor(VERDE);
@@ -1515,79 +1509,89 @@ public class Utility {
 				novanta.setBackgroundColor(VERDE);
 			}
 
-			if (BARRA_BLUE > 0 && BARRA_BLUE < 10) {
-				zero.setBackgroundColor(BLUE);
+			if (BARRA_ARANCIONE > 0 && BARRA_ARANCIONE < 10) {
+				zero.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_BLUE > 10 && BARRA_BLUE < 20) {
-				zero.setBackgroundColor(BLUE);
-				dieci.setBackgroundColor(BLUE);
+			if (BARRA_ARANCIONE > 10 && BARRA_ARANCIONE < 20) {
+				zero.setBackgroundColor(ARANCIONE);
+				dieci.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_BLUE > 20 && BARRA_BLUE < 30) {
-				zero.setBackgroundColor(BLUE);
-				dieci.setBackgroundColor(BLUE);
-				venti.setBackgroundColor(BLUE);
+			if (BARRA_ARANCIONE > 20 && BARRA_ARANCIONE < 30) {
+				zero.setBackgroundColor(ARANCIONE);
+				dieci.setBackgroundColor(ARANCIONE);
+				venti.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_BLUE > 30 && BARRA_BLUE < 40) {
-				zero.setBackgroundColor(BLUE);
-				dieci.setBackgroundColor(BLUE);
-				venti.setBackgroundColor(BLUE);
-				trenta.setBackgroundColor(BLUE);
+			if (BARRA_ARANCIONE > 30 && BARRA_ARANCIONE < 40) {
+				zero.setBackgroundColor(ARANCIONE);
+				dieci.setBackgroundColor(ARANCIONE);
+				venti.setBackgroundColor(ARANCIONE);
+				trenta.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_BLUE > 40 && BARRA_BLUE < 50) {
-				zero.setBackgroundColor(BLUE);
-				dieci.setBackgroundColor(BLUE);
-				venti.setBackgroundColor(BLUE);
-				trenta.setBackgroundColor(BLUE);
-				quaranta.setBackgroundColor(BLUE);
+			if (BARRA_ARANCIONE > 40 && BARRA_ARANCIONE < 50) {
+				zero.setBackgroundColor(ARANCIONE);
+				dieci.setBackgroundColor(ARANCIONE);
+				venti.setBackgroundColor(ARANCIONE);
+				trenta.setBackgroundColor(ARANCIONE);
+				quaranta.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_BLUE > 50 && BARRA_BLUE < 60) {
-				zero.setBackgroundColor(BLUE);
-				dieci.setBackgroundColor(BLUE);
-				venti.setBackgroundColor(BLUE);
-				trenta.setBackgroundColor(BLUE);
-				quaranta.setBackgroundColor(BLUE);
-				cinquanta.setBackgroundColor(BLUE);
+			if (BARRA_ARANCIONE > 50 && BARRA_ARANCIONE < 60) {
+				zero.setBackgroundColor(ARANCIONE);
+				dieci.setBackgroundColor(ARANCIONE);
+				venti.setBackgroundColor(ARANCIONE);
+				trenta.setBackgroundColor(ARANCIONE);
+				quaranta.setBackgroundColor(ARANCIONE);
+				cinquanta.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_BLUE > 70 && BARRA_BLUE < 80) {
-				zero.setBackgroundColor(BLUE);
-				dieci.setBackgroundColor(BLUE);
-				venti.setBackgroundColor(BLUE);
-				trenta.setBackgroundColor(BLUE);
-				quaranta.setBackgroundColor(BLUE);
-				cinquanta.setBackgroundColor(BLUE);
-				sessanta.setBackgroundColor(BLUE);
-				settanta.setBackgroundColor(BLUE);
+			if (BARRA_ARANCIONE > 60 && BARRA_ARANCIONE < 70) {
+				zero.setBackgroundColor(ARANCIONE);
+				dieci.setBackgroundColor(ARANCIONE);
+				venti.setBackgroundColor(ARANCIONE);
+				trenta.setBackgroundColor(ARANCIONE);
+				quaranta.setBackgroundColor(ARANCIONE);
+				cinquanta.setBackgroundColor(ARANCIONE);
+				sessanta.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_BLUE > 80 && BARRA_BLUE < 90) {
-				zero.setBackgroundColor(BLUE);
-				dieci.setBackgroundColor(BLUE);
-				venti.setBackgroundColor(BLUE);
-				trenta.setBackgroundColor(BLUE);
-				quaranta.setBackgroundColor(BLUE);
-				cinquanta.setBackgroundColor(BLUE);
-				sessanta.setBackgroundColor(BLUE);
-				settanta.setBackgroundColor(BLUE);
-				ottanta.setBackgroundColor(BLUE);
+			if (BARRA_ARANCIONE > 70 && BARRA_ARANCIONE < 80) {
+				zero.setBackgroundColor(ARANCIONE);
+				dieci.setBackgroundColor(ARANCIONE);
+				venti.setBackgroundColor(ARANCIONE);
+				trenta.setBackgroundColor(ARANCIONE);
+				quaranta.setBackgroundColor(ARANCIONE);
+				cinquanta.setBackgroundColor(ARANCIONE);
+				sessanta.setBackgroundColor(ARANCIONE);
+				settanta.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_BLUE > 90) {
-				zero.setBackgroundColor(BLUE);
-				dieci.setBackgroundColor(BLUE);
-				venti.setBackgroundColor(BLUE);
-				trenta.setBackgroundColor(BLUE);
-				quaranta.setBackgroundColor(BLUE);
-				cinquanta.setBackgroundColor(BLUE);
-				sessanta.setBackgroundColor(BLUE);
-				settanta.setBackgroundColor(BLUE);
-				ottanta.setBackgroundColor(BLUE);
-				novanta.setBackgroundColor(BLUE);
+			if (BARRA_ARANCIONE > 80 && BARRA_ARANCIONE < 90) {
+				zero.setBackgroundColor(ARANCIONE);
+				dieci.setBackgroundColor(ARANCIONE);
+				venti.setBackgroundColor(ARANCIONE);
+				trenta.setBackgroundColor(ARANCIONE);
+				quaranta.setBackgroundColor(ARANCIONE);
+				cinquanta.setBackgroundColor(ARANCIONE);
+				sessanta.setBackgroundColor(ARANCIONE);
+				settanta.setBackgroundColor(ARANCIONE);
+				ottanta.setBackgroundColor(ARANCIONE);
+			}
+
+			if (BARRA_ARANCIONE > 90) {
+				zero.setBackgroundColor(ARANCIONE);
+				dieci.setBackgroundColor(ARANCIONE);
+				venti.setBackgroundColor(ARANCIONE);
+				trenta.setBackgroundColor(ARANCIONE);
+				quaranta.setBackgroundColor(ARANCIONE);
+				cinquanta.setBackgroundColor(ARANCIONE);
+				sessanta.setBackgroundColor(ARANCIONE);
+				settanta.setBackgroundColor(ARANCIONE);
+				ottanta.setBackgroundColor(ARANCIONE);
+				novanta.setBackgroundColor(ARANCIONE);
 			}
 
 		}

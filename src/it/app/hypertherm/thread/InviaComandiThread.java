@@ -12,7 +12,7 @@ public class InviaComandiThread implements Runnable {
 		this.queue = queue;
 
 		this.buf = buf;
-
+		
 	}
 
 	public void run() {

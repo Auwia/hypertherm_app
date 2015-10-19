@@ -13,6 +13,8 @@ import it.app.hypertherm.util.Utility;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -21,8 +23,11 @@ import java.util.concurrent.BlockingQueue;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
@@ -30,11 +35,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.dwin.navy.serialportapi.SerialPortOpt;
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -50,8 +57,7 @@ public class WorkActivity extends Activity {
 			button_onda_quadra, button_antenna, button_time, button_water,
 			button_deltat, button_ping;
 	private TextView antenna_black_label_down, water_label_down,
-			deltat_label_down, time_label_down, time_label_up, disturbo_label,
-			suggerimenti;
+			deltat_label_down, time_label_down, disturbo_label, suggerimenti;
 
 	private static Utility utility;
 
@@ -94,7 +100,10 @@ public class WorkActivity extends Activity {
 
 	private static int TIME_OUT_PING, INOUT = STOP_TMP;
 
-	private LineGraphSeries<DataPoint> mSeries1;
+	private LineGraphSeries<DataPoint> mSeries380, mSeries383, mSeries386,
+			mSeries389, mSeries393, mSeries396, mSeries399, mSeries402,
+			mSeries405, mSeries408, mSeries411, mSeries414, mSeries418,
+			mSeries421, mSeries424, mSeries427, mSeries1;
 
 	private SharedPreferences preferences;
 
@@ -109,8 +118,8 @@ public class WorkActivity extends Activity {
 	private CountDownTimer waitTimerBolusUp = null;
 	private CountDownTimer waitTimer = null;
 	private CountDownTimer waitTimerGrafico = null;
-	private CountDownTimer waitTimerRfOn = null;
-	private CountDownTimer waitTimerRfOff = null;
+
+	private static Timer timerRfOn, timerRfOff;
 
 	private Tracciato tracciato_in = new Tracciato();
 	private Tracciato tracciato_out = new Tracciato();
@@ -128,7 +137,7 @@ public class WorkActivity extends Activity {
 		InviaComandiThread buf = new InviaComandiThread(bq_out,
 				tracciato_out.setBuf());
 
-		new Thread(buf).start();
+		new Thread(buf, "Thread Invia Comandi").start();
 
 	}
 
@@ -228,20 +237,20 @@ public class WorkActivity extends Activity {
 
 		COMMUNICATION_READY = true;
 
-		new Thread(mWriteThread).start();
+		new Thread(mWriteThread, "Thread Scrittura").start();
 
 		Thread t;
 		if (SIMULATORE) {
-			t = new Thread(sim);
+			t = new Thread(sim, "Thread lettura simulatore");
 
 		} else {
-			t = new Thread(mReadThreadProducer);
+			t = new Thread(mReadThreadProducer, "Thread Lettura Producer");
 
 		}
 		t.setPriority(Thread.MAX_PRIORITY);
 		t.start();
 
-		new Thread(mReadThreadConsumer).start();
+		new Thread(mReadThreadConsumer, "Thread Lettura Consumer").start();
 
 		try {
 			Thread.sleep(100);
@@ -594,7 +603,7 @@ public class WorkActivity extends Activity {
 											t = 0;
 										}
 
-										mSeries1.resetData(generateData(t++));
+										// mSeries1.resetData(generateData(t++));
 
 									}
 
@@ -871,59 +880,29 @@ public class WorkActivity extends Activity {
 
 						if (button_onda_quadra.isPressed()) {
 
-							if (waitTimerRfOn != null) {
-								waitTimerRfOn.cancel();
-								waitTimerRfOn = null;
-							}
-
-							int minuti_trattamento = Integer
-									.parseInt(time_label_up.getText()
-											.toString().substring(0, 1));
-							int secondi_trattamento = Integer
-									.parseInt(time_label_up.getText()
-											.toString().substring(3, 4));
-
-							int durata_tot_trattamento = (minuti_trattamento * 60)
-									+ (secondi_trattamento)
-									+ ((minuti_trattamento + secondi_trattamento) / 3 * 1000)
-									* 1000;
-
-							durata_tot_trattamento = 1800000;
-
-							waitTimerRfOn = new CountDownTimer(
-									durata_tot_trattamento, 180000) {
-
-								public void onTick(long millisUntilFinished) {
+							timerRfOn = new Timer("TIMER ON");
+							timerRfOn.schedule(new TimerTask() {
+								@Override
+								public void run() {
 
 									INOUT = RF_OFF;
 									utility.appendLog("D",
 											"Inviato comando: RF_On_Off = OFF");
 									inviaComandi(RF_OFF, MSK_CMD, INOUT);
 
-									waitTimerRfOff = new CountDownTimer(60000,
-											60000) {
-
-										public void onTick(
-												long millisUntilFinished) {
-
-										}
-
-										public void onFinish() {
-
+									timerRfOff = new Timer("TIMER OFF");
+									timerRfOff.schedule(new TimerTask() {
+										@Override
+										public void run() {
 											INOUT = RF_ON;
 											utility.appendLog("D",
 													"Inviato comando: RF_On_Off = ON");
 											inviaComandi(RF_ON, MSK_CMD, INOUT);
-
 										}
-									}.start();
+									}, 60000);
 
 								}
-
-								public void onFinish() {
-
-								}
-							}.start();
+							}, 180000, 240000);
 
 						}
 
@@ -943,6 +922,16 @@ public class WorkActivity extends Activity {
 		button_pause.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 
+				if (timerRfOn != null) {
+					timerRfOn.cancel();
+					timerRfOn = null;
+				}
+
+				if (timerRfOff != null) {
+					timerRfOff.cancel();
+					timerRfOff = null;
+				}
+
 				INOUT = PAUSE_TMP;
 
 				utility.appendLog("D", "Inviato comando: PAUSE");
@@ -957,9 +946,14 @@ public class WorkActivity extends Activity {
 		button_stop.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 
-				if (waitTimerRfOn != null) {
-					waitTimerRfOn.cancel();
-					waitTimerRfOn = null;
+				if (timerRfOn != null) {
+					timerRfOn.cancel();
+					timerRfOn = null;
+				}
+
+				if (timerRfOff != null) {
+					timerRfOff.cancel();
+					timerRfOff = null;
 				}
 
 				INOUT = STOP_TMP;
@@ -974,7 +968,6 @@ public class WorkActivity extends Activity {
 				button_home.setEnabled(true);
 				button_temperature_negative.setPressed(false);
 				button_temperature_positive.setPressed(false);
-				button_onda_quadra.setPressed(false);
 				button_antenna.setPressed(false);
 				button_time.setPressed(false);
 
@@ -1130,12 +1123,7 @@ public class WorkActivity extends Activity {
 
 						button_onda_quadra.setPressed(false);
 
-						if (waitTimerRfOn != null) {
-							waitTimerRfOn.cancel();
-							waitTimerRfOn = null;
-						}
-
-						utility.appendLog("D", "ONDA QUADRA OFF");
+						stoppa_trattamento();
 
 						return true;
 
@@ -1145,72 +1133,16 @@ public class WorkActivity extends Activity {
 
 						utility.appendLog("D", "ONDA QUADRO ON");
 
-						if (waitTimerRfOn != null) {
-							waitTimerRfOn.cancel();
-							waitTimerRfOn = null;
-						}
-
 						if (button_play.isPressed()) {
-
-							int minuti_trattamento = Integer
-									.parseInt(time_label_up.getText()
-											.toString().substring(0, 1));
-							int secondi_trattamento = Integer
-									.parseInt(time_label_up.getText()
-											.toString().substring(3, 4));
-
-							int durata_tot_trattamento = (minuti_trattamento * 60)
-									+ (secondi_trattamento)
-									+ ((minuti_trattamento + secondi_trattamento) / 3 * 1000)
-									* 1000;
-
-							durata_tot_trattamento = 1800000;
-
-							waitTimerRfOn = new CountDownTimer(
-									durata_tot_trattamento, 180000) {
-
-								public void onTick(long millisUntilFinished) {
-
-									INOUT = RF_OFF;
-									utility.appendLog("D",
-											"Inviato comando: RF_On_Off = OFF");
-									inviaComandi(RF_OFF, MSK_CMD, INOUT);
-
-									waitTimerRfOff = new CountDownTimer(60000,
-											60000) {
-
-										public void onTick(
-												long millisUntilFinished) {
-
-										}
-
-										public void onFinish() {
-
-											INOUT = RF_ON;
-											utility.appendLog("D",
-													"Inviato comando: RF_On_Off = ON");
-											inviaComandi(RF_ON, MSK_CMD, INOUT);
-
-										}
-									}.start();
-
-								}
-
-								public void onFinish() {
-
-								}
-							}.start();
-
+							avvia_trattamento();
 						}
 
 						return false;
-
 					}
 				}
-
 				return true;
-
 			}
+
 		});
 
 		button_home.setOnClickListener(new View.OnClickListener() {
@@ -1252,9 +1184,11 @@ public class WorkActivity extends Activity {
 
 							PING = true;
 
-							mWritePing = new WritePing();
-							mWritePing.setName("Thread_PING");
-							mWritePing.start();
+							if (mWritePing == null) {
+								mWritePing = new WritePing();
+								mWritePing.setName("Thread_PING");
+								mWritePing.start();
+							}
 
 							return false;
 
@@ -1828,6 +1762,52 @@ public class WorkActivity extends Activity {
 
 	}
 
+	protected void stoppa_trattamento() {
+		if (timerRfOn != null) {
+			timerRfOn.cancel();
+			timerRfOn = null;
+		}
+
+		if (timerRfOff != null) {
+			timerRfOff.cancel();
+			timerRfOff = null;
+		}
+
+		utility.appendLog("D", "ONDA QUADRA OFF");
+
+		INOUT = RF_ON;
+		utility.appendLog("D", "Inviato comando: RF_On_Off = ON");
+		inviaComandi(RF_ON, MSK_CMD, INOUT);
+
+	}
+
+	protected void avvia_trattamento() {
+
+		timerRfOn = new Timer("TIMER ON");
+		timerRfOn.schedule(new TimerTask() {
+			@Override
+			public void run() {
+
+				INOUT = RF_OFF;
+				utility.appendLog("D", "Inviato comando: RF_On_Off = OFF");
+				inviaComandi(RF_OFF, MSK_CMD, INOUT);
+
+				timerRfOff = new Timer("TIMER OFF");
+				timerRfOff.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						INOUT = RF_ON;
+						utility.appendLog("D",
+								"Inviato comando: RF_On_Off = ON");
+						inviaComandi(RF_ON, MSK_CMD, INOUT);
+					}
+				}, 60000);
+
+			}
+		}, 0, 240000);
+
+	}
+
 	protected void attiva_normal() {
 
 		button_temperature_negative.setPressed(false);
@@ -1872,12 +1852,20 @@ public class WorkActivity extends Activity {
 		// double h = 0.011522;
 		double h = 0.011;
 		double k = 0.011513;
-		int x0 = 70;
+		int x0 = 0;
 
 		double equation = Tb
 				+ ((B * Tw * Math.exp(-b * y) + Tb + A * Math.exp(-a * y))
 						/ (B * Math.exp(-b * y) + 1) - Tb)
 				* Math.exp(-h * Math.pow(x - x0, 2));
+
+		return new Double(equation).floatValue();
+
+	}
+
+	private float equation(double x) {
+
+		double equation = Math.pow(x, 2);
 
 		return new Double(equation).floatValue();
 
@@ -1950,17 +1938,165 @@ public class WorkActivity extends Activity {
 		water_label_down = (TextView) findViewById(R.id.water_label_down);
 		deltat_label_down = (TextView) findViewById(R.id.deltat_label_down);
 		time_label_down = (TextView) findViewById(R.id.time_label_down);
-		time_label_up = (TextView) findViewById(R.id.time_label_up);
 		disturbo_label = (TextView) findViewById(R.id.disturbo_label);
 		suggerimenti = (TextView) findViewById(R.id.suggerimenti);
 
+		/*
+		 * 
+		 * 
+		 * // GRAFICO_DEF GraphView graph = (GraphView)
+		 * findViewById(R.id.grafico);
+		 * graph.getGridLabelRenderer().setGridColor(Color.TRANSPARENT);
+		 * graph.getGridLabelRenderer().setHorizontalLabelsVisible(true);
+		 * graph.getGridLabelRenderer().setVerticalLabelsVisible(true);
+		 * graph.getGridLabelRenderer().reloadStyles();
+		 * 
+		 * ArrayList<List<DataPoint>> values = generateData(1);
+		 * 
+		 * mSeries380 = new LineGraphSeries<DataPoint>(values.get(0).toArray(
+		 * new DataPoint[values.get(0).size()])); //
+		 * mSeries380.setDrawBackground(true); //
+		 * mSeries380.setBackgroundColor(Color.parseColor("#80007f")); Paint
+		 * paint = new Paint(); paint.setColor(Color.parseColor("#80007f"));
+		 * mSeries380.setCustomPaint(paint);
+		 * 
+		 * mSeries383 = new LineGraphSeries<DataPoint>(values.get(1).toArray(
+		 * new DataPoint[values.get(1).size()]));
+		 * mSeries383.setDrawBackground(true);
+		 * mSeries383.setBackgroundColor(Color.parseColor("#0d0d74"));
+		 * paint.setColor(Color.parseColor("#0d0d74"));
+		 * mSeries383.setCustomPaint(paint);
+		 * 
+		 * mSeries386 = new LineGraphSeries<DataPoint>(values.get(2).toArray(
+		 * new DataPoint[values.get(2).size()]));
+		 * mSeries386.setDrawBackground(true);
+		 * mSeries386.setBackgroundColor(Color.parseColor("#0000c4"));
+		 * paint.setColor(Color.parseColor("#0000c4"));
+		 * mSeries386.setCustomPaint(paint);
+		 * 
+		 * mSeries389 = new LineGraphSeries<DataPoint>(values.get(3).toArray(
+		 * new DataPoint[values.get(3).size()]));
+		 * mSeries389.setDrawBackground(true);
+		 * mSeries389.setBackgroundColor(Color.parseColor("#0000f6"));
+		 * paint.setColor(Color.parseColor("#0000f6"));
+		 * mSeries389.setCustomPaint(paint);
+		 * 
+		 * mSeries393 = new LineGraphSeries<DataPoint>(values.get(4).toArray(
+		 * new DataPoint[values.get(4).size()]));
+		 * mSeries393.setDrawBackground(true);
+		 * mSeries393.setBackgroundColor(Color.parseColor("#007a7c"));
+		 * paint.setColor(Color.parseColor("#007a7c"));
+		 * mSeries393.setCustomPaint(paint);
+		 * 
+		 * mSeries396 = new LineGraphSeries<DataPoint>(values.get(5).toArray(
+		 * new DataPoint[values.get(5).size()]));
+		 * mSeries396.setDrawBackground(true);
+		 * mSeries396.setBackgroundColor(Color.parseColor("#007c00"));
+		 * paint.setColor(Color.parseColor("#007c00"));
+		 * mSeries396.setCustomPaint(paint);
+		 * 
+		 * mSeries399 = new LineGraphSeries<DataPoint>(values.get(6).toArray(
+		 * new DataPoint[values.get(6).size()]));
+		 * mSeries399.setDrawBackground(true);
+		 * mSeries399.setBackgroundColor(Color.parseColor("#00b801"));
+		 * paint.setColor(Color.parseColor("#00b801"));
+		 * mSeries399.setCustomPaint(paint);
+		 * 
+		 * mSeries402 = new LineGraphSeries<DataPoint>(values.get(7).toArray(
+		 * new DataPoint[values.get(7).size()]));
+		 * mSeries402.setDrawBackground(true);
+		 * mSeries402.setBackgroundColor(Color.parseColor("#03f800"));
+		 * paint.setColor(Color.parseColor("#03f800"));
+		 * mSeries402.setCustomPaint(paint);
+		 * 
+		 * mSeries405 = new LineGraphSeries<DataPoint>(values.get(8).toArray(
+		 * new DataPoint[values.get(8).size()]));
+		 * mSeries405.setDrawBackground(true);
+		 * mSeries405.setBackgroundColor(Color.parseColor("#fef901"));
+		 * paint.setColor(Color.parseColor("#fef901"));
+		 * mSeries405.setCustomPaint(paint);
+		 * 
+		 * mSeries408 = new LineGraphSeries<DataPoint>(values.get(9).toArray(
+		 * new DataPoint[values.get(9).size()]));
+		 * mSeries408.setDrawBackground(true);
+		 * mSeries408.setBackgroundColor(Color.parseColor("#bffafd"));
+		 * paint.setColor(Color.parseColor("#bffafd"));
+		 * mSeries408.setCustomPaint(paint);
+		 * 
+		 * mSeries411 = new LineGraphSeries<DataPoint>(values.get(10).toArray(
+		 * new DataPoint[values.get(10).size()]));
+		 * mSeries411.setDrawBackground(true);
+		 * mSeries411.setBackgroundColor(Color.parseColor("#fd0000"));
+		 * paint.setColor(Color.parseColor("#fd0000"));
+		 * mSeries411.setCustomPaint(paint);
+		 * 
+		 * mSeries414 = new LineGraphSeries<DataPoint>(values.get(11).toArray(
+		 * new DataPoint[values.get(11).size()]));
+		 * mSeries414.setDrawBackground(true);
+		 * mSeries414.setBackgroundColor(Color.parseColor("#fbfbbc"));
+		 * paint.setColor(Color.parseColor("#fbfbbc"));
+		 * mSeries414.setCustomPaint(paint);
+		 * 
+		 * mSeries418 = new LineGraphSeries<DataPoint>(values.get(12).toArray(
+		 * new DataPoint[values.get(12).size()]));
+		 * mSeries418.setDrawBackground(true);
+		 * mSeries418.setBackgroundColor(Color.parseColor("#ffd7bf"));
+		 * paint.setColor(Color.parseColor("#ffd7bf"));
+		 * mSeries418.setCustomPaint(paint);
+		 * 
+		 * mSeries421 = new LineGraphSeries<DataPoint>(values.get(13).toArray(
+		 * new DataPoint[values.get(13).size()]));
+		 * mSeries421.setDrawBackground(true);
+		 * mSeries421.setBackgroundColor(Color.parseColor("#fcba7f"));
+		 * paint.setColor(Color.parseColor("#fcba7f"));
+		 * mSeries421.setCustomPaint(paint);
+		 * 
+		 * mSeries424 = new LineGraphSeries<DataPoint>(values.get(14).toArray(
+		 * new DataPoint[values.get(14).size()]));
+		 * mSeries424.setDrawBackground(true);
+		 * mSeries424.setBackgroundColor(Color.parseColor("#fd7b7f"));
+		 * paint.setColor(Color.parseColor("#fd7b7f"));
+		 * mSeries424.setCustomPaint(paint);
+		 * 
+		 * mSeries427 = new LineGraphSeries<DataPoint>(values.get(15).toArray(
+		 * new DataPoint[values.get(15).size()]));
+		 * mSeries427.setDrawBackground(true);
+		 * mSeries427.setBackgroundColor(Color.parseColor("#fa0000"));
+		 * paint.setColor(Color.parseColor("#fa0000"));
+		 * mSeries427.setCustomPaint(paint);
+		 * 
+		 * graph.addSeries(mSeries380); // graph.addSeries(mSeries383); //
+		 * graph.addSeries(mSeries386); // graph.addSeries(mSeries389); // if
+		 * (mSeries393 != null) { // graph.addSeries(mSeries393); // } //
+		 * graph.addSeries(mSeries396); // graph.addSeries(mSeries399); //
+		 * graph.addSeries(mSeries402); // graph.addSeries(mSeries405); //
+		 * graph.addSeries(mSeries408); // graph.addSeries(mSeries411); //
+		 * graph.addSeries(mSeries414); // graph.addSeries(mSeries418); //
+		 * graph.addSeries(mSeries421); // graph.addSeries(mSeries424); //
+		 * graph.addSeries(mSeries427);
+		 */
+
+		disegna_grafico(1);
+
+	}
+
+	private void disegna_grafico() {
+
 		// GRAFICO_DEF
-		GraphView graph = (GraphView) findViewById(R.id.grafico);
-		// graph.getGridLabelRenderer().setGridColor(Color.TRANSPARENT);
-		// graph.getGridLabelRenderer().setHorizontalLabelsVisible(true);
-		// graph.getGridLabelRenderer().setVerticalLabelsVisible(true);
-		// graph.getGridLabelRenderer().reloadStyles();
-		mSeries1 = new LineGraphSeries<DataPoint>(generateData(1));
+		// GraphView graph = (GraphView) findViewById(R.id.grafico);
+		GraphView graph = null;
+		graph.getGridLabelRenderer().setGridColor(Color.RED);
+		graph.getGridLabelRenderer().setHighlightZeroLines(false);
+		graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.GREEN);
+		graph.getGridLabelRenderer().setVerticalLabelsColor(Color.RED);
+		graph.getGridLabelRenderer().setVerticalLabelsAlign(Paint.Align.LEFT);
+		graph.getGridLabelRenderer().setLabelVerticalWidth(150);
+		graph.getGridLabelRenderer().setTextSize(40);
+		graph.getGridLabelRenderer().setGridStyle(
+				GridLabelRenderer.GridStyle.HORIZONTAL);
+		graph.getGridLabelRenderer().reloadStyles();
+
+		mSeries1 = new LineGraphSeries<DataPoint>(generateData());
 		mSeries1.setDrawBackground(true);
 		mSeries1.setBackgroundColor(Color.argb(100, 255, 255, 0));
 		Paint paint = new Paint();
@@ -1968,29 +2104,208 @@ public class WorkActivity extends Activity {
 		mSeries1.setCustomPaint(paint);
 
 		graph.addSeries(mSeries1);
-
 	}
 
-	private DataPoint[] generateData(int t) {
+	private DataPoint[] generateData() {
 
-		int count = 18;
+		int count = 35;
 		double f = 0;
-		DataPoint[] values = new DataPoint[count * count];
+		DataPoint[] values = new DataPoint[2 * count * count];
 		int x = 0, i = 0;
 
 		for (x = 0; x < count; x++) {
 
 			for (int y = 0; y < count; y++) {
 
-				f = function(x, y, t);
-
-				// f = function(x, y);
+				f = function(x, y);
 
 				DataPoint v = new DataPoint(x, f);
+				DataPoint vn = new DataPoint(-x, f);
 				values[i++] = v;
+				values[i++] = vn;
 
 			}
 		}
+
+		return values;
+	}
+
+	protected void disegna_grafico(int z) {
+		Paint paintRed = new Paint();
+		paintRed.setColor(Color.RED);
+
+		Paint paintBlu = new Paint();
+		paintBlu.setColor(Color.BLUE);
+
+		int asse_x = 140, asse_y = 70;
+
+		Bitmap bg = Bitmap
+				.createBitmap(asse_x, asse_y, Bitmap.Config.ARGB_8888);
+
+		Canvas canvas = new Canvas(bg);
+
+		double f = 0;
+
+		// from -x to +x evaluate and plot the function
+		for (int x = 0; x < asse_x / 2; x++) {
+
+			for (int y = 0; y < asse_y; y++) {
+
+				f = function(x, y);
+
+				// canvas.drawPoint(x, (float) f, paintBlu);
+				// canvas.drawPoint((asse_x / 2 + x), (float) (asse_y / 2 - f),
+				// paintRed);
+
+				// canvas.drawPoint((float) x , (float) f, paintRed);
+
+				canvas.drawPoint((float) (asse_x / 2 - x),
+						(float) (f - asse_y / 2), paintBlu);
+				canvas.drawPoint((float) (x + asse_x / 2),
+						(float) (f - asse_y / 2), paintRed);
+
+				canvas.save();
+				canvas.restore();
+
+			}
+
+		}
+
+		// canvas.drawLine(0, 0, 20, 20, paintRed);
+		// canvas.drawLine(20, 0, 0, 20, paintBlu);
+		//
+		// canvas.save();
+		// canvas.translate(0, 0);
+		// canvas.scale(canvas.getWidth(), canvas.getHeight());
+		// canvas.restore();
+
+		LinearLayout ll = (LinearLayout) findViewById(R.id.grafico1);
+		ll.setBackgroundDrawable(new BitmapDrawable(bg));
+
+	}
+
+	private ArrayList<List<DataPoint>> generateData(int t) {
+
+		int count = 20, asse_x = -count;
+		double f = 0;
+
+		List<DataPoint> mArray380, mArray383, mArray386, mArray389, mArray393, mArray396, mArray399, mArray402, mArray405, mArray408, mArray411, mArray414, mArray418, mArray421, mArray424, mArray427;
+		ArrayList<List<DataPoint>> values = new ArrayList<List<DataPoint>>();
+
+		mArray380 = new ArrayList<DataPoint>();
+		mArray383 = new ArrayList<DataPoint>();
+		mArray386 = new ArrayList<DataPoint>();
+		mArray389 = new ArrayList<DataPoint>();
+		mArray393 = new ArrayList<DataPoint>();
+		mArray396 = new ArrayList<DataPoint>();
+		mArray399 = new ArrayList<DataPoint>();
+		mArray402 = new ArrayList<DataPoint>();
+		mArray405 = new ArrayList<DataPoint>();
+		mArray408 = new ArrayList<DataPoint>();
+		mArray411 = new ArrayList<DataPoint>();
+		mArray414 = new ArrayList<DataPoint>();
+		mArray418 = new ArrayList<DataPoint>();
+		mArray421 = new ArrayList<DataPoint>();
+		mArray424 = new ArrayList<DataPoint>();
+		mArray427 = new ArrayList<DataPoint>();
+
+		for (int x = 0; x < count; x++) {
+
+			asse_x++;
+
+			for (int y = 0; y < count; y++) {
+
+				// f = function(x, y, t);
+
+				f = function(x, y);
+
+				DataPoint v = new DataPoint(asse_x, f);
+				DataPoint vn = new DataPoint(-asse_x, f);
+
+				if (f < 38) {
+					mArray380.add(v);
+					mArray380.add(vn);
+				}
+				if (f > 38 && f < 38.3) {
+					mArray383.add(v);
+					mArray383.add(vn);
+				}
+				if (f > 38.3 && f < 38.6) {
+					mArray386.add(v);
+					mArray386.add(vn);
+				}
+				if (f > 38.6 && f < 38.9) {
+					mArray389.add(v);
+					mArray389.add(vn);
+				}
+				if (f > 38.9 && f < 39.3) {
+					mArray393.add(v);
+					mArray393.add(vn);
+				}
+				if (f > 39.3 && f < 39.6) {
+					mArray396.add(v);
+					mArray396.add(vn);
+				}
+				if (f > 39.6 && f < 39.9) {
+					mArray399.add(v);
+					mArray399.add(vn);
+				}
+				if (f > 39.9 && f < 40.2) {
+					mArray402.add(v);
+					mArray402.add(vn);
+				}
+				if (f > 40.2 && f < 40.5) {
+					mArray405.add(v);
+					mArray405.add(vn);
+				}
+				if (f > 40.5 && f < 40.8) {
+					mArray408.add(v);
+					mArray408.add(vn);
+				}
+				if (f > 40.8 && f < 41.1) {
+					mArray411.add(v);
+					mArray411.add(vn);
+				}
+				if (f > 41.1 && f < 41.4) {
+					mArray414.add(v);
+					mArray414.add(vn);
+				}
+				if (f > 41.4 && f < 41.8) {
+					mArray418.add(v);
+					mArray418.add(vn);
+				}
+				if (f > 41.8 && f < 42.1) {
+					mArray421.add(v);
+					mArray421.add(vn);
+				}
+				if (f > 42.1 && f < 42.4) {
+					mArray424.add(v);
+					mArray424.add(vn);
+				}
+				if (f > 42.7) {
+					mArray427.add(v);
+					mArray427.add(vn);
+				}
+
+			}
+		}
+
+		values.add(mArray380);
+		values.add(mArray383);
+		values.add(mArray386);
+		values.add(mArray389);
+		values.add(mArray393);
+		values.add(mArray396);
+		values.add(mArray399);
+		values.add(mArray402);
+		values.add(mArray405);
+		values.add(mArray408);
+		values.add(mArray411);
+		values.add(mArray414);
+		values.add(mArray418);
+		values.add(mArray421);
+		values.add(mArray424);
+		values.add(mArray427);
 
 		return values;
 	}

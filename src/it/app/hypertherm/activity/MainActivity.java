@@ -3,8 +3,8 @@ package it.app.hypertherm.activity;
 import it.app.hypertherm.MenuListViewAdapter;
 import it.app.hypertherm.R;
 import it.app.hypertherm.db.HyperthermDB;
+import it.app.hypertherm.thread.carica_configurazione_logo;
 import it.app.hypertherm.util.Utility;
-import it.app.hypertherm.util.carica_configurazione_logo;
 import net.sf.andpdf.pdfviewer.PdfViewerActivity;
 import android.app.Activity;
 import android.content.Intent;
@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
 
 		import_menu_items();
 
-		new carica_configurazione_logo(this).execute();
+		runOnUiThread(new carica_configurazione_logo(this));
 
 		listaMenuItem.setOnItemClickListener(new OnItemClickListener() {
 

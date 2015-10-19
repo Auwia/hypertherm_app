@@ -2,8 +2,9 @@ package it.app.hypertherm.activity;
 
 import it.app.hypertherm.Caricamento;
 import it.app.hypertherm.R;
+import it.app.hypertherm.thread.carica_configurazione_logo;
+import it.app.hypertherm.util.CountDownTimer;
 import it.app.hypertherm.util.Utility;
-import it.app.hypertherm.util.carica_configurazione_logo;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -43,7 +44,7 @@ public class Splash_Screen_Activity extends Activity {
 
 		settings = (Button) findViewById(R.id.settings);
 
-		new carica_configurazione_logo(this).execute();
+		runOnUiThread(new carica_configurazione_logo(this));
 
 		new Caricamento(this);
 
@@ -60,7 +61,25 @@ public class Splash_Screen_Activity extends Activity {
 
 		utility.appendLog("D", "splash screen start...OK");
 
-		new conteggio_time_out().execute();
+		// new conteggio_time_out().execute();
+
+		new CountDownTimer(utility.get_time_out_splash(),
+				utility.get_time_out_splash()) {
+
+			public void onTick(long millisUntilFinished) {
+			}
+
+			public void onFinish() {
+
+				if (!settings_click) {
+
+					Intent intent = new Intent(Splash_Screen_Activity.this,
+							MainActivity.class);
+					startActivity(intent);
+				}
+
+			}
+		}.start();
 
 	}
 
@@ -75,6 +94,8 @@ public class Splash_Screen_Activity extends Activity {
 
 		@Override
 		protected Void doInBackground(Void... params) {
+
+			Thread.currentThread().setName("Conteggio time-out splash screen");
 
 			try {
 				Thread.sleep(utility.get_time_out_splash());
@@ -99,6 +120,8 @@ public class Splash_Screen_Activity extends Activity {
 			super.onPostExecute(result);
 
 			utility.appendLog("D", "loading main...OK");
+
+			this.cancel(true);
 		}
 
 	}

@@ -6,8 +6,11 @@ import it.app.hypertherm.util.Utility;
 
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
+import android.util.Log;
+import android.widget.TextView;
 
 public class Simulatore implements Runnable {
 
@@ -17,10 +20,11 @@ public class Simulatore implements Runnable {
 	private static boolean START = false;
 	public static boolean INVIA = false;
 	private static int TIME, POTENZA_IN, POTENZA_OUT, POTENZA_DIR, DELTAT,
-			WATER, CMD, INOUT;
+			WATER, CMD, INOUT, TIME_IMPOSTATO;
 	private static CountDownTimer waitTimer = null;
 	private static Activity activity;
 	private static byte[] In_Output_buffer;
+	private static TextView time_label_down;
 
 	public Simulatore(BlockingQueue<byte[]> queue, Utility utility,
 			Activity activity) {
@@ -30,6 +34,9 @@ public class Simulatore implements Runnable {
 		this.queue = queue;
 
 		this.activity = activity;
+
+		time_label_down = (TextView) activity
+				.findViewById(R.id.time_label_down);
 
 		tracciato = new Tracciato();
 
@@ -189,9 +196,20 @@ public class Simulatore implements Runnable {
 				INOUT = 125;
 
 				if (!START) {
+
+					TIME = 0;
+
+					TIME_IMPOSTATO = Integer.parseInt(time_label_down.getText()
+							.toString());
+
+					Log.d("MAX",
+							"TEMPO IMPOSTATO="
+									+ TimeUnit.MINUTES.toMillis(TIME_IMPOSTATO));
+
 					activity.runOnUiThread(new Runnable() {
 						public void run() {
-							waitTimer = new CountDownTimer(1800000, 1000) {
+							waitTimer = new CountDownTimer(TimeUnit.MINUTES
+									.toMillis(TIME_IMPOSTATO), 1000) {
 
 								public void onTick(long millisUntilFinished) {
 
@@ -205,6 +223,7 @@ public class Simulatore implements Runnable {
 							}.start();
 						}
 					});
+
 				}
 
 				START = true;
