@@ -228,6 +228,16 @@ public class Utility {
 					button_stop.setPressed(false);
 					button_home.setEnabled(false);
 					button_time.setPressed(true);
+
+					activity.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+
+							setColoriPiramide();
+
+						}
+					});
+
 					break;
 
 				case 512: // PAUSE
@@ -242,6 +252,9 @@ public class Utility {
 					button_stop.setPressed(true);
 					button_home.setEnabled(true);
 					button_time.setPressed(false);
+
+					reset_piramide();
+
 					break;
 
 				case 1024: // BOOL-UP
@@ -370,15 +383,6 @@ public class Utility {
 			if (calcola_check_sum(temp) == CheckSum) {
 
 				stampa_tracciato(temp, "D", "in");
-
-				activity.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-
-						setColoriPiramide();
-
-					}
-				});
 
 				if (WorkActivity.SIMULATORE) {
 
@@ -1392,37 +1396,7 @@ public class Utility {
 			// appendLog("D", "VERDE=" + BARRA_VERDE + "% - ARANCIONE="
 			// + BARRA_ARANCIONE + "%");
 
-			zero.setBackgroundColor(Color.TRANSPARENT);
-			dieci.setBackgroundColor(Color.TRANSPARENT);
-			venti.setBackgroundColor(Color.TRANSPARENT);
-			trenta.setBackgroundColor(Color.TRANSPARENT);
-			quaranta.setBackgroundColor(Color.TRANSPARENT);
-			cinquanta.setBackgroundColor(Color.TRANSPARENT);
-			sessanta.setBackgroundColor(Color.TRANSPARENT);
-			settanta.setBackgroundColor(Color.TRANSPARENT);
-			ottanta.setBackgroundColor(Color.TRANSPARENT);
-			novanta.setBackgroundColor(Color.TRANSPARENT);
-
-			zero.setBackground(activity.getResources().getDrawable(
-					R.drawable.cell_shape_bottom_white));
-			dieci.setBackground(activity.getResources().getDrawable(
-					R.drawable.cell_shape_bottom_white));
-			venti.setBackground(activity.getResources().getDrawable(
-					R.drawable.cell_shape_bottom_white));
-			trenta.setBackground(activity.getResources().getDrawable(
-					R.drawable.cell_shape_bottom_white));
-			quaranta.setBackground(activity.getResources().getDrawable(
-					R.drawable.cell_shape_bottom_white));
-			cinquanta.setBackground(activity.getResources().getDrawable(
-					R.drawable.cell_shape_bottom_white));
-			sessanta.setBackground(activity.getResources().getDrawable(
-					R.drawable.cell_shape_bottom_white));
-			settanta.setBackground(activity.getResources().getDrawable(
-					R.drawable.cell_shape_bottom_white));
-			ottanta.setBackground(activity.getResources().getDrawable(
-					R.drawable.cell_shape_bottom_white));
-			novanta.setBackground(activity.getResources().getDrawable(
-					R.drawable.cell_shape_bottom_white));
+			reset_piramide();
 
 			if (BARRA_VERDE > 0 && BARRA_VERDE < 10) {
 				zero.setBackgroundColor(VERDE);
@@ -1595,5 +1569,41 @@ public class Utility {
 			}
 
 		}
+	}
+
+	public void reset_piramide() {
+
+		zero.setBackgroundColor(Color.TRANSPARENT);
+		dieci.setBackgroundColor(Color.TRANSPARENT);
+		venti.setBackgroundColor(Color.TRANSPARENT);
+		trenta.setBackgroundColor(Color.TRANSPARENT);
+		quaranta.setBackgroundColor(Color.TRANSPARENT);
+		cinquanta.setBackgroundColor(Color.TRANSPARENT);
+		sessanta.setBackgroundColor(Color.TRANSPARENT);
+		settanta.setBackgroundColor(Color.TRANSPARENT);
+		ottanta.setBackgroundColor(Color.TRANSPARENT);
+		novanta.setBackgroundColor(Color.TRANSPARENT);
+
+		zero.setBackground(activity.getResources().getDrawable(
+				R.drawable.cell_shape_bottom_white));
+		dieci.setBackground(activity.getResources().getDrawable(
+				R.drawable.cell_shape_bottom_white));
+		venti.setBackground(activity.getResources().getDrawable(
+				R.drawable.cell_shape_bottom_white));
+		trenta.setBackground(activity.getResources().getDrawable(
+				R.drawable.cell_shape_bottom_white));
+		quaranta.setBackground(activity.getResources().getDrawable(
+				R.drawable.cell_shape_bottom_white));
+		cinquanta.setBackground(activity.getResources().getDrawable(
+				R.drawable.cell_shape_bottom_white));
+		sessanta.setBackground(activity.getResources().getDrawable(
+				R.drawable.cell_shape_bottom_white));
+		settanta.setBackground(activity.getResources().getDrawable(
+				R.drawable.cell_shape_bottom_white));
+		ottanta.setBackground(activity.getResources().getDrawable(
+				R.drawable.cell_shape_bottom_white));
+		novanta.setBackground(activity.getResources().getDrawable(
+				R.drawable.cell_shape_bottom_white));
+
 	}
 }

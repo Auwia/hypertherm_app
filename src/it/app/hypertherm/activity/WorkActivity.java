@@ -240,6 +240,9 @@ public class WorkActivity extends Activity {
 		new Thread(mWriteThread, "Thread Scrittura").start();
 
 		Thread t;
+
+		new Thread(mReadThreadConsumer, "Thread Lettura Consumer").start();
+
 		if (SIMULATORE) {
 			t = new Thread(sim, "Thread lettura simulatore");
 
@@ -250,21 +253,12 @@ public class WorkActivity extends Activity {
 		t.setPriority(Thread.MAX_PRIORITY);
 		t.start();
 
-		new Thread(mReadThreadConsumer, "Thread Lettura Consumer").start();
-
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 		INOUT = 0;
 		utility.appendLog("D", "Inviato comando: RESET");
 		inviaComandi(RESET, MSK_CMD, INOUT);
 
 		try {
-			Thread.sleep(500);
+			Thread.sleep(1500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -273,6 +267,13 @@ public class WorkActivity extends Activity {
 		INOUT = RF_ON;
 		utility.appendLog("D", "Inviato comando: RF_On_Off = ON");
 		inviaComandi(RF_ON, MSK_CMD, INOUT);
+
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		// PING = true;
 		// mWritePing = new WritePing();
@@ -911,7 +912,8 @@ public class WorkActivity extends Activity {
 						utility.appendLog("D", "Inviato comando: PLAY");
 						inviaComandi(PLAY, MSK_CMD, INOUT);
 
-						disegna_grafico_max();
+						// disegna_grafico_lib();
+						disegna_grafico(1);
 
 						button_home.setEnabled(false);
 
@@ -972,6 +974,8 @@ public class WorkActivity extends Activity {
 				button_temperature_positive.setPressed(false);
 				button_antenna.setPressed(false);
 				button_time.setPressed(false);
+
+				utility.reset_piramide();
 
 			}
 		});
@@ -1851,8 +1855,8 @@ public class WorkActivity extends Activity {
 		float Dt = DELTAT;
 		double a = 0.035;
 		double A = (B + 1) * Dt + Tw - Tb;
-		// double h = 0.011522;
-		double h = 0.011;
+		double h = 0.011522;
+		// double h = 0.011;
 		double k = 0.011513;
 		int x0 = 0;
 
@@ -1943,148 +1947,52 @@ public class WorkActivity extends Activity {
 		disturbo_label = (TextView) findViewById(R.id.disturbo_label);
 		suggerimenti = (TextView) findViewById(R.id.suggerimenti);
 
-		/*
-		 * 
-		 * 
-		 * // GRAFICO_DEF GraphView graph = (GraphView)
-		 * findViewById(R.id.grafico);
-		 * graph.getGridLabelRenderer().setGridColor(Color.TRANSPARENT);
-		 * graph.getGridLabelRenderer().setHorizontalLabelsVisible(true);
-		 * graph.getGridLabelRenderer().setVerticalLabelsVisible(true);
-		 * graph.getGridLabelRenderer().reloadStyles();
-		 * 
-		 * ArrayList<List<DataPoint>> values = generateData(1);
-		 * 
-		 * mSeries380 = new LineGraphSeries<DataPoint>(values.get(0).toArray(
-		 * new DataPoint[values.get(0).size()])); //
-		 * mSeries380.setDrawBackground(true); //
-		 * mSeries380.setBackgroundColor(Color.parseColor("#80007f")); Paint
-		 * paint = new Paint(); paint.setColor(Color.parseColor("#80007f"));
-		 * mSeries380.setCustomPaint(paint);
-		 * 
-		 * mSeries383 = new LineGraphSeries<DataPoint>(values.get(1).toArray(
-		 * new DataPoint[values.get(1).size()]));
-		 * mSeries383.setDrawBackground(true);
-		 * mSeries383.setBackgroundColor(Color.parseColor("#0d0d74"));
-		 * paint.setColor(Color.parseColor("#0d0d74"));
-		 * mSeries383.setCustomPaint(paint);
-		 * 
-		 * mSeries386 = new LineGraphSeries<DataPoint>(values.get(2).toArray(
-		 * new DataPoint[values.get(2).size()]));
-		 * mSeries386.setDrawBackground(true);
-		 * mSeries386.setBackgroundColor(Color.parseColor("#0000c4"));
-		 * paint.setColor(Color.parseColor("#0000c4"));
-		 * mSeries386.setCustomPaint(paint);
-		 * 
-		 * mSeries389 = new LineGraphSeries<DataPoint>(values.get(3).toArray(
-		 * new DataPoint[values.get(3).size()]));
-		 * mSeries389.setDrawBackground(true);
-		 * mSeries389.setBackgroundColor(Color.parseColor("#0000f6"));
-		 * paint.setColor(Color.parseColor("#0000f6"));
-		 * mSeries389.setCustomPaint(paint);
-		 * 
-		 * mSeries393 = new LineGraphSeries<DataPoint>(values.get(4).toArray(
-		 * new DataPoint[values.get(4).size()]));
-		 * mSeries393.setDrawBackground(true);
-		 * mSeries393.setBackgroundColor(Color.parseColor("#007a7c"));
-		 * paint.setColor(Color.parseColor("#007a7c"));
-		 * mSeries393.setCustomPaint(paint);
-		 * 
-		 * mSeries396 = new LineGraphSeries<DataPoint>(values.get(5).toArray(
-		 * new DataPoint[values.get(5).size()]));
-		 * mSeries396.setDrawBackground(true);
-		 * mSeries396.setBackgroundColor(Color.parseColor("#007c00"));
-		 * paint.setColor(Color.parseColor("#007c00"));
-		 * mSeries396.setCustomPaint(paint);
-		 * 
-		 * mSeries399 = new LineGraphSeries<DataPoint>(values.get(6).toArray(
-		 * new DataPoint[values.get(6).size()]));
-		 * mSeries399.setDrawBackground(true);
-		 * mSeries399.setBackgroundColor(Color.parseColor("#00b801"));
-		 * paint.setColor(Color.parseColor("#00b801"));
-		 * mSeries399.setCustomPaint(paint);
-		 * 
-		 * mSeries402 = new LineGraphSeries<DataPoint>(values.get(7).toArray(
-		 * new DataPoint[values.get(7).size()]));
-		 * mSeries402.setDrawBackground(true);
-		 * mSeries402.setBackgroundColor(Color.parseColor("#03f800"));
-		 * paint.setColor(Color.parseColor("#03f800"));
-		 * mSeries402.setCustomPaint(paint);
-		 * 
-		 * mSeries405 = new LineGraphSeries<DataPoint>(values.get(8).toArray(
-		 * new DataPoint[values.get(8).size()]));
-		 * mSeries405.setDrawBackground(true);
-		 * mSeries405.setBackgroundColor(Color.parseColor("#fef901"));
-		 * paint.setColor(Color.parseColor("#fef901"));
-		 * mSeries405.setCustomPaint(paint);
-		 * 
-		 * mSeries408 = new LineGraphSeries<DataPoint>(values.get(9).toArray(
-		 * new DataPoint[values.get(9).size()]));
-		 * mSeries408.setDrawBackground(true);
-		 * mSeries408.setBackgroundColor(Color.parseColor("#bffafd"));
-		 * paint.setColor(Color.parseColor("#bffafd"));
-		 * mSeries408.setCustomPaint(paint);
-		 * 
-		 * mSeries411 = new LineGraphSeries<DataPoint>(values.get(10).toArray(
-		 * new DataPoint[values.get(10).size()]));
-		 * mSeries411.setDrawBackground(true);
-		 * mSeries411.setBackgroundColor(Color.parseColor("#fd0000"));
-		 * paint.setColor(Color.parseColor("#fd0000"));
-		 * mSeries411.setCustomPaint(paint);
-		 * 
-		 * mSeries414 = new LineGraphSeries<DataPoint>(values.get(11).toArray(
-		 * new DataPoint[values.get(11).size()]));
-		 * mSeries414.setDrawBackground(true);
-		 * mSeries414.setBackgroundColor(Color.parseColor("#fbfbbc"));
-		 * paint.setColor(Color.parseColor("#fbfbbc"));
-		 * mSeries414.setCustomPaint(paint);
-		 * 
-		 * mSeries418 = new LineGraphSeries<DataPoint>(values.get(12).toArray(
-		 * new DataPoint[values.get(12).size()]));
-		 * mSeries418.setDrawBackground(true);
-		 * mSeries418.setBackgroundColor(Color.parseColor("#ffd7bf"));
-		 * paint.setColor(Color.parseColor("#ffd7bf"));
-		 * mSeries418.setCustomPaint(paint);
-		 * 
-		 * mSeries421 = new LineGraphSeries<DataPoint>(values.get(13).toArray(
-		 * new DataPoint[values.get(13).size()]));
-		 * mSeries421.setDrawBackground(true);
-		 * mSeries421.setBackgroundColor(Color.parseColor("#fcba7f"));
-		 * paint.setColor(Color.parseColor("#fcba7f"));
-		 * mSeries421.setCustomPaint(paint);
-		 * 
-		 * mSeries424 = new LineGraphSeries<DataPoint>(values.get(14).toArray(
-		 * new DataPoint[values.get(14).size()]));
-		 * mSeries424.setDrawBackground(true);
-		 * mSeries424.setBackgroundColor(Color.parseColor("#fd7b7f"));
-		 * paint.setColor(Color.parseColor("#fd7b7f"));
-		 * mSeries424.setCustomPaint(paint);
-		 * 
-		 * mSeries427 = new LineGraphSeries<DataPoint>(values.get(15).toArray(
-		 * new DataPoint[values.get(15).size()]));
-		 * mSeries427.setDrawBackground(true);
-		 * mSeries427.setBackgroundColor(Color.parseColor("#fa0000"));
-		 * paint.setColor(Color.parseColor("#fa0000"));
-		 * mSeries427.setCustomPaint(paint);
-		 * 
-		 * graph.addSeries(mSeries380); // graph.addSeries(mSeries383); //
-		 * graph.addSeries(mSeries386); // graph.addSeries(mSeries389); // if
-		 * (mSeries393 != null) { // graph.addSeries(mSeries393); // } //
-		 * graph.addSeries(mSeries396); // graph.addSeries(mSeries399); //
-		 * graph.addSeries(mSeries402); // graph.addSeries(mSeries405); //
-		 * graph.addSeries(mSeries408); // graph.addSeries(mSeries411); //
-		 * graph.addSeries(mSeries414); // graph.addSeries(mSeries418); //
-		 * graph.addSeries(mSeries421); // graph.addSeries(mSeries424); //
-		 * graph.addSeries(mSeries427);
-		 */
-
 	}
 
-	private void disegna_grafico_max() {
-		GraphView graph = (GraphView) findViewById(R.id.grafico);
+	private void disegna_grafico_lib() {
 
-		LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(
-				generateData());
+		// GraphView graph = (GraphView) findViewById(R.id.grafico);
+		//
+		// LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(
+		// generateData());
+		//
+		// // styling grid/labels
+		// graph.getGridLabelRenderer().setGridColor(Color.GRAY);
+		// graph.getGridLabelRenderer().setHighlightZeroLines(false);
+		// graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.GREEN);
+		// graph.getGridLabelRenderer().setVerticalLabelsColor(Color.RED);
+		// graph.getGridLabelRenderer().setVerticalLabelsAlign(Paint.Align.LEFT);
+		// // graph.getGridLabelRenderer().setLabelVerticalWidth(150);
+		// // graph.getGridLabelRenderer().setTextSize(40);
+		// graph.getGridLabelRenderer().setGridStyle(
+		// GridLabelRenderer.GridStyle.BOTH);
+		// graph.getGridLabelRenderer().reloadStyles();
+		//
+		// // styling viewport
+		// graph.getViewport().setBackgroundColor(Color.BLACK);
+		//
+		// // styling series
+		// // series.setTitle("Random Curve 1");
+		// series.setColor(Color.GREEN);
+		// // series.setDrawDataPoints(true);
+		// series.setDataPointsRadius(9);
+		// series.setThickness(8);
+		//
+		// graph.addSeries(series);
+		//
+		// graph.getViewport().setScalable(true);
+		//
+		// graph.getViewport().setXAxisBoundsManual(true);
+		// graph.getViewport().setMinX(-70);
+		// graph.getViewport().setMaxX(70);
+		//
+		// graph.getViewport().setYAxisBoundsManual(true);
+		// graph.getViewport().setMinY(37);
+		// graph.getViewport().setMaxY(45);
+
+		// GRAFICO_DEF
+		// GraphView graph = (GraphView) findViewById(R.id.grafico);
+		GraphView graph = null;
 
 		// styling grid/labels
 		graph.getGridLabelRenderer().setGridColor(Color.GRAY);
@@ -2092,8 +2000,6 @@ public class WorkActivity extends Activity {
 		graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.GREEN);
 		graph.getGridLabelRenderer().setVerticalLabelsColor(Color.RED);
 		graph.getGridLabelRenderer().setVerticalLabelsAlign(Paint.Align.LEFT);
-		// graph.getGridLabelRenderer().setLabelVerticalWidth(150);
-		// graph.getGridLabelRenderer().setTextSize(40);
 		graph.getGridLabelRenderer().setGridStyle(
 				GridLabelRenderer.GridStyle.BOTH);
 		graph.getGridLabelRenderer().reloadStyles();
@@ -2101,31 +2007,157 @@ public class WorkActivity extends Activity {
 		// styling viewport
 		graph.getViewport().setBackgroundColor(Color.BLACK);
 
-		// styling series
-		// series.setTitle("Random Curve 1");
-		series.setColor(Color.GREEN);
-		// series.setDrawDataPoints(true);
-		series.setDataPointsRadius(9);
-		series.setThickness(8);
+		Paint paint = new Paint();
 
-		graph.addSeries(series);
+		ArrayList<List<DataPoint>> values = generateData(1);
 
-		graph.getViewport().setScalable(true);
+		mSeries380 = new LineGraphSeries<DataPoint>(values.get(0).toArray(
+				new DataPoint[values.get(0).size()]));
+		paint.setColor(Color.parseColor("#80007f"));
+		mSeries380.setDataPointsRadius(3);
+		mSeries380.setThickness(3);
+
+		mSeries383 = new LineGraphSeries<DataPoint>(values.get(1).toArray(
+				new DataPoint[values.get(1).size()]));
+		paint.setColor(Color.parseColor("#0d0d74"));
+		mSeries383.setCustomPaint(paint);
+		mSeries383.setDataPointsRadius(3);
+		mSeries383.setThickness(3);
+
+		mSeries386 = new LineGraphSeries<DataPoint>(values.get(2).toArray(
+				new DataPoint[values.get(2).size()]));
+		paint.setColor(Color.parseColor("#0000c4"));
+		mSeries386.setCustomPaint(paint);
+		mSeries386.setDataPointsRadius(3);
+		mSeries386.setThickness(3);
+
+		mSeries389 = new LineGraphSeries<DataPoint>(values.get(3).toArray(
+				new DataPoint[values.get(3).size()]));
+		paint.setColor(Color.parseColor("#0000f6"));
+		mSeries389.setCustomPaint(paint);
+		mSeries389.setDataPointsRadius(3);
+		mSeries389.setThickness(3);
+
+		mSeries393 = new LineGraphSeries<DataPoint>(values.get(4).toArray(
+				new DataPoint[values.get(4).size()]));
+		paint.setColor(Color.parseColor("#007a7c"));
+		mSeries393.setCustomPaint(paint);
+		mSeries393.setDataPointsRadius(3);
+		mSeries393.setThickness(3);
+
+		mSeries396 = new LineGraphSeries<DataPoint>(values.get(5).toArray(
+				new DataPoint[values.get(5).size()]));
+		paint.setColor(Color.parseColor("#007c00"));
+		mSeries396.setCustomPaint(paint);
+		mSeries396.setDataPointsRadius(3);
+		mSeries396.setThickness(3);
+
+		mSeries399 = new LineGraphSeries<DataPoint>(values.get(6).toArray(
+				new DataPoint[values.get(6).size()]));
+		paint.setColor(Color.parseColor("#00b801"));
+		mSeries399.setCustomPaint(paint);
+		mSeries399.setDataPointsRadius(3);
+		mSeries399.setThickness(3);
+
+		mSeries402 = new LineGraphSeries<DataPoint>(values.get(7).toArray(
+				new DataPoint[values.get(7).size()]));
+		paint.setColor(Color.parseColor("#03f800"));
+		mSeries402.setCustomPaint(paint);
+		mSeries402.setDataPointsRadius(3);
+		mSeries402.setThickness(3);
+
+		mSeries405 = new LineGraphSeries<DataPoint>(values.get(8).toArray(
+				new DataPoint[values.get(8).size()]));
+		paint.setColor(Color.parseColor("#fef901"));
+		mSeries405.setCustomPaint(paint);
+		mSeries405.setDataPointsRadius(3);
+		mSeries405.setThickness(3);
+
+		mSeries408 = new LineGraphSeries<DataPoint>(values.get(9).toArray(
+				new DataPoint[values.get(9).size()]));
+		paint.setColor(Color.parseColor("#bffafd"));
+		mSeries408.setCustomPaint(paint);
+		mSeries408.setDataPointsRadius(3);
+		mSeries408.setThickness(3);
+
+		mSeries411 = new LineGraphSeries<DataPoint>(values.get(10).toArray(
+				new DataPoint[values.get(10).size()]));
+		paint.setColor(Color.parseColor("#fd0000"));
+		mSeries411.setCustomPaint(paint);
+		mSeries411.setDataPointsRadius(3);
+		mSeries411.setThickness(3);
+
+		mSeries414 = new LineGraphSeries<DataPoint>(values.get(11).toArray(
+				new DataPoint[values.get(11).size()]));
+		paint.setColor(Color.parseColor("#fbfbbc"));
+		mSeries414.setCustomPaint(paint);
+		mSeries414.setDataPointsRadius(3);
+		mSeries414.setThickness(3);
+
+		mSeries418 = new LineGraphSeries<DataPoint>(values.get(12).toArray(
+				new DataPoint[values.get(12).size()]));
+		paint.setColor(Color.parseColor("#ffd7bf"));
+		mSeries418.setCustomPaint(paint);
+		mSeries418.setDataPointsRadius(3);
+		mSeries418.setThickness(3);
+
+		mSeries421 = new LineGraphSeries<DataPoint>(values.get(13).toArray(
+				new DataPoint[values.get(13).size()]));
+		paint.setColor(Color.parseColor("#fcba7f"));
+		mSeries421.setCustomPaint(paint);
+		mSeries421.setDataPointsRadius(3);
+		mSeries421.setThickness(3);
+
+		mSeries424 = new LineGraphSeries<DataPoint>(values.get(14).toArray(
+				new DataPoint[values.get(14).size()]));
+		paint.setColor(Color.parseColor("#fd7b7f"));
+		mSeries424.setCustomPaint(paint);
+		mSeries424.setDataPointsRadius(3);
+		mSeries424.setThickness(3);
+
+		mSeries427 = new LineGraphSeries<DataPoint>(values.get(15).toArray(
+				new DataPoint[values.get(15).size()]));
+		paint.setColor(Color.parseColor("#fa0000"));
+		mSeries427.setCustomPaint(paint);
+		mSeries427.setDataPointsRadius(3);
+		mSeries427.setThickness(3);
+
+		graph.addSeries(mSeries380);
+		graph.addSeries(mSeries383);
+		graph.addSeries(mSeries386);
+		graph.addSeries(mSeries389);
+		if (mSeries393 != null) {
+			graph.addSeries(mSeries393);
+		}
+		graph.addSeries(mSeries396);
+		graph.addSeries(mSeries399);
+		graph.addSeries(mSeries402);
+		graph.addSeries(mSeries405);
+		graph.addSeries(mSeries408);
+		graph.addSeries(mSeries411);
+		graph.addSeries(mSeries414);
+		graph.addSeries(mSeries418);
+		graph.addSeries(mSeries421);
+		graph.addSeries(mSeries424);
+		graph.addSeries(mSeries427);
 
 		graph.getViewport().setXAxisBoundsManual(true);
-		graph.getViewport().setMinX(-70);
-		graph.getViewport().setMaxX(70);
+		// graph.getViewport().setMinX(-70);
+		// graph.getViewport().setMaxX(70);
+		graph.getViewport().setMinX(-20);
+		graph.getViewport().setMaxX(20);
 
-		graph.getViewport().setYAxisBoundsManual(true);
-		graph.getViewport().setMinY(37);
-		graph.getViewport().setMaxY(45);
+		// graph.getViewport().setYAxisBoundsManual(true);
+		// graph.getViewport().setMinY(37);
+		// graph.getViewport().setMaxY(45);
+
 	}
 
 	private void disegna_grafico() {
 
 		// GRAFICO_DEF
-		GraphView graph = (GraphView) findViewById(R.id.grafico);
-		// GraphView graph = null;
+		// GraphView graph = (GraphView) findViewById(R.id.grafico);
+		GraphView graph = null;
 		graph.setBackgroundColor(Color.BLACK);
 		graph.getGridLabelRenderer().setGridColor(Color.GRAY);
 		graph.getGridLabelRenderer().setHighlightZeroLines(false);
@@ -2177,10 +2209,11 @@ public class WorkActivity extends Activity {
 	protected void disegna_grafico(int z) {
 
 		Paint paint_griglia = new Paint();
-		paint_griglia.setColor(Color.GRAY);
+		paint_griglia.setColor(Color.parseColor("#327277"));
 
-		int asse_x = 40, asse_y = 70;
-		float scala = 12.7f;
+		int asse_x = 140, asse_y = 70;
+
+		float scala = 20f;
 
 		Bitmap bg = Bitmap
 				.createBitmap(asse_x, asse_y, Bitmap.Config.ARGB_8888);
@@ -2191,20 +2224,9 @@ public class WorkActivity extends Activity {
 
 		canvas.drawColor(Color.BLACK);
 
-		int colonna = 7, riga = 4;
+		canvas.translate(asse_x / 2, -asse_y / 2 * scala - 39);
 
-		for (int i = 0; i < asse_x; i += colonna) {
-			canvas.drawLine(i, 0, i, asse_y, paint_griglia);
-		}
-
-		for (int j = 0; j < asse_y; j += riga) {
-			canvas.drawLine(0, j, asse_x, j, paint_griglia);
-		}
-
-		canvas.translate(asse_x / 2, -asse_y * scala);
-		canvas.scale(1, 24);
-
-		double f = 0, g = 0;
+		float f = 0;
 
 		// from -x to +x evaluate and plot the function
 		for (int x = 0; x < 70; x++) {
@@ -2264,24 +2286,46 @@ public class WorkActivity extends Activity {
 					paint.setColor(Color.parseColor("#80007f"));
 				}
 
-				canvas.drawPoint((float) -x, (float) f, paint);
-				canvas.drawPoint((float) x, (float) f, paint);
-
-				// for (int i = -1; i < 2; i++) {
-				// canvas.drawPoint((float) (asse_x / 2 - x) + i,
-				// (float) (f - asse_y / 2) + i, paint);
-				// canvas.drawPoint((float) (x + asse_x / 2) + i,
-				// (float) (f - asse_y / 2) + i, paint);
-				//
-				// }
+				for (int i = (int) -scala; i < scala; i++) {
+					canvas.drawPoint((float) x + i, f * scala, paint);
+					canvas.drawPoint((float) -x + i, f * scala, paint);
+				}
 
 			}
 		}
 
 		canvas.restore();
 
-		// LinearLayout ll = (LinearLayout) findViewById(R.id.grafico1);
-		LinearLayout ll = null;
+		canvas.save();
+		int colonna = 20, riga = 5;
+
+		for (int i = 0; i < asse_x; i += colonna) {
+			canvas.drawLine(i, 0, i, asse_y, paint_griglia);
+		}
+
+		for (int j = 0; j < asse_y; j += riga) {
+			canvas.drawLine(0, j, asse_x, j, paint_griglia);
+		}
+		canvas.restore();
+
+		// canvas.save();
+		// String testo;
+		// Paint paintTesto = new Paint();
+		// paintTesto.setColor(Color.WHITE);
+		// paintTesto.setTextSize(5);
+		//
+		// for (int i = 0; i <= asse_y; i += 5) {
+		// if (i < 10) {
+		// testo = " " + i;
+		// } else {
+		// testo = String.valueOf(i);
+		// }
+		// canvas.drawText(testo, 10, i, paintTesto);
+		// }
+		// canvas.restore();
+
+		LinearLayout ll = (LinearLayout) findViewById(R.id.grafico1);
+		// LinearLayout ll = null;
 		ll.setBackgroundDrawable(new BitmapDrawable(bg));
 
 	}
@@ -2321,8 +2365,8 @@ public class WorkActivity extends Activity {
 
 				f = function(x, y);
 
-				DataPoint v = new DataPoint(asse_x, f);
-				DataPoint vn = new DataPoint(-asse_x, f);
+				DataPoint v = new DataPoint(asse_x, -f);
+				DataPoint vn = new DataPoint(-asse_x, -f);
 
 				if (f < 38) {
 					mArray380.add(v);

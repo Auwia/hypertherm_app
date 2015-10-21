@@ -9,7 +9,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
-import android.util.Log;
 import android.widget.TextView;
 
 public class Simulatore implements Runnable {
@@ -24,7 +23,7 @@ public class Simulatore implements Runnable {
 	private static CountDownTimer waitTimer = null;
 	private static Activity activity;
 	private static byte[] In_Output_buffer;
-	private static TextView time_label_down;
+	private static TextView time_label_down, time_label_up;
 
 	public Simulatore(BlockingQueue<byte[]> queue, Utility utility,
 			Activity activity) {
@@ -37,6 +36,7 @@ public class Simulatore implements Runnable {
 
 		time_label_down = (TextView) activity
 				.findViewById(R.id.time_label_down);
+		time_label_up = (TextView) activity.findViewById(R.id.time_label_up);
 
 		tracciato = new Tracciato();
 
@@ -197,14 +197,20 @@ public class Simulatore implements Runnable {
 
 				if (!START) {
 
-					TIME = 0;
+					START = true;
+
+					int minuti = Integer.parseInt(time_label_up.getText()
+							.toString().substring(0, 2)), secondi = Integer
+							.parseInt(time_label_up.getText().toString()
+									.substring(3, 5));
 
 					TIME_IMPOSTATO = Integer.parseInt(time_label_down.getText()
 							.toString());
 
-					Log.d("MAX",
-							"TEMPO IMPOSTATO="
-									+ TimeUnit.MINUTES.toMillis(TIME_IMPOSTATO));
+					if (minuti + secondi > 0) {
+
+						TIME_IMPOSTATO -= (int) (minuti * 60 + secondi) / 60;
+					}
 
 					activity.runOnUiThread(new Runnable() {
 						public void run() {
@@ -213,7 +219,11 @@ public class Simulatore implements Runnable {
 
 								public void onTick(long millisUntilFinished) {
 
-									TIME += 1;
+									if (START) {
+										TIME += 1;
+									} else {
+										cancel();
+									}
 
 								}
 
@@ -225,8 +235,6 @@ public class Simulatore implements Runnable {
 					});
 
 				}
-
-				START = true;
 
 				CMD = 1;
 
@@ -247,8 +255,13 @@ public class Simulatore implements Runnable {
 				if (waitTimer != null) {
 					waitTimer.cancel();
 				}
+
 				INOUT = 45;
 				CMD = 3;
+				POTENZA_DIR = 0;
+				POTENZA_OUT = 0;
+				POTENZA_IN = 0;
+				TIME = 0;
 				break;
 
 			case 1024: // BOOL-UP

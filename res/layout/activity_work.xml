@@ -163,17 +163,16 @@
                 android:textSize="40sp"
                 android:textStyle="bold" />
 
-            <com.jjoe64.graphview.GraphView
-                android:id="@+id/grafico"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <!-- <LinearLayout -->
-            <!-- android:id="@+id/grafico1" -->
+            <!-- <com.jjoe64.graphview.GraphView -->
+            <!-- android:id="@+id/grafico" -->
             <!-- android:layout_width="match_parent" -->
-            <!-- android:layout_height="match_parent" -->
-            <!-- android:orientation="horizontal" /> -->
+            <!-- android:layout_height="match_parent" /> -->
 
+            <LinearLayout
+                android:id="@+id/grafico1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal" />
         </LinearLayout>
 
         <LinearLayout
