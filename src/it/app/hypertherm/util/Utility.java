@@ -244,6 +244,9 @@ public class Utility {
 					button_play.setPressed(false);
 					button_pause.setPressed(true);
 					button_stop.setPressed(false);
+
+					reset_piramide();
+
 					break;
 
 				case 768: // STOP
@@ -408,7 +411,11 @@ public class Utility {
 					}
 				}
 
-				SetTime(convertSecondsToMmSs(runningTime));
+				if (button_play.isPressed()) {
+					SetTime(convertSecondsToMmSs(runningTime));
+				} else {
+					SetTime(convertSecondsToMmSs(0));
+				}
 
 				int d_temp = 0;
 				if (D_temp >= 60000) {
@@ -1393,8 +1400,8 @@ public class Utility {
 
 			int BARRA_ARANCIONE = 100 * Ref_power / iPower;
 
-			// appendLog("D", "VERDE=" + BARRA_VERDE + "% - ARANCIONE="
-			// + BARRA_ARANCIONE + "%");
+			appendLog("D", "VERDE=" + BARRA_VERDE + "% - ARANCIONE="
+					+ BARRA_ARANCIONE + "%");
 
 			reset_piramide();
 

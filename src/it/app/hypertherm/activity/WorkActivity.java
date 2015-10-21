@@ -391,6 +391,9 @@ public class WorkActivity extends Activity {
 		button_temperature_negative.setPressed(false);
 		button_temperature_positive.setPressed(false);
 
+		utility.appendLog("D", "Inviato comando: 4 ALL");
+		inviaComandi(0, MSK_ALL_4, INOUT);
+
 	}
 
 	private void def_bottun_click() {
@@ -942,6 +945,8 @@ public class WorkActivity extends Activity {
 				inviaComandi(PAUSE, MSK_CMD, INOUT);
 
 				CMD = 2;
+
+				utility.reset_piramide();
 
 			}
 
@@ -1823,29 +1828,6 @@ public class WorkActivity extends Activity {
 
 	}
 
-	private float function(double x, double y, double z) {
-
-		int B = 3;
-		float Tw = WATER;
-		double b = 0.19;
-		int Tb = 37;
-		float Dt = DELTAT;
-		double a = 0.035;
-		double A = (B + 1) * Dt + Tw - Tb;
-		// double h = 0.011522;
-		double h = 0.011;
-		double k = 0.011513;
-		int x0 = 70;
-
-		double equation = Tb
-				+ ((B * Tw * Math.exp(-b * y) + Tb + A * Math.exp(-a * y))
-						/ (B * Math.exp(-b * y) + 1) - Tb)
-				* Math.exp(-h * Math.pow(x - x0, 2) * (1 - Math.exp(-k * z)));
-
-		return new Double(equation).floatValue();
-
-	}
-
 	private float function(double x, double y) {
 
 		int B = 3;
@@ -1855,8 +1837,7 @@ public class WorkActivity extends Activity {
 		float Dt = DELTAT;
 		double a = 0.035;
 		double A = (B + 1) * Dt + Tw - Tb;
-		double h = 0.011522;
-		// double h = 0.011;
+		double h = 0.001522;
 		double k = 0.011513;
 		int x0 = 0;
 

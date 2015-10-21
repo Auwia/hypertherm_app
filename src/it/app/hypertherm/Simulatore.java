@@ -210,6 +210,11 @@ public class Simulatore implements Runnable {
 					if (minuti + secondi > 0) {
 
 						TIME_IMPOSTATO -= (int) (minuti * 60 + secondi) / 60;
+
+					} else {
+
+						TIME = 0;
+
 					}
 
 					activity.runOnUiThread(new Runnable() {

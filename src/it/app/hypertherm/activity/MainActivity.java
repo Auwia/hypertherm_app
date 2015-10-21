@@ -110,12 +110,14 @@ public class MainActivity extends Activity {
 		switch (position) {
 		case 0:
 			intent = new Intent(MainActivity.this, TessutoActivity.class);
+			intent.putExtra("DEMO", false);
 			startActivity(intent);
 
 			break;
 		case 1:
 			intent = new Intent(MainActivity.this,
 					StrutturaProfonditaActivity.class);
+			intent.putExtra("DEMO", false);
 			startActivity(intent);
 			break;
 		case 2:
