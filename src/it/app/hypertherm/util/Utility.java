@@ -41,6 +41,7 @@ public class Utility {
 	private SharedPreferences preferences;
 
 	private TextView antenna_black_label_up, antenna_black_label_down,
+			water_label_down, deltat_label_down, time_label_down,
 			water_label_up, deltat_label_up, time_label_up;
 
 	private Button button_play, button_stop, button_pause, button_bolus_down,
@@ -50,7 +51,8 @@ public class Utility {
 	private LinearLayout zero, dieci, venti, trenta, quaranta, cinquanta,
 			sessanta, settanta, ottanta, novanta;
 
-	private int Ref_power, Dir_power, iPower, comando;
+	private int Ref_power, Dir_power, iPower, iD_temp, iH2o_temp, iTime,
+			comando;
 
 	private byte[] In_Output_temp;
 
@@ -84,6 +86,12 @@ public class Utility {
 		deltat_label_up = (TextView) activity
 				.findViewById(R.id.deltat_label_up);
 		time_label_up = (TextView) activity.findViewById(R.id.time_label_up);
+		water_label_down = (TextView) activity
+				.findViewById(R.id.water_label_down);
+		deltat_label_down = (TextView) activity
+				.findViewById(R.id.deltat_label_down);
+		time_label_down = (TextView) activity
+				.findViewById(R.id.time_label_down);
 
 		button_play = (Button) activity.findViewById(R.id.button_play);
 		button_pause = (Button) activity.findViewById(R.id.button_pause);
@@ -315,11 +323,11 @@ public class Utility {
 
 			int Cmd = ((int) temp[12]) & 0xFF;
 			Cmd |= (((int) temp[13]) & 0xFF) << 8;
-			int iTime = ((int) temp[14]) & 0xFF;
+			iTime = ((int) temp[14]) & 0xFF;
 			iTime |= (((int) temp[15]) & 0xFF) << 8;
-			int iD_temp = ((int) temp[16]) & 0xFF;
+			iD_temp = ((int) temp[16]) & 0xFF;
 			iD_temp |= (((int) temp[17]) & 0xFF) << 8;
-			int iH2o_temp = ((int) temp[18]) & 0xFF;
+			iH2o_temp = ((int) temp[18]) & 0xFF;
 			iH2o_temp |= (((int) temp[19]) & 0xFF) << 8;
 			int iColdHp_temp = ((int) temp[20]) & 0xFF;
 			iColdHp_temp |= (((int) temp[21]) & 0xFF) << 8;
@@ -465,6 +473,31 @@ public class Utility {
 						} else {
 							button_antenna.setPressed(false);
 						}
+
+						int id_temp = 0;
+						if (iD_temp >= 60000) {
+							id_temp = (iD_temp - 65536);
+						} else {
+							id_temp = iD_temp;
+						}
+
+						water_label_down.setText(String.valueOf(round(
+								Double.parseDouble(String.valueOf(iH2o_temp)) / 100,
+								1)));
+						if (id_temp > 0) {
+
+							deltat_label_down.setText("+".concat(String
+									.valueOf(Double.parseDouble(String
+											.valueOf(id_temp)) / 100)));
+						} else {
+							deltat_label_down.setText(String.valueOf(Double
+									.parseDouble(String.valueOf(id_temp)) / 100));
+						}
+
+						antenna_black_label_down.setText(""
+								+ ((int) (iPower / 100)));
+
+						time_label_down.setText(convertSecondsToMm(iTime));
 
 					}
 				});
@@ -1405,29 +1438,29 @@ public class Utility {
 
 			reset_piramide();
 
-			if (BARRA_VERDE > 0 && BARRA_VERDE < 10) {
+			if (BARRA_VERDE > 0 && BARRA_VERDE <= 10) {
 				zero.setBackgroundColor(VERDE);
 			}
 
-			if (BARRA_VERDE > 10 && BARRA_VERDE < 20) {
+			if (BARRA_VERDE > 10 && BARRA_VERDE <= 20) {
 				zero.setBackgroundColor(VERDE);
 				dieci.setBackgroundColor(VERDE);
 			}
 
-			if (BARRA_VERDE > 20 && BARRA_VERDE < 30) {
+			if (BARRA_VERDE > 20 && BARRA_VERDE <= 30) {
 				zero.setBackgroundColor(VERDE);
 				dieci.setBackgroundColor(VERDE);
 				venti.setBackgroundColor(VERDE);
 			}
 
-			if (BARRA_VERDE > 30 && BARRA_VERDE < 40) {
+			if (BARRA_VERDE > 30 && BARRA_VERDE <= 40) {
 				zero.setBackgroundColor(VERDE);
 				dieci.setBackgroundColor(VERDE);
 				venti.setBackgroundColor(VERDE);
 				trenta.setBackgroundColor(VERDE);
 			}
 
-			if (BARRA_VERDE > 40 && BARRA_VERDE < 50) {
+			if (BARRA_VERDE > 40 && BARRA_VERDE <= 50) {
 				zero.setBackgroundColor(VERDE);
 				dieci.setBackgroundColor(VERDE);
 				venti.setBackgroundColor(VERDE);
@@ -1435,7 +1468,7 @@ public class Utility {
 				quaranta.setBackgroundColor(VERDE);
 			}
 
-			if (BARRA_VERDE > 50 && BARRA_VERDE < 60) {
+			if (BARRA_VERDE > 50 && BARRA_VERDE <= 60) {
 				zero.setBackgroundColor(VERDE);
 				dieci.setBackgroundColor(VERDE);
 				venti.setBackgroundColor(VERDE);
@@ -1444,7 +1477,7 @@ public class Utility {
 				cinquanta.setBackgroundColor(VERDE);
 			}
 
-			if (BARRA_VERDE > 60 && BARRA_VERDE < 70) {
+			if (BARRA_VERDE > 60 && BARRA_VERDE <= 70) {
 				zero.setBackgroundColor(VERDE);
 				dieci.setBackgroundColor(VERDE);
 				venti.setBackgroundColor(VERDE);
@@ -1454,7 +1487,7 @@ public class Utility {
 				sessanta.setBackgroundColor(VERDE);
 			}
 
-			if (BARRA_VERDE > 70 && BARRA_VERDE < 80) {
+			if (BARRA_VERDE > 70 && BARRA_VERDE <= 80) {
 				zero.setBackgroundColor(VERDE);
 				dieci.setBackgroundColor(VERDE);
 				venti.setBackgroundColor(VERDE);
@@ -1465,7 +1498,7 @@ public class Utility {
 				settanta.setBackgroundColor(VERDE);
 			}
 
-			if (BARRA_VERDE > 80 && BARRA_VERDE < 90) {
+			if (BARRA_VERDE > 80 && BARRA_VERDE <= 90) {
 				zero.setBackgroundColor(VERDE);
 				dieci.setBackgroundColor(VERDE);
 				venti.setBackgroundColor(VERDE);
@@ -1490,29 +1523,29 @@ public class Utility {
 				novanta.setBackgroundColor(VERDE);
 			}
 
-			if (BARRA_ARANCIONE > 0 && BARRA_ARANCIONE < 10) {
+			if (BARRA_ARANCIONE > 0 && BARRA_ARANCIONE <= 10) {
 				zero.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_ARANCIONE > 10 && BARRA_ARANCIONE < 20) {
+			if (BARRA_ARANCIONE > 10 && BARRA_ARANCIONE <= 20) {
 				zero.setBackgroundColor(ARANCIONE);
 				dieci.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_ARANCIONE > 20 && BARRA_ARANCIONE < 30) {
+			if (BARRA_ARANCIONE > 20 && BARRA_ARANCIONE <= 30) {
 				zero.setBackgroundColor(ARANCIONE);
 				dieci.setBackgroundColor(ARANCIONE);
 				venti.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_ARANCIONE > 30 && BARRA_ARANCIONE < 40) {
+			if (BARRA_ARANCIONE > 30 && BARRA_ARANCIONE <= 40) {
 				zero.setBackgroundColor(ARANCIONE);
 				dieci.setBackgroundColor(ARANCIONE);
 				venti.setBackgroundColor(ARANCIONE);
 				trenta.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_ARANCIONE > 40 && BARRA_ARANCIONE < 50) {
+			if (BARRA_ARANCIONE > 40 && BARRA_ARANCIONE <= 50) {
 				zero.setBackgroundColor(ARANCIONE);
 				dieci.setBackgroundColor(ARANCIONE);
 				venti.setBackgroundColor(ARANCIONE);
@@ -1520,7 +1553,7 @@ public class Utility {
 				quaranta.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_ARANCIONE > 50 && BARRA_ARANCIONE < 60) {
+			if (BARRA_ARANCIONE > 50 && BARRA_ARANCIONE <= 60) {
 				zero.setBackgroundColor(ARANCIONE);
 				dieci.setBackgroundColor(ARANCIONE);
 				venti.setBackgroundColor(ARANCIONE);
@@ -1529,7 +1562,7 @@ public class Utility {
 				cinquanta.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_ARANCIONE > 60 && BARRA_ARANCIONE < 70) {
+			if (BARRA_ARANCIONE > 60 && BARRA_ARANCIONE <= 70) {
 				zero.setBackgroundColor(ARANCIONE);
 				dieci.setBackgroundColor(ARANCIONE);
 				venti.setBackgroundColor(ARANCIONE);
@@ -1539,7 +1572,7 @@ public class Utility {
 				sessanta.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_ARANCIONE > 70 && BARRA_ARANCIONE < 80) {
+			if (BARRA_ARANCIONE > 70 && BARRA_ARANCIONE <= 80) {
 				zero.setBackgroundColor(ARANCIONE);
 				dieci.setBackgroundColor(ARANCIONE);
 				venti.setBackgroundColor(ARANCIONE);
@@ -1550,7 +1583,7 @@ public class Utility {
 				settanta.setBackgroundColor(ARANCIONE);
 			}
 
-			if (BARRA_ARANCIONE > 80 && BARRA_ARANCIONE < 90) {
+			if (BARRA_ARANCIONE > 80 && BARRA_ARANCIONE <= 90) {
 				zero.setBackgroundColor(ARANCIONE);
 				dieci.setBackgroundColor(ARANCIONE);
 				venti.setBackgroundColor(ARANCIONE);
