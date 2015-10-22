@@ -41,7 +41,6 @@ public class Utility {
 	private SharedPreferences preferences;
 
 	private TextView antenna_black_label_up, antenna_black_label_down,
-			water_label_down, deltat_label_down, time_label_down,
 			water_label_up, deltat_label_up, time_label_up;
 
 	private Button button_play, button_stop, button_pause, button_bolus_down,
@@ -51,8 +50,7 @@ public class Utility {
 	private LinearLayout zero, dieci, venti, trenta, quaranta, cinquanta,
 			sessanta, settanta, ottanta, novanta;
 
-	private int Ref_power, Dir_power, iPower, iD_temp, iH2o_temp, iTime,
-			comando;
+	private int Ref_power, Dir_power, iPower, comando;
 
 	private byte[] In_Output_temp;
 
@@ -86,12 +84,6 @@ public class Utility {
 		deltat_label_up = (TextView) activity
 				.findViewById(R.id.deltat_label_up);
 		time_label_up = (TextView) activity.findViewById(R.id.time_label_up);
-		water_label_down = (TextView) activity
-				.findViewById(R.id.water_label_down);
-		deltat_label_down = (TextView) activity
-				.findViewById(R.id.deltat_label_down);
-		time_label_down = (TextView) activity
-				.findViewById(R.id.time_label_down);
 
 		button_play = (Button) activity.findViewById(R.id.button_play);
 		button_pause = (Button) activity.findViewById(R.id.button_pause);
@@ -323,11 +315,11 @@ public class Utility {
 
 			int Cmd = ((int) temp[12]) & 0xFF;
 			Cmd |= (((int) temp[13]) & 0xFF) << 8;
-			iTime = ((int) temp[14]) & 0xFF;
+			int iTime = ((int) temp[14]) & 0xFF;
 			iTime |= (((int) temp[15]) & 0xFF) << 8;
-			iD_temp = ((int) temp[16]) & 0xFF;
+			int iD_temp = ((int) temp[16]) & 0xFF;
 			iD_temp |= (((int) temp[17]) & 0xFF) << 8;
-			iH2o_temp = ((int) temp[18]) & 0xFF;
+			int iH2o_temp = ((int) temp[18]) & 0xFF;
 			iH2o_temp |= (((int) temp[19]) & 0xFF) << 8;
 			int iColdHp_temp = ((int) temp[20]) & 0xFF;
 			iColdHp_temp |= (((int) temp[21]) & 0xFF) << 8;
@@ -473,31 +465,6 @@ public class Utility {
 						} else {
 							button_antenna.setPressed(false);
 						}
-
-						int id_temp = 0;
-						if (iD_temp >= 60000) {
-							id_temp = (iD_temp - 65536);
-						} else {
-							id_temp = iD_temp;
-						}
-
-						water_label_down.setText(String.valueOf(round(
-								Double.parseDouble(String.valueOf(iH2o_temp)) / 100,
-								1)));
-						if (id_temp > 0) {
-
-							deltat_label_down.setText("+".concat(String
-									.valueOf(Double.parseDouble(String
-											.valueOf(id_temp)) / 100)));
-						} else {
-							deltat_label_down.setText(String.valueOf(Double
-									.parseDouble(String.valueOf(id_temp)) / 100));
-						}
-
-						antenna_black_label_down.setText(""
-								+ ((int) (iPower / 100)));
-
-						time_label_down.setText(convertSecondsToMm(iTime));
 
 					}
 				});
