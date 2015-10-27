@@ -9,7 +9,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="17" >
+        android:layout_weight="15" >
 
         <LinearLayout
             android:layout_width="0dp"
@@ -46,7 +46,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="15"
+        android:layout_weight="17"
         android:background="#8ed9e3" >
 
         <!-- VUOTA APPOSITAMENTE -->
@@ -65,7 +65,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|right"
-            android:layout_weight="35"
+            android:layout_weight="30"
             android:background="#00aac0"
             android:gravity="center_vertical|right" >
 
@@ -82,7 +82,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
-            android:layout_weight="18"
+            android:layout_weight="15"
             android:gravity="center_vertical|center_horizontal" >
 
             <Button
@@ -98,7 +98,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
-            android:layout_weight="14"
+            android:layout_weight="10"
             android:gravity="center_vertical|center_horizontal" >
 
             <Button
@@ -114,7 +114,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
-            android:layout_weight="18"
+            android:layout_weight="15"
             android:gravity="center_vertical|center_horizontal" >
 
             <Button
@@ -129,7 +129,7 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_weight="15"
+            android:layout_weight="30"
             android:background="#8ed9e3" >
         </LinearLayout>
     </LinearLayout>
@@ -175,7 +175,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|right"
-            android:layout_weight="35"
+            android:layout_weight="30"
             android:background="#00aac0"
             android:gravity="center_vertical|right" >
 
@@ -192,7 +192,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
-            android:layout_weight="13"
+            android:layout_weight="9"
             android:gravity="center_vertical|center_horizontal" >
 
             <Button
@@ -206,7 +206,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
-            android:layout_weight="13"
+            android:layout_weight="9"
             android:gravity="center_vertical|center_horizontal" >
 
             <Button
@@ -220,7 +220,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
-            android:layout_weight="13"
+            android:layout_weight="9"
             android:gravity="center_vertical|center_horizontal" >
 
             <Button
@@ -234,7 +234,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
-            android:layout_weight="14"
+            android:layout_weight="13"
             android:gravity="center_vertical|center_horizontal" >
 
             <Button
@@ -247,7 +247,7 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_weight="15"
+            android:layout_weight="30"
             android:background="#8ed9e3" >
         </LinearLayout>
     </LinearLayout>
@@ -257,6 +257,9 @@
         android:layout_height="0dp"
         android:layout_weight="17"
         android:background="#8ed9e3" >
+
+        <!-- VUOTA APPOSITAMENTE -->
+
     </LinearLayout>
 
 </LinearLayout>

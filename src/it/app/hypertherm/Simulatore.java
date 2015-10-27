@@ -18,8 +18,9 @@ public class Simulatore implements Runnable {
 	private static BlockingQueue<byte[]> queue;
 	private static boolean START = false;
 	public static boolean INVIA = false;
-	private static int TIME, POTENZA_IN, POTENZA_OUT, POTENZA_DIR, DELTAT,
-			WATER, CMD, INOUT, TIME_IMPOSTATO;
+	private static int TIME_IN, TIME_OUT, POTENZA_IN, POTENZA_OUT, POTENZA_DIR,
+			DELTAT_IN, DELTAT_OUT = 120, WATER_IN, WATER_OUT = 4200, CMD,
+			INOUT, TIME_IMPOSTATO;
 	private static CountDownTimer waitTimer = null;
 	private static Activity activity;
 	private static byte[] In_Output_buffer;
@@ -40,7 +41,7 @@ public class Simulatore implements Runnable {
 
 		tracciato = new Tracciato();
 
-		TIME = 0;
+		TIME_IN = 0;
 
 	}
 
@@ -52,19 +53,22 @@ public class Simulatore implements Runnable {
 
 				if (START) {
 
-					if (TIME == 0) {
+					if (TIME_IN == 0) {
 						tracciato.setComando(3);
 						START = false;
 					}
 
 				}
 
-				tracciato.setTimerIn(TIME);
+				tracciato.setTimerIn(TIME_IN);
+				tracciato.setTimerOut(TIME_OUT);
 				tracciato.setPowerOut(POTENZA_OUT);
 				tracciato.setPowerIn(POTENZA_IN);
 				tracciato.setDirPower(POTENZA_DIR);
-				tracciato.setDeltaTIn(DELTAT);
-				tracciato.setWaterIn(WATER);
+				tracciato.setDeltaTIn(DELTAT_IN);
+				tracciato.setDeltaTOut(DELTAT_OUT);
+				tracciato.setWaterIn(WATER_IN);
+				tracciato.setWaterOut(WATER_OUT);
 				tracciato.setComando(CMD);
 				tracciato.setInOutput(INOUT);
 
@@ -173,12 +177,15 @@ public class Simulatore implements Runnable {
 			POTENZA_IN = simulatePotenza(iPower);
 			POTENZA_OUT = iPower;
 			POTENZA_DIR = simulatePotenza(iPower);
-			DELTAT = simulateDeltaT(iD_temp);
-			WATER = simulateWater(iH2o_temp);
+			DELTAT_IN = simulateDeltaT(iD_temp);
+			DELTAT_OUT = iD_temp;
+			WATER_IN = simulateWater(iH2o_temp);
+			WATER_OUT = iH2o_temp;
 			INOUT = In_Output_buffer[0];
+			TIME_OUT = iTime;
 
 			if (CMD == 3) {
-				TIME = iTime;
+				TIME_IN = iTime;
 				POTENZA_IN = simulatePotenza(0);
 				POTENZA_DIR = simulatePotenza(0);
 
@@ -213,7 +220,7 @@ public class Simulatore implements Runnable {
 
 					} else {
 
-						TIME = 0;
+						TIME_IN = 0;
 
 					}
 
@@ -225,7 +232,7 @@ public class Simulatore implements Runnable {
 								public void onTick(long millisUntilFinished) {
 
 									if (START) {
-										TIME += 1;
+										TIME_IN += 1;
 									} else {
 										cancel();
 									}
@@ -256,7 +263,7 @@ public class Simulatore implements Runnable {
 
 			case 768: // STOP
 				START = false;
-				TIME = iTime;
+				TIME_IN = iTime;
 				if (waitTimer != null) {
 					waitTimer.cancel();
 				}
@@ -266,7 +273,7 @@ public class Simulatore implements Runnable {
 				POTENZA_DIR = 0;
 				POTENZA_OUT = 0;
 				POTENZA_IN = 0;
-				TIME = 0;
+				TIME_IN = 0;
 				break;
 
 			case 1024: // BOOL-UP

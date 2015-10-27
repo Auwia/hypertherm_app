@@ -55,7 +55,7 @@ public class WorkActivity extends Activity {
 			button_bolus_up, button_bolus_down, button_power,
 			button_temperature_positive, button_temperature_negative,
 			button_onda_quadra, button_antenna, button_time, button_water,
-			button_deltat, button_ping;
+			button_deltat;
 	private TextView antenna_black_label_down, water_label_down,
 			deltat_label_down, time_label_down, disturbo_label, suggerimenti;
 
@@ -69,10 +69,13 @@ public class WorkActivity extends Activity {
 	public static boolean SIMULATORE = false;
 	private static boolean PING = false;
 	public static boolean COMMUNICATION_READY = true;
+	private boolean LONG = false;
 
 	private int funzionalita;
 
-	public float WATER = 37, DELTAT = 1.2f;
+	public static int WATER = 0;
+	public static int DELTAT = 0;
+	public static int POWER = 0;
 
 	private final static int MSK_CMD = 2;
 	private final static int MSK_TIME = 4;
@@ -103,7 +106,7 @@ public class WorkActivity extends Activity {
 	private LineGraphSeries<DataPoint> mSeries380, mSeries383, mSeries386,
 			mSeries389, mSeries393, mSeries396, mSeries399, mSeries402,
 			mSeries405, mSeries408, mSeries411, mSeries414, mSeries418,
-			mSeries421, mSeries424, mSeries427, mSeries1;
+			mSeries421, mSeries424, mSeries427;
 
 	private SharedPreferences preferences;
 
@@ -275,10 +278,10 @@ public class WorkActivity extends Activity {
 			e.printStackTrace();
 		}
 
-		// PING = true;
-		// mWritePing = new WritePing();
-		// mWritePing.setName("Thread_PING");
-		// mWritePing.start();
+		PING = true;
+		mWritePing = new WritePing();
+		mWritePing.setName("Thread_PING");
+		mWritePing.start();
 
 	}
 
@@ -314,13 +317,20 @@ public class WorkActivity extends Activity {
 		getWindowManager().getDefaultDisplay().getMetrics(display);
 		int width = display.widthPixels;
 
-		param.width = width * 20 / 100;
+		param.width = width * 22 / 100;
 
 		def_variable_components();
 
 		def_bottun_click();
 
 		def_value_defaults();
+
+		if (SIMULATORE) {
+			disturbo_label.setTextColor(Color.parseColor("#ffa500"));
+			disturbo_label.setText("DEMO");
+			button_stop.setPressed(true);
+			button_power.setPressed(true);
+		}
 
 	}
 
@@ -338,35 +348,11 @@ public class WorkActivity extends Activity {
 		button_time.setEnabled(false);
 		button_time.setClickable(false);
 
-		water_label_down.setText(String.valueOf(preferences.getFloat("WATER",
-				35)));
-
 		tracciato_out
 				.setWaterOut((int) (preferences.getFloat("WATER", 35) * 100));
-
-		if (preferences.getFloat("DELTAT", 1) >= 0) {
-			deltat_label_down.setText("+"
-					+ String.valueOf(preferences.getFloat("DELTAT", 1)));
-		} else {
-			deltat_label_down.setText("-"
-					+ String.valueOf(preferences.getFloat("DELTAT", 1)));
-		}
 		tracciato_out
 				.setDeltaTOut((int) (preferences.getFloat("DELTAT", 1) * 100));
-
-		antenna_black_label_down.setText(String.valueOf(preferences.getInt(
-				"ANTENNA", 0)));
-
 		tracciato_out.setPowerOut(preferences.getInt("ANTENNA", 0) * 100);
-
-		if (preferences.getInt("TIME", 0) < 10) {
-			time_label_down.setText("0"
-					+ String.valueOf(preferences.getInt("TIME", 0)));
-
-		} else {
-			time_label_down.setText(String.valueOf(preferences
-					.getInt("TIME", 0)));
-		}
 		tracciato_out.setTimerOut(preferences.getInt("TIME", 0) * 60);
 
 		disturbo_label.setText(String.valueOf(preferences.getString(
@@ -491,8 +477,9 @@ public class WorkActivity extends Activity {
 											tracciato_out.getPowerOut() / 10,
 											tracciato_out.getWaterOut() / 10);
 
-									antenna_black_label_down.setText(""
-											+ potenza);
+									if (LONG)
+										antenna_black_label_down.setText(""
+												+ potenza);
 
 									tracciato_in
 											.setPowerOut((int) (potenza * 10));
@@ -550,7 +537,8 @@ public class WorkActivity extends Activity {
 									tracciato_out.getPowerOut() / 10,
 									tracciato_out.getWaterOut() / 10);
 
-							antenna_black_label_down.setText("" + potenza);
+							if (LONG)
+								antenna_black_label_down.setText("" + potenza);
 
 							tracciato_in.setPowerIn((int) (potenza * 10));
 						}
@@ -650,12 +638,6 @@ public class WorkActivity extends Activity {
 										utility.appendLog("D",
 												"Setto il valore della temperatura dell'acqua al livello intermedio");
 
-										water_label_down.setText(String.valueOf(utility
-												.getWaterTemperature(
-														preferences.getString(
-																"STRUTTURA",
-																"Mix"), "2")));
-
 										tracciato_in.setWaterIn((int) (utility
 												.getWaterTemperature(
 														preferences.getString(
@@ -680,11 +662,6 @@ public class WorkActivity extends Activity {
 												utility.appendLog("D",
 														"Setto i 3 parametri al livello intermedio");
 
-												deltat_label_down.setText(String.valueOf(utility.getDeltaT(
-														preferences.getString(
-																"STRUTTURA",
-																"Mix"), "2")));
-
 												tracciato_in
 														.setDeltaTIn((int) (utility.getDeltaT(
 																preferences
@@ -692,38 +669,10 @@ public class WorkActivity extends Activity {
 																				"STRUTTURA",
 																				"Mix"),
 																"2") * 10));
-
-												antenna_black_label_down.setText(String.valueOf(utility.getAntenna(
-														preferences.getString(
-																"STRUTTURA",
-																"Mix"), "2")));
-
 												tracciato_in.setPowerIn(utility.getAntenna(
 														preferences.getString(
 																"STRUTTURA",
 																"Mix"), "2") * 10);
-
-												if (utility.getTime(preferences
-														.getString("STRUTTURA",
-																"Mix"), "2") < 10) {
-
-													time_label_down.setText("0"
-															+ String.valueOf(utility.getTime(
-																	preferences
-																			.getString(
-																					"STRUTTURA",
-																					"Mix"),
-																	"2")));
-												} else {
-													time_label_down.setText(String.valueOf(utility.getTime(
-															preferences
-																	.getString(
-																			"STRUTTURA",
-																			"Mix"),
-															"2")));
-
-												}
-
 												tracciato_in.setTimerIn(utility.getTime(
 														preferences.getString(
 																"STRUTTURA",
@@ -746,15 +695,6 @@ public class WorkActivity extends Activity {
 													public void onFinish() {
 														utility.appendLog("D",
 																"Setto il valore della temperatura dell'acqua al livello profondo");
-
-														water_label_down.setText(String
-																.valueOf(utility
-																		.getWaterTemperature(
-																				preferences
-																						.getString(
-																								"STRUTTURA",
-																								"Mix"),
-																				"3")));
 
 														tracciato_in
 																.setWaterIn((int) (utility
@@ -915,8 +855,15 @@ public class WorkActivity extends Activity {
 						utility.appendLog("D", "Inviato comando: PLAY");
 						inviaComandi(PLAY, MSK_CMD, INOUT);
 
-						// disegna_grafico_lib();
-						disegna_grafico(1);
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+
+								// disegna_grafico_lib();
+								// disegna_grafico(1);
+
+							}
+						});
 
 						button_home.setEnabled(false);
 
@@ -1172,56 +1119,58 @@ public class WorkActivity extends Activity {
 			}
 		});
 
-		button_ping.setOnTouchListener(new OnTouchListener() {
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-
-					if (button_ping.isPressed()) {
-
-						button_ping.setPressed(false);
-
-						PING = false;
-
-						return true;
-
-					} else {
-
-						if (!button_ping.isPressed()) {
-
-							button_ping.setPressed(true);
-
-							PING = true;
-
-							if (mWritePing == null) {
-								mWritePing = new WritePing();
-								mWritePing.setName("Thread_PING");
-								mWritePing.start();
-							}
-
-							return false;
-
-						} else {
-
-							button_ping.setPressed(false);
-
-							PING = false;
-
-							return true;
-						}
-					}
-				}
-
-				return true;
-
-			}
-		});
+		// button_ping.setOnTouchListener(new OnTouchListener() {
+		//
+		// @Override
+		// public boolean onTouch(View v, MotionEvent event) {
+		//
+		// if (event.getAction() == MotionEvent.ACTION_DOWN) {
+		//
+		// if (button_ping.isPressed()) {
+		//
+		// button_ping.setPressed(false);
+		//
+		// PING = false;
+		//
+		// return true;
+		//
+		// } else {
+		//
+		// if (!button_ping.isPressed()) {
+		//
+		// button_ping.setPressed(true);
+		//
+		// PING = true;
+		//
+		// if (mWritePing == null) {
+		// mWritePing = new WritePing();
+		// mWritePing.setName("Thread_PING");
+		// mWritePing.start();
+		// }
+		//
+		// return false;
+		//
+		// } else {
+		//
+		// button_ping.setPressed(false);
+		//
+		// PING = false;
+		//
+		// return true;
+		// }
+		// }
+		// }
+		//
+		// return true;
+		//
+		// }
+		// });
 
 		button_water_left
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
+
+						LONG = true;
 
 						funzionalita = button_water_left.getId();
 
@@ -1244,7 +1193,7 @@ public class WorkActivity extends Activity {
 
 				funzionalita = button_water_left.getId();
 
-				int water = tracciato_out.getWaterOut();
+				// int water = tracciato_out.getWaterOut();
 
 				if ((event.getAction() == MotionEvent.ACTION_UP)) {
 
@@ -1253,34 +1202,44 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
-					if (water >= 3500) {
+					if (WATER >= 3500) {
 
 						inviaComandi(0, MSK_WATER, INOUT);
 
 					}
 
+					LONG = false;
+
+					PING = true;
+
 				}
 
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					PING = false;
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
 						waitTimer = null;
 					}
 
-					water -= 10;
+					WATER -= 10;
 
-					if (water >= 3500) {
+					if (WATER >= 3500) {
 
-						tracciato_out.setWaterOut(water);
+						tracciato_out.setWaterOut(WATER);
 
-						water_label_down.setText(String.valueOf(Float
-								.parseFloat(""
-										+ utility.arrotondaPerEccesso(water, 1))));
+						if (LONG) {
+							water_label_down.setText(String.valueOf(Float
+									.parseFloat(""
+											+ utility.arrotondaPerEccesso(
+													WATER, 1))));
+						}
 
 					}
 
-					set_attention();
+					if (!SIMULATORE)
+					if (!SIMULATORE) set_attention();
 
 					attiva_normal();
 
@@ -1292,6 +1251,8 @@ public class WorkActivity extends Activity {
 		button_water_right
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
+
+						LONG = true;
 
 						funzionalita = button_water_right.getId();
 
@@ -1313,7 +1274,7 @@ public class WorkActivity extends Activity {
 
 				funzionalita = button_water_right.getId();
 
-				int water = tracciato_out.getWaterOut();
+				// int water = tracciato_out.getWaterOut();
 
 				if ((event.getAction() == MotionEvent.ACTION_UP)) {
 
@@ -1322,32 +1283,40 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
-					if (water <= 4200) {
+					if (WATER <= 4200) {
 						inviaComandi(0, MSK_WATER, INOUT);
 					}
+
+					LONG = false;
+
+					PING = true;
 
 				}
 
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					PING = false;
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
 						waitTimer = null;
 					}
 
-					water += 10;
+					WATER += 10;
 
-					if (water <= 4200) {
+					if (WATER <= 4200) {
 
-						tracciato_out.setWaterOut(water);
+						tracciato_out.setWaterOut(WATER);
 
-						water_label_down.setText(String.valueOf(Float
-								.parseFloat(""
-										+ utility.arrotondaPerEccesso(water, 1))));
+						if (LONG)
+							water_label_down.setText(String.valueOf(Float
+									.parseFloat(""
+											+ utility.arrotondaPerEccesso(
+													WATER, 1))));
 
 					}
 
-					set_attention();
+					if (!SIMULATORE) set_attention();
 					attiva_normal();
 
 				}
@@ -1358,6 +1327,8 @@ public class WorkActivity extends Activity {
 		button_deltat_left
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
+
+						LONG = true;
 
 						funzionalita = button_deltat_left.getId();
 
@@ -1380,7 +1351,7 @@ public class WorkActivity extends Activity {
 
 				funzionalita = button_deltat_left.getId();
 
-				int deltat = tracciato_out.getDeltaTOut();
+				// int deltat = tracciato_out.getDeltaTOut();
 
 				if ((event.getAction() == MotionEvent.ACTION_UP)) {
 
@@ -1389,44 +1360,53 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
-					if (deltat >= -100) {
+					if (DELTAT >= -100) {
 						inviaComandi(0, MSK_DELTAT, INOUT);
 					}
+
+					LONG = false;
+					PING = true;
 
 				}
 
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					PING = false;
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
 						waitTimer = null;
 					}
 
-					deltat -= 10;
+					DELTAT -= 10;
 
-					if (deltat >= -100) {
+					if (DELTAT >= -100) {
 
-						if (deltat >= 60000) {
-							deltat -= 65536;
+						if (DELTAT >= 60000) {
+							DELTAT -= 65536;
 						}
 
-						if (deltat > 0) {
+						if (DELTAT > 0) {
 
-							deltat_label_down.setText("+"
-									+ utility.arrotondaPerEccesso(deltat, 1));
+							if (LONG)
+								deltat_label_down.setText("+"
+										+ utility
+												.arrotondaPerEccesso(DELTAT, 1));
 
 						} else {
 
-							deltat_label_down.setText(""
-									+ utility.arrotondaPerEccesso(deltat, 1));
+							if (LONG)
+								deltat_label_down.setText(""
+										+ utility
+												.arrotondaPerEccesso(DELTAT, 1));
 
 						}
 
-						tracciato_out.setDeltaTOut(deltat);
+						tracciato_out.setDeltaTOut(DELTAT);
 
 					}
 
-					set_attention();
+					if (!SIMULATORE) set_attention();
 					attiva_normal();
 
 				}
@@ -1438,6 +1418,8 @@ public class WorkActivity extends Activity {
 		button_deltat_right
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
+
+						LONG = true;
 
 						funzionalita = button_deltat_right.getId();
 
@@ -1460,7 +1442,7 @@ public class WorkActivity extends Activity {
 
 				funzionalita = button_deltat_right.getId();
 
-				int deltat = tracciato_out.getDeltaTOut();
+				// int deltat = tracciato_out.getDeltaTOut();
 
 				if ((event.getAction() == MotionEvent.ACTION_UP)) {
 
@@ -1469,45 +1451,54 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
-					if (deltat <= 500) {
-
+					if (DELTAT <= 500) {
 						inviaComandi(0, MSK_DELTAT, INOUT);
-
 					}
+
+					LONG = false;
+
+					PING = true;
+
 				}
 
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					PING = false;
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
 						waitTimer = null;
 					}
 
-					deltat += 10;
+					DELTAT += 10;
 
-					if (deltat <= 500) {
+					if (DELTAT <= 500) {
 
-						if (deltat >= 60000) {
-							deltat -= 65536;
+						if (DELTAT >= 60000) {
+							DELTAT -= 65536;
 						}
 
-						if (deltat > 0) {
+						if (DELTAT > 0) {
 
-							deltat_label_down.setText("+"
-									+ utility.arrotondaPerEccesso(deltat, 1));
+							if (LONG)
+								deltat_label_down.setText("+"
+										+ utility
+												.arrotondaPerEccesso(DELTAT, 1));
 
 						} else {
 
-							deltat_label_down.setText(""
-									+ utility.arrotondaPerEccesso(deltat, 1));
+							if (LONG)
+								deltat_label_down.setText(""
+										+ utility
+												.arrotondaPerEccesso(DELTAT, 1));
 
 						}
 
-						tracciato_out.setDeltaTOut(deltat);
+						tracciato_out.setDeltaTOut(DELTAT);
 
 					}
 
-					set_attention();
+					if (!SIMULATORE) set_attention();
 					attiva_normal();
 
 				}
@@ -1519,6 +1510,8 @@ public class WorkActivity extends Activity {
 		button_antenna_left
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
+
+						LONG = true;
 
 						funzionalita = button_antenna_left.getId();
 
@@ -1541,7 +1534,7 @@ public class WorkActivity extends Activity {
 
 				funzionalita = button_antenna_left.getId();
 
-				int antenna = tracciato_out.getPowerOut();
+				// int antenna = tracciato_out.getPowerOut();
 
 				if ((event.getAction() == MotionEvent.ACTION_UP)) {
 
@@ -1550,28 +1543,37 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
-					if (antenna >= 0) {
+					if (POWER >= 0) {
 						inviaComandi(0, MSK_POWER, INOUT);
 					}
 
+					PING = true;
+
+					LONG = false;
 				}
 
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					PING = false;
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
 						waitTimer = null;
 					}
 
-					antenna -= 100;
+					POWER -= 100;
 
-					if (antenna >= 0) {
-						antenna_black_label_down.setText("" + (antenna / 100));
-						tracciato_out.setPowerOut(antenna);
+					if (POWER >= 0) {
+
+						if (LONG) {
+							antenna_black_label_down
+									.setText("" + (POWER / 100));
+						}
+						tracciato_out.setPowerOut(POWER);
 
 					}
 
-					set_attention();
+					if (!SIMULATORE) set_attention();
 					attiva_normal();
 
 				}
@@ -1583,6 +1585,8 @@ public class WorkActivity extends Activity {
 		button_antenna_right
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
+
+						LONG = true;
 
 						funzionalita = button_antenna_right.getId();
 
@@ -1605,7 +1609,7 @@ public class WorkActivity extends Activity {
 
 				funzionalita = button_antenna_right.getId();
 
-				int antenna = tracciato_out.getPowerOut();
+				// int antenna= tracciato_out.getPowerOut();
 
 				if ((event.getAction() == MotionEvent.ACTION_UP)) {
 
@@ -1616,24 +1620,33 @@ public class WorkActivity extends Activity {
 
 					inviaComandi(0, MSK_POWER, INOUT);
 
+					PING = true;
+
+					LONG = false;
+
 				}
 
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					PING = false;
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
 						waitTimer = null;
 					}
 
-					antenna += 100;
+					POWER += 100;
 
-					if (antenna <= 9900) {
-						antenna_black_label_down.setText("" + (antenna / 100));
-						tracciato_out.setPowerOut(antenna);
+					if (POWER <= 9900) {
+						if (LONG)
+							antenna_black_label_down
+									.setText("" + (POWER / 100));
+						tracciato_out.setPowerOut(POWER);
 
 					}
 
-					set_attention();
+					if (!SIMULATORE)
+						set_attention();
 					attiva_normal();
 
 				}
@@ -1644,6 +1657,8 @@ public class WorkActivity extends Activity {
 
 		button_time_left.setOnLongClickListener(new View.OnLongClickListener() {
 			public boolean onLongClick(View arg0) {
+
+				LONG = true;
 
 				funzionalita = button_time_left.getId();
 
@@ -1675,9 +1690,15 @@ public class WorkActivity extends Activity {
 					}
 
 					inviaComandi(0, MSK_TIME, INOUT);
+
+					PING = true;
+					LONG = false;
+
 				}
 
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					PING = false;
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
@@ -1685,15 +1706,18 @@ public class WorkActivity extends Activity {
 					}
 
 					if (time > 0) {
-						if (time - 1 < 10 && time - 1 > 0) {
-							time_label_down.setText("0" + (time - 1));
-						} else {
-							time_label_down.setText("" + (time - 1));
-						}
 
-						if (time == 1) {
-							time_label_down.setText("00");
-						}
+						if (LONG)
+							if (time - 1 < 10 && time - 1 > 0) {
+								time_label_down.setText("0" + (time - 1));
+							} else {
+								time_label_down.setText("" + (time - 1));
+							}
+
+						if (LONG)
+							if (time == 1) {
+								time_label_down.setText("00");
+							}
 
 						tracciato_out.setTimerOut((time - 1) * 60);
 					}
@@ -1709,6 +1733,8 @@ public class WorkActivity extends Activity {
 		button_time_right
 				.setOnLongClickListener(new View.OnLongClickListener() {
 					public boolean onLongClick(View arg0) {
+
+						LONG = true;
 
 						funzionalita = button_time_right.getId();
 
@@ -1742,9 +1768,15 @@ public class WorkActivity extends Activity {
 
 					inviaComandi(0, MSK_TIME, INOUT);
 
+					PING = true;
+
+					LONG = false;
+
 				}
 
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+					PING = false;
 
 					if (waitTimer != null) {
 						waitTimer.cancel();
@@ -1753,11 +1785,12 @@ public class WorkActivity extends Activity {
 
 					if (time < 30) {
 
-						if (time + 1 < 10) {
-							time_label_down.setText("0" + (time + 1));
-						} else {
-							time_label_down.setText("" + (time + 1));
-						}
+						if (LONG)
+							if (time + 1 < 10) {
+								time_label_down.setText("0" + (time + 1));
+							} else {
+								time_label_down.setText("" + (time + 1));
+							}
 
 						tracciato_out.setTimerOut((time + 1) * 60);
 
@@ -1919,7 +1952,7 @@ public class WorkActivity extends Activity {
 		button_time = (Button) findViewById(R.id.button_time);
 		button_water = (Button) findViewById(R.id.button_water);
 		button_deltat = (Button) findViewById(R.id.button_deltat);
-		button_ping = (Button) findViewById(R.id.button_ping);
+		// button_ping = (Button) findViewById(R.id.button_ping);
 
 		antenna_black_label_down = (TextView) findViewById(R.id.antenna_black_label_down);
 		water_label_down = (TextView) findViewById(R.id.water_label_down);
@@ -2134,35 +2167,6 @@ public class WorkActivity extends Activity {
 
 	}
 
-	private void disegna_grafico() {
-
-		// GRAFICO_DEF
-		// GraphView graph = (GraphView) findViewById(R.id.grafico);
-		GraphView graph = null;
-		graph.setBackgroundColor(Color.BLACK);
-		graph.getGridLabelRenderer().setGridColor(Color.GRAY);
-		graph.getGridLabelRenderer().setHighlightZeroLines(false);
-		graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.GREEN);
-		graph.getGridLabelRenderer().setVerticalLabelsColor(Color.RED);
-		graph.getGridLabelRenderer().setVerticalLabelsAlign(Paint.Align.LEFT);
-		graph.getGridLabelRenderer().setLabelVerticalWidth(150);
-		// graph.getGridLabelRenderer().setTextSize(40);
-		graph.getGridLabelRenderer().setGridStyle(
-				GridLabelRenderer.GridStyle.BOTH);
-		graph.getGridLabelRenderer().reloadStyles();
-
-		mSeries1 = new LineGraphSeries<DataPoint>(generateData());
-		mSeries1.setDrawBackground(true);
-		mSeries1.setBackgroundColor(Color.argb(100, 255, 255, 0));
-		Paint paint = new Paint();
-		paint.setColor(Color.argb(100, 255, 255, 0));
-		mSeries1.setCustomPaint(paint);
-
-		graph.addSeries(mSeries1);
-
-		utility.appendLog("D", "FINISCO GRAFICO");
-	}
-
 	private DataPoint[] generateData() {
 
 		int count = 70;
@@ -2277,17 +2281,17 @@ public class WorkActivity extends Activity {
 
 		canvas.restore();
 
-		canvas.save();
-		int colonna = 20, riga = 5;
-
-		for (int i = 0; i < asse_x; i += colonna) {
-			canvas.drawLine(i, 0, i, asse_y, paint_griglia);
-		}
-
-		for (int j = 0; j < asse_y; j += riga) {
-			canvas.drawLine(0, j, asse_x, j, paint_griglia);
-		}
-		canvas.restore();
+		// canvas.save();
+		// int colonna = 20, riga = 5;
+		//
+		// for (int i = 0; i < asse_x; i += colonna) {
+		// canvas.drawLine(i, 0, i, asse_y, paint_griglia);
+		// }
+		//
+		// for (int j = 0; j < asse_y; j += riga) {
+		// canvas.drawLine(0, j, asse_x, j, paint_griglia);
+		// }
+		// canvas.restore();
 
 		// canvas.save();
 		// String testo;
@@ -2305,8 +2309,8 @@ public class WorkActivity extends Activity {
 		// }
 		// canvas.restore();
 
-		LinearLayout ll = (LinearLayout) findViewById(R.id.grafico1);
-		// LinearLayout ll = null;
+		// LinearLayout ll = (LinearLayout) findViewById(R.id.grafico1);
+		LinearLayout ll = null;
 		ll.setBackgroundDrawable(new BitmapDrawable(bg));
 
 	}
@@ -2441,16 +2445,18 @@ public class WorkActivity extends Activity {
 
 		if (funzionalita == button_water_left.getId()) {
 
-			if (water_label_down.getText().equals("-00.0")) {
-				water_label_down.setText("42");
-			}
+			if (LONG)
+				if (water_label_down.getText().equals("-00.0")) {
+					water_label_down.setText("42");
+				}
 
 			if (Float.parseFloat(water_label_down.getText().toString()) > 35) {
 
 				float tot = (Float.parseFloat(water_label_down.getText()
 						.toString()) * 10 - 1) / 10;
 
-				water_label_down.setText(String.valueOf(tot));
+				if (LONG)
+					water_label_down.setText(String.valueOf(tot));
 
 				tracciato_out.setWaterOut((int) (tot * 100));
 				tracciato_out.setBuf();
@@ -2461,20 +2467,22 @@ public class WorkActivity extends Activity {
 
 		if (funzionalita == button_deltat_left.getId()) {
 
-			if (deltat_label_down.getText().equals("-00.0")) {
-				deltat_label_down.setText("3");
-			}
+			if (LONG)
+				if (deltat_label_down.getText().equals("-00.0")) {
+					deltat_label_down.setText("3");
+				}
 
 			if (Float.parseFloat(deltat_label_down.getText().toString()) > -1) {
 
 				float tot = (Float.parseFloat(deltat_label_down.getText()
 						.toString()) * 10 - 1) / 10;
 
-				if (tot > 0) {
-					deltat_label_down.setText("+" + tot);
-				} else {
-					deltat_label_down.setText(String.valueOf(tot));
-				}
+				if (LONG)
+					if (tot > 0) {
+						deltat_label_down.setText("+" + tot);
+					} else {
+						deltat_label_down.setText(String.valueOf(tot));
+					}
 
 				tracciato_out.setDeltaTOut((int) (tot * 100));
 				tracciato_out.setBuf();
@@ -2488,14 +2496,16 @@ public class WorkActivity extends Activity {
 			int tot = Integer.parseInt(antenna_black_label_down.getText()
 					.toString()) - 1;
 
-			if (tot > 0) {
-				antenna_black_label_down.setText("" + tot);
-			} else {
-				antenna_black_label_down.setText(String.valueOf(tot));
-			}
+			if (LONG)
+				if (tot > 0) {
+					antenna_black_label_down.setText("" + tot);
+				} else {
+					antenna_black_label_down.setText(String.valueOf(tot));
+				}
 
 			if (tot < 99) {
-				antenna_black_label_down.setText("" + tot);
+				if (LONG)
+					antenna_black_label_down.setText("" + tot);
 
 				tracciato_out.setPowerOut((int) (tot * 100));
 				tracciato_out.setBuf();
@@ -2509,15 +2519,18 @@ public class WorkActivity extends Activity {
 					.substring(0, 2));
 
 			if (time > 0) {
-				if (time - 1 < 10 && time - 1 > 0) {
-					time_label_down.setText("0" + (time - 1));
-				} else {
-					time_label_down.setText("" + (time - 1));
-				}
 
-				if (time == 1) {
-					time_label_down.setText("00");
-				}
+				if (LONG)
+					if (time - 1 < 10 && time - 1 > 0) {
+						time_label_down.setText("0" + (time - 1));
+					} else {
+						time_label_down.setText("" + (time - 1));
+					}
+
+				if (LONG)
+					if (time == 1) {
+						time_label_down.setText("00");
+					}
 
 				tracciato_out.setTimerOut((time - 1) * 60);
 				tracciato_out.setBuf();
@@ -2530,16 +2543,19 @@ public class WorkActivity extends Activity {
 	private void increment() {
 
 		if (funzionalita == button_water_right.getId()) {
-			if (water_label_down.getText().equals("-00.0")) {
-				water_label_down.setText("35");
-			}
+
+			if (LONG)
+				if (water_label_down.getText().equals("-00.0")) {
+					water_label_down.setText("35");
+				}
 
 			if (Float.parseFloat(water_label_down.getText().toString()) < 42) {
 
 				float tot = (Float.parseFloat(water_label_down.getText()
 						.toString()) * 10 + 1) / 10;
 
-				water_label_down.setText(String.valueOf(tot));
+				if (LONG)
+					water_label_down.setText(String.valueOf(tot));
 
 				tracciato_out.setWaterOut((int) (tot * 100));
 				tracciato_out.setBuf();
@@ -2549,20 +2565,22 @@ public class WorkActivity extends Activity {
 
 		if (funzionalita == button_deltat_right.getId()) {
 
-			if (deltat_label_down.getText().equals("-00.0")) {
-				deltat_label_down.setText("-1");
-			}
+			if (LONG)
+				if (deltat_label_down.getText().equals("-00.0")) {
+					deltat_label_down.setText("-1");
+				}
 
 			if (Float.parseFloat(deltat_label_down.getText().toString()) < 5) {
 
 				float tot = (Float.parseFloat(deltat_label_down.getText()
 						.toString()) * 10 + 1) / 10;
 
-				if (tot > 0) {
-					deltat_label_down.setText("+" + tot);
-				} else {
-					deltat_label_down.setText(String.valueOf(tot));
-				}
+				if (LONG)
+					if (tot > 0) {
+						deltat_label_down.setText("+" + tot);
+					} else {
+						deltat_label_down.setText(String.valueOf(tot));
+					}
 
 				tracciato_out.setDeltaTOut((int) (tot * 100));
 				tracciato_out.setBuf();
@@ -2576,14 +2594,16 @@ public class WorkActivity extends Activity {
 			int tot = Integer.parseInt(antenna_black_label_down.getText()
 					.toString()) + 1;
 
-			if (tot > 0) {
-				antenna_black_label_down.setText("" + tot);
-			} else {
-				antenna_black_label_down.setText(String.valueOf(tot));
-			}
+			if (LONG)
+				if (tot > 0) {
+					antenna_black_label_down.setText("" + tot);
+				} else {
+					antenna_black_label_down.setText(String.valueOf(tot));
+				}
 
 			if (tot < 99) {
-				antenna_black_label_down.setText("" + (tot));
+				if (LONG)
+					antenna_black_label_down.setText("" + (tot));
 
 				tracciato_out.setPowerOut((int) (tot * 100));
 				tracciato_out.setBuf();
@@ -2598,13 +2618,15 @@ public class WorkActivity extends Activity {
 
 			if (time < 30) {
 
-				time_label_down.setText("" + (time + 1));
-
-				if (time + 1 < 10) {
-					time_label_down.setText("0" + (time + 1));
-				} else {
+				if (LONG)
 					time_label_down.setText("" + (time + 1));
-				}
+
+				if (LONG)
+					if (time + 1 < 10) {
+						time_label_down.setText("0" + (time + 1));
+					} else {
+						time_label_down.setText("" + (time + 1));
+					}
 
 				tracciato_out.setTimerOut((time + 1) * 60);
 				tracciato_out.setBuf();

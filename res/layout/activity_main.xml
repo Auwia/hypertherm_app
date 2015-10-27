@@ -7,7 +7,6 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_gravity="center_vertical"
         android:layout_weight="20"
         android:background="#c6ecf1"
         android:gravity="center_vertical" >
@@ -16,7 +15,8 @@
             android:id="@+id/logo"
             android:layout_width="300dp"
             android:layout_height="100dp"
-            android:contentDescription="@string/app_name" />
+            android:contentDescription="@string/app_name"
+            android:paddingLeft="135dp" />
     </LinearLayout>
 
     <LinearLayout

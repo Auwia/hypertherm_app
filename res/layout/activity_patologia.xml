@@ -10,7 +10,7 @@
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_gravity="center_vertical"
-        android:layout_weight="20"
+        android:layout_weight="15"
         android:background="#c6ecf1"
         android:baselineAligned="false"
         android:gravity="center_vertical"
@@ -36,11 +36,10 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_gravity="center_vertical|right"
+            android:layout_gravity="center_vertical|center_horizontal"
             android:layout_weight="12"
             android:background="#c6ecf1"
-            android:gravity="center_vertical|right"
-            android:paddingRight="30sp" >
+            android:gravity="center_vertical|center_horizontal" >
 
             <Button
                 android:id="@+id/button_home"
@@ -54,7 +53,7 @@
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_gravity="center_vertical"
-        android:layout_weight="80"
+        android:layout_weight="85"
         android:baselineAligned="false"
         android:gravity="center_vertical"
         android:orientation="horizontal" >
@@ -101,7 +100,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="center_vertical|right"
-                android:layout_weight="20"
+                android:layout_weight="18"
                 android:gravity="center_vertical|right"
                 android:paddingRight="30sp" >
 
@@ -117,7 +116,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="center_vertical|right"
-                android:layout_weight="20"
+                android:layout_weight="18"
                 android:gravity="center_vertical|right"
                 android:paddingRight="30sp" >
 
@@ -148,15 +147,16 @@
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_gravity="center_vertical|right"
-                android:layout_weight="30"
-                android:gravity="center_vertical|right" >
+                android:layout_gravity="bottom|right"
+                android:layout_weight="34"
+                android:gravity="bottom|right" >
 
                 <ImageView
                     android:id="@+id/logo"
                     android:layout_width="300dp"
                     android:layout_height="80dp"
-                    android:contentDescription="@string/app_name" />
+                    android:contentDescription="@string/app_name"
+                    android:paddingBottom="10dp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
