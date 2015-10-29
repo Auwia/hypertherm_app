@@ -1,5 +1,7 @@
 package it.app.hypertherm;
 
+import it.app.hypertherm.activity.WorkActivity;
+
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -94,6 +96,10 @@ public class MenuListViewAdapter extends ArrayAdapter<Menu_app> {
 			row.setBackgroundColor(Color.parseColor("#39bdce"));
 		} else {
 			row.setBackgroundColor(Color.parseColor("#00aac0"));
+		}
+
+		if (position == 3 && WorkActivity.SIMULATORE) {
+			row.setBackgroundColor(Color.parseColor("#ffa500"));
 		}
 
 		row.setLayoutParams(params);

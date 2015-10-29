@@ -517,6 +517,8 @@ public class Utility {
 
 						time_label_down.setText(convertSecondsToMm(iTime));
 
+						WorkActivity.TIMER = iTime;
+
 					}
 				});
 
@@ -981,7 +983,10 @@ public class Utility {
 		}
 		cur.close();
 
-		return result;
+		String tmp = result.replace("\\n",
+				System.getProperty("line.separator"));
+
+		return tmp;
 	}
 
 	public String get_menu_item_demo_training() {
@@ -1112,6 +1117,26 @@ public class Utility {
 				new String[] { HyperthermDB.COLUMN_MENU_VALUE },
 				HyperthermDB.COLUMN_MENU_ITEM + "=?",
 				new String[] { "label_profondita" }, null, null, null);
+
+		cur.moveToFirst();
+
+		String result = "";
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			result = cur.getString(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return result;
+	}
+	
+	public String get_menu_item_demo_training_2() {
+
+		cur = database.query(HyperthermDB.TABLE_STAGE_STRING,
+				new String[] { HyperthermDB.COLUMN_MENU_VALUE },
+				HyperthermDB.COLUMN_MENU_ITEM + "=?",
+				new String[] { "menu_item_demo_training_2" }, null, null, null);
 
 		cur.moveToFirst();
 

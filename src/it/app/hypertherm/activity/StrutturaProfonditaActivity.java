@@ -335,7 +335,12 @@ public class StrutturaProfonditaActivity extends Activity {
 
 				Intent intent = new Intent(StrutturaProfonditaActivity.this,
 						WorkActivity.class);
-				intent.putExtra("DEMO", false);
+				if (WorkActivity.SIMULATORE) {
+					intent.putExtra("DEMO", true);
+				} else {
+
+					intent.putExtra("DEMO", false);
+				}
 				startActivity(intent);
 			}
 		});
@@ -347,7 +352,7 @@ public class StrutturaProfonditaActivity extends Activity {
 		super.onResume();
 
 		struttura = button_mix.getText().toString();
-		profondita = "1";
+		profondita = "2";
 
 		button_mix.setPressed(true);
 		button_intermedio.setPressed(true);

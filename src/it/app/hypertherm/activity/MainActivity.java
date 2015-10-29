@@ -52,6 +52,12 @@ public class MainActivity extends Activity {
 		preferences.edit().putBoolean("isTessuto", false).commit();
 
 		import_menu_items();
+		
+		if (WorkActivity.SIMULATORE) {
+			myAdapter.getItem(3).setItem(
+					utility.get_menu_item_demo_training_2());
+			listaMenuItem.setAdapter(myAdapter);
+		} 
 
 		runOnUiThread(new carica_configurazione_logo(this));
 
@@ -92,6 +98,7 @@ public class MainActivity extends Activity {
 		super.onResume();
 
 		for (int i = 0; i < listaMenuItem.getChildCount(); i++) {
+
 			if (i % 2 == 1) {
 				listaMenuItem.getChildAt(i).setBackgroundColor(
 						Color.parseColor("#39bdce"));
@@ -99,6 +106,18 @@ public class MainActivity extends Activity {
 				listaMenuItem.getChildAt(i).setBackgroundColor(
 						Color.parseColor("#00aac0"));
 			}
+
+			if (i == 3 && WorkActivity.SIMULATORE) {
+
+				listaMenuItem.getChildAt(i).setBackgroundColor(
+						Color.parseColor("#ffa500"));
+
+				myAdapter.getItem(i).setItem(
+						utility.get_menu_item_demo_training_2());
+				listaMenuItem.setAdapter(myAdapter);
+
+			}
+
 		}
 
 	}
@@ -110,14 +129,25 @@ public class MainActivity extends Activity {
 		switch (position) {
 		case 0:
 			intent = new Intent(MainActivity.this, TessutoActivity.class);
-			intent.putExtra("DEMO", false);
+
+			if (WorkActivity.SIMULATORE) {
+				intent.putExtra("DEMO", true);
+			} else {
+
+				intent.putExtra("DEMO", false);
+			}
 			startActivity(intent);
 
 			break;
 		case 1:
 			intent = new Intent(MainActivity.this,
 					StrutturaProfonditaActivity.class);
-			intent.putExtra("DEMO", false);
+			if (WorkActivity.SIMULATORE) {
+				intent.putExtra("DEMO", true);
+			} else {
+
+				intent.putExtra("DEMO", false);
+			}
 			startActivity(intent);
 			break;
 		case 2:
@@ -140,15 +170,31 @@ public class MainActivity extends Activity {
 					.commit();
 
 			intent = new Intent(MainActivity.this, WorkActivity.class);
-			intent.putExtra("DEMO", false);
+			if (WorkActivity.SIMULATORE) {
+				intent.putExtra("DEMO", true);
+			} else {
+
+				intent.putExtra("DEMO", false);
+			}
 			startActivity(intent);
 
 			break;
 		case 3:
 
-			intent = new Intent(MainActivity.this, WorkActivity.class);
-			intent.putExtra("DEMO", true);
-			startActivity(intent);
+			if (WorkActivity.SIMULATORE) {
+
+				WorkActivity.SIMULATORE = false;
+
+				import_menu_items();
+
+			} else {
+
+				WorkActivity.SIMULATORE = true;
+
+				myAdapter.getItem(position).setItem(
+						utility.get_menu_item_demo_training_2());
+				listaMenuItem.setAdapter(myAdapter);
+			}
 
 			break;
 		case 4:

@@ -31,5 +31,6 @@
     <string name="title_activity_patologia">PatologiaActivity</string>
     <string name="title_activity_struttura_profondita">StrutturaProfonditaActivity</string>
     <string name="title_activity_open_pdf">Manuale Utente</string>
+<!--     <string name="suggerimento">Il paziente deve essere sistemato comodo, rilassato, con la superficie della parte da trattare orientata meglio possibile verso l\'alto per ottimizzare il posizionamento dell\'applicatore. \r\n\r\n Durante la seduta controllare periodicamente che tale assetto sia mantenuto.</string> -->
 
 </resources>

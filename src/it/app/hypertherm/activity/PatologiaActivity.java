@@ -213,7 +213,12 @@ public class PatologiaActivity extends Activity {
 
 				Intent intent = new Intent(PatologiaActivity.this,
 						WorkActivity.class);
-				intent.putExtra("DEMO", false);
+				if (WorkActivity.SIMULATORE) {
+					intent.putExtra("DEMO", true);
+				} else {
+
+					intent.putExtra("DEMO", false);
+				}
 				startActivity(intent);
 			}
 		});

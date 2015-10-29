@@ -62,7 +62,8 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="10"
-            android:background="#00aac0" >
+            android:background="#00aac0"
+            android:orientation="vertical" >
         </LinearLayout>
 
         <LinearLayout
@@ -70,7 +71,8 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="60"
-            android:background="#00aac0" >
+            android:background="#00aac0"
+            android:orientation="vertical" >
 
             <ListView
                 android:id="@+id/listaMenuItem"
@@ -87,17 +89,29 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_weight="30"
+            android:layout_weight="18"
+            android:background="#8ed9e3" >
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="12"
             android:background="#8ed9e3"
             android:orientation="vertical" >
 
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_gravity="center_vertical|right"
-                android:layout_weight="18"
-                android:gravity="center_vertical|right"
-                android:paddingRight="30sp" >
+                android:layout_weight="4" >
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:layout_weight="17"
+                android:gravity="center_vertical|center_horizontal" >
 
                 <Button
                     android:id="@+id/button_up"
@@ -110,10 +124,9 @@
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_gravity="center_vertical|right"
-                android:layout_weight="18"
-                android:gravity="center_vertical|right"
-                android:paddingRight="30sp" >
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:layout_weight="17"
+                android:gravity="center_vertical|center_horizontal" >
 
                 <Button
                     android:id="@+id/button_down"
@@ -126,10 +139,9 @@
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_gravity="bottom|right"
-                android:layout_weight="20"
-                android:gravity="bottom|right"
-                android:paddingRight="30sp" >
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:layout_weight="22"
+                android:gravity="center_vertical|center_horizontal" >
 
                 <Button
                     android:id="@+id/button_ok"
@@ -142,16 +154,23 @@
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_gravity="bottom|right"
-                android:layout_weight="34"
-                android:gravity="bottom|right" >
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:layout_weight="20"
+                android:gravity="center_vertical|center_horizontal" >
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:layout_weight="20"
+                android:gravity="center_vertical|center_horizontal" >
 
                 <ImageView
                     android:id="@+id/logo"
-                    android:layout_width="300dp"
+                    android:layout_width="250dp"
                     android:layout_height="80dp"
-                    android:contentDescription="@string/app_name"
-                    android:paddingBottom="10dp" />
+                    android:contentDescription="@string/app_name" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

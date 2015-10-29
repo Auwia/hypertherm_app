@@ -76,6 +76,7 @@ public class WorkActivity extends Activity {
 	public static int WATER = 0;
 	public static int DELTAT = 0;
 	public static int POWER = 0;
+	public static int TIMER = 0;
 
 	private final static int MSK_CMD = 2;
 	private final static int MSK_TIME = 4;
@@ -167,7 +168,7 @@ public class WorkActivity extends Activity {
 
 					} else {
 
-						utility.appendLog("D", "ESCO DALL'INVIO PING!");
+						utility.appendLog("I", "ESCO DALL'INVIO PING!");
 
 						cancel();
 
@@ -183,10 +184,10 @@ public class WorkActivity extends Activity {
 		super.onPause();
 
 		INOUT = RF_OFF;
-		utility.appendLog("D", "Inviato comando: RF_On_Off = OFF");
+		utility.appendLog("I", "Inviato comando: RF_On_Off = OFF");
 		inviaComandi(RF_OFF, MSK_CMD, INOUT);
 
-		utility.appendLog("D", "STO USCENDO");
+		utility.appendLog("I", "STO USCENDO");
 
 		COMMUNICATION_READY = false;
 
@@ -257,7 +258,7 @@ public class WorkActivity extends Activity {
 		t.start();
 
 		INOUT = 0;
-		utility.appendLog("D", "Inviato comando: RESET");
+		utility.appendLog("I", "Inviato comando: RESET");
 		inviaComandi(RESET, MSK_CMD, INOUT);
 
 		try {
@@ -268,7 +269,7 @@ public class WorkActivity extends Activity {
 		}
 
 		INOUT = RF_ON;
-		utility.appendLog("D", "Inviato comando: RF_On_Off = ON");
+		utility.appendLog("I", "Inviato comando: RF_On_Off = ON");
 		inviaComandi(RF_ON, MSK_CMD, INOUT);
 
 		try {
@@ -377,7 +378,7 @@ public class WorkActivity extends Activity {
 		button_temperature_negative.setPressed(false);
 		button_temperature_positive.setPressed(false);
 
-		utility.appendLog("D", "Inviato comando: 4 ALL");
+		utility.appendLog("I", "Inviato comando: 4 ALL");
 		inviaComandi(0, MSK_ALL_4, INOUT);
 
 	}
@@ -505,6 +506,13 @@ public class WorkActivity extends Activity {
 						}.start();
 
 					}
+				} else {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 
 				return true;
@@ -555,6 +563,13 @@ public class WorkActivity extends Activity {
 
 						inviaComandi(0, MSK_ALL_4, INOUT);
 					}
+				} else {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				return true;
 			}
@@ -600,7 +615,7 @@ public class WorkActivity extends Activity {
 									}
 
 									public void onFinish() {
-										utility.appendLog("D",
+										utility.appendLog("I",
 												"CHIUDO IL GRAFICO");
 
 										// COMANDO STOP SIMULATION
@@ -615,260 +630,53 @@ public class WorkActivity extends Activity {
 						}
 					});
 
-					if (preferences.getString("PROFONDITA", "1").equals("4")) {
+					if (button_onda_quadra.isPressed()) {
 
-						inviaComandi(PLAY, MSK_CMD, INOUT);
-
-						utility.appendLog("D", "Lancio programma DINAMICO");
-
-						runOnUiThread(new Runnable() {
-
+						timerRfOn = new Timer("TIMER ON");
+						timerRfOn.schedule(new TimerTask() {
 							@Override
 							public void run() {
 
-								utility.appendLog("D", "Attendo 5 minuti");
+								INOUT = RF_OFF;
+								utility.appendLog("I",
+										"Inviato comando: RF_On_Off = OFF");
+								inviaComandi(RF_OFF, MSK_CMD, INOUT);
 
-								waitTimer = new CountDownTimer(30000, 30000) {
-
-									public void onTick(long millisUntilFinished) {
-
+								timerRfOff = new Timer("TIMER OFF");
+								timerRfOff.schedule(new TimerTask() {
+									@Override
+									public void run() {
+										INOUT = RF_ON;
+										utility.appendLog("I",
+												"Inviato comando: RF_On_Off = ON");
+										inviaComandi(RF_ON, MSK_CMD, INOUT);
 									}
-
-									public void onFinish() {
-										utility.appendLog("D",
-												"Setto il valore della temperatura dell'acqua al livello intermedio");
-
-										tracciato_in.setWaterIn((int) (utility
-												.getWaterTemperature(
-														preferences.getString(
-																"STRUTTURA",
-																"Mix"), "2") * 10));
-
-										inviaComandi(0, MSK_WATER, INOUT);
-
-										utility.appendLog("D",
-												"Attendo 1 minuto");
-
-										waitTimer = new CountDownTimer(6000,
-												6000) {
-
-											public void onTick(
-													long millisUntilFinished) {
-
-											}
-
-											public void onFinish() {
-
-												utility.appendLog("D",
-														"Setto i 3 parametri al livello intermedio");
-
-												tracciato_in
-														.setDeltaTIn((int) (utility.getDeltaT(
-																preferences
-																		.getString(
-																				"STRUTTURA",
-																				"Mix"),
-																"2") * 10));
-												tracciato_in.setPowerIn(utility.getAntenna(
-														preferences.getString(
-																"STRUTTURA",
-																"Mix"), "2") * 10);
-												tracciato_in.setTimerIn(utility.getTime(
-														preferences.getString(
-																"STRUTTURA",
-																"Mix"), "2") * 10);
-
-												inviaComandi(0, MSK_POWER,
-														INOUT);
-
-												utility.appendLog("D",
-														"Attendo 6 minuti");
-
-												waitTimer = new CountDownTimer(
-														36000, 36000) {
-
-													public void onTick(
-															long millisUntilFinished) {
-
-													}
-
-													public void onFinish() {
-														utility.appendLog("D",
-																"Setto il valore della temperatura dell'acqua al livello profondo");
-
-														tracciato_in
-																.setWaterIn((int) (utility
-																		.getWaterTemperature(
-																				preferences
-																						.getString(
-																								"STRUTTURA",
-																								"Mix"),
-																				"3") * 10));
-
-														inviaComandi(0,
-																MSK_POWER,
-																INOUT);
-
-														utility.appendLog("D",
-																"Attendo 1 minuto");
-
-														waitTimer = new CountDownTimer(
-																6000, 6000) {
-
-															public void onTick(
-																	long millisUntilFinished) {
-
-															}
-
-															public void onFinish() {
-																utility.appendLog(
-																		"D",
-																		"Setto i 3 parametri al livello profondo");
-
-																deltat_label_down
-																		.setText(String
-																				.valueOf(utility
-																						.getDeltaT(
-																								preferences
-																										.getString(
-																												"STRUTTURA",
-																												"Mix"),
-																								"3")));
-
-																tracciato_in
-																		.setDeltaTIn((int) (utility
-																				.getDeltaT(
-																						preferences
-																								.getString(
-																										"STRUTTURA",
-																										"Mix"),
-																						"3") * 10));
-
-																antenna_black_label_down
-																		.setText(String
-																				.valueOf(utility
-																						.getAntenna(
-																								preferences
-																										.getString(
-																												"STRUTTURA",
-																												"Mix"),
-																								"3")));
-
-																tracciato_in
-																		.setPowerIn(utility
-																				.getAntenna(
-																						preferences
-																								.getString(
-																										"STRUTTURA",
-																										"Mix"),
-																						"3") * 10);
-
-																time_label_down
-																		.setText(String
-																				.valueOf(utility
-																						.getTime(
-																								preferences
-																										.getString(
-																												"STRUTTURA",
-																												"Mix"),
-																								"3")));
-
-																tracciato_in
-																		.setTimerIn(utility
-																				.getTime(
-																						preferences
-																								.getString(
-																										"STRUTTURA",
-																										"Mix"),
-																						"3") * 10);
-
-																inviaComandi(
-																		0,
-																		MSK_POWER,
-																		INOUT);
-
-																utility.appendLog(
-																		"D",
-																		"Attendo 7 minuti");
-
-																waitTimer = new CountDownTimer(
-																		42000,
-																		42000) {
-
-																	public void onTick(
-																			long millisUntilFinished) {
-
-																	}
-
-																	public void onFinish() {
-
-																	}
-																}.start();
-
-															}
-														}.start();
-
-													}
-												}.start();
-
-											}
-										}.start();
-
-									}
-								}.start();
+								}, 60000);
 
 							}
-						});
-
-					} else {
-
-						if (button_onda_quadra.isPressed()) {
-
-							timerRfOn = new Timer("TIMER ON");
-							timerRfOn.schedule(new TimerTask() {
-								@Override
-								public void run() {
-
-									INOUT = RF_OFF;
-									utility.appendLog("D",
-											"Inviato comando: RF_On_Off = OFF");
-									inviaComandi(RF_OFF, MSK_CMD, INOUT);
-
-									timerRfOff = new Timer("TIMER OFF");
-									timerRfOff.schedule(new TimerTask() {
-										@Override
-										public void run() {
-											INOUT = RF_ON;
-											utility.appendLog("D",
-													"Inviato comando: RF_On_Off = ON");
-											inviaComandi(RF_ON, MSK_CMD, INOUT);
-										}
-									}, 60000);
-
-								}
-							}, 180000, 240000);
-
-						}
-
-						INOUT = PLAY_TMP;
-
-						utility.appendLog("D", "Inviato comando: PLAY");
-						inviaComandi(PLAY, MSK_CMD, INOUT);
-
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-
-								// disegna_grafico_lib();
-								// disegna_grafico(1);
-
-							}
-						});
-
-						button_home.setEnabled(false);
+						}, 180000, 240000);
 
 					}
+
+					INOUT = PLAY_TMP;
+
+					utility.appendLog("I", "Inviato comando: PLAY");
+					inviaComandi(PLAY, MSK_CMD, INOUT);
+
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+
+							// disegna_grafico_lib();
+							// disegna_grafico(1);
+
+						}
+					});
+
+					button_home.setEnabled(false);
+
 				}
+
 				return true;
 			}
 		});
@@ -888,7 +696,7 @@ public class WorkActivity extends Activity {
 
 				INOUT = PAUSE_TMP;
 
-				utility.appendLog("D", "Inviato comando: PAUSE");
+				utility.appendLog("I", "Inviato comando: PAUSE");
 				inviaComandi(PAUSE, MSK_CMD, INOUT);
 
 				CMD = 2;
@@ -914,7 +722,7 @@ public class WorkActivity extends Activity {
 
 				INOUT = STOP_TMP;
 
-				utility.appendLog("D", "Inviato comando: STOP");
+				utility.appendLog("I", "Inviato comando: STOP");
 				inviaComandi(STOP, MSK_CMD, INOUT);
 
 				CMD = 3;
@@ -946,7 +754,7 @@ public class WorkActivity extends Activity {
 							waitTimerBolusUp = null;
 						}
 
-						utility.appendLog("D", "Inviato comando: BOLUS-STOP");
+						utility.appendLog("I", "Inviato comando: BOLUS-STOP");
 						inviaComandi(BOLUS_STOP, MSK_CMD, INOUT);
 
 						return true;
@@ -957,7 +765,7 @@ public class WorkActivity extends Activity {
 
 							button_bolus_down.setPressed(true);
 
-							utility.appendLog("D",
+							utility.appendLog("I",
 									"Inviato comando: BOLUS-DOWN");
 							inviaComandi(BOLUS_DOWN, MSK_CMD, INOUT);
 
@@ -969,7 +777,7 @@ public class WorkActivity extends Activity {
 
 								public void onFinish() {
 									button_bolus_down.setPressed(false);
-									utility.appendLog("D",
+									utility.appendLog("I",
 											"Inviato comando: BOLUS-STOP");
 									inviaComandi(BOLUS_STOP, MSK_CMD, INOUT);
 								}
@@ -984,7 +792,7 @@ public class WorkActivity extends Activity {
 								waitTimer = null;
 							}
 
-							utility.appendLog("D",
+							utility.appendLog("I",
 									"Inviato comando: BOLUS-STOP");
 							inviaComandi(BOLUS_STOP, MSK_CMD, INOUT);
 
@@ -1015,7 +823,7 @@ public class WorkActivity extends Activity {
 							waitTimer = null;
 						}
 
-						utility.appendLog("D", "Inviato comando: BOLUS-STOP");
+						utility.appendLog("I", "Inviato comando: BOLUS-STOP");
 						inviaComandi(BOLUS_STOP, MSK_CMD, INOUT);
 
 						return true;
@@ -1026,7 +834,7 @@ public class WorkActivity extends Activity {
 
 							button_bolus_up.setPressed(true);
 
-							utility.appendLog("D", "Inviato comando: BOLUS-UP");
+							utility.appendLog("I", "Inviato comando: BOLUS-UP");
 							inviaComandi(BOLUS_UP, MSK_CMD, INOUT);
 
 							waitTimerBolusUp = new CountDownTimer(30000, 30000) {
@@ -1037,7 +845,7 @@ public class WorkActivity extends Activity {
 
 								public void onFinish() {
 									button_bolus_up.setPressed(false);
-									utility.appendLog("D",
+									utility.appendLog("I",
 											"Inviato comando: BOLUS-STOP");
 									inviaComandi(BOLUS_STOP, MSK_CMD, INOUT);
 
@@ -1053,7 +861,7 @@ public class WorkActivity extends Activity {
 								waitTimerBolusUp = null;
 							}
 
-							utility.appendLog("D",
+							utility.appendLog("I",
 									"Inviato comando: BOLUS-STOP");
 							inviaComandi(BOLUS_STOP, MSK_CMD, INOUT);
 
@@ -1089,7 +897,7 @@ public class WorkActivity extends Activity {
 
 						button_onda_quadra.setPressed(true);
 
-						utility.appendLog("D", "ONDA QUADRO ON");
+						utility.appendLog("I", "ONDA QUADRO ON");
 
 						if (button_play.isPressed()) {
 							avvia_trattamento();
@@ -1107,7 +915,7 @@ public class WorkActivity extends Activity {
 			public void onClick(View v) {
 
 				INOUT = RF_OFF;
-				utility.appendLog("D", "Inviato comando: RF_On_Off = OFF");
+				utility.appendLog("I", "Inviato comando: RF_On_Off = OFF");
 				inviaComandi(RF_OFF, MSK_CMD, INOUT);
 
 				COMMUNICATION_READY = false;
@@ -1239,7 +1047,8 @@ public class WorkActivity extends Activity {
 					}
 
 					if (!SIMULATORE)
-					if (!SIMULATORE) set_attention();
+						if (!SIMULATORE)
+							set_attention();
 
 					attiva_normal();
 
@@ -1316,7 +1125,8 @@ public class WorkActivity extends Activity {
 
 					}
 
-					if (!SIMULATORE) set_attention();
+					if (!SIMULATORE)
+						set_attention();
 					attiva_normal();
 
 				}
@@ -1406,7 +1216,8 @@ public class WorkActivity extends Activity {
 
 					}
 
-					if (!SIMULATORE) set_attention();
+					if (!SIMULATORE)
+						set_attention();
 					attiva_normal();
 
 				}
@@ -1498,7 +1309,8 @@ public class WorkActivity extends Activity {
 
 					}
 
-					if (!SIMULATORE) set_attention();
+					if (!SIMULATORE)
+						set_attention();
 					attiva_normal();
 
 				}
@@ -1573,7 +1385,8 @@ public class WorkActivity extends Activity {
 
 					}
 
-					if (!SIMULATORE) set_attention();
+					if (!SIMULATORE)
+						set_attention();
 					attiva_normal();
 
 				}
@@ -1680,7 +1493,9 @@ public class WorkActivity extends Activity {
 
 				funzionalita = button_time_left.getId();
 
-				int time = tracciato_out.getTimerOut() / 60;
+				// int time = tracciato_out.getTimerOut() / 60;
+
+				TIMER /= 60;
 
 				if ((event.getAction() == MotionEvent.ACTION_UP)) {
 
@@ -1705,21 +1520,21 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
-					if (time > 0) {
+					if (TIMER > 0) {
 
 						if (LONG)
-							if (time - 1 < 10 && time - 1 > 0) {
-								time_label_down.setText("0" + (time - 1));
+							if (TIMER - 1 < 10 && TIMER - 1 > 0) {
+								time_label_down.setText("0" + (TIMER - 1));
 							} else {
-								time_label_down.setText("" + (time - 1));
+								time_label_down.setText("" + (TIMER - 1));
 							}
 
 						if (LONG)
-							if (time == 1) {
+							if (TIMER == 1) {
 								time_label_down.setText("00");
 							}
 
-						tracciato_out.setTimerOut((time - 1) * 60);
+						tracciato_out.setTimerOut((TIMER - 1) * 60);
 					}
 
 					attiva_normal();
@@ -1757,7 +1572,8 @@ public class WorkActivity extends Activity {
 
 				funzionalita = button_time_right.getId();
 
-				int time = tracciato_out.getTimerOut() / 60;
+				// int time = tracciato_out.getTimerOut() / 60;
+				TIMER /= 60;
 
 				if ((event.getAction() == MotionEvent.ACTION_UP)) {
 
@@ -1783,16 +1599,16 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
-					if (time < 30) {
+					if (TIMER < 30) {
 
 						if (LONG)
-							if (time + 1 < 10) {
-								time_label_down.setText("0" + (time + 1));
+							if (TIMER + 1 < 10) {
+								time_label_down.setText("0" + (TIMER + 1));
 							} else {
-								time_label_down.setText("" + (time + 1));
+								time_label_down.setText("" + (TIMER + 1));
 							}
 
-						tracciato_out.setTimerOut((time + 1) * 60);
+						tracciato_out.setTimerOut((TIMER + 1) * 60);
 
 					}
 
@@ -1817,10 +1633,10 @@ public class WorkActivity extends Activity {
 			timerRfOff = null;
 		}
 
-		utility.appendLog("D", "ONDA QUADRA OFF");
+		utility.appendLog("I", "ONDA QUADRA OFF");
 
 		INOUT = RF_ON;
-		utility.appendLog("D", "Inviato comando: RF_On_Off = ON");
+		utility.appendLog("I", "Inviato comando: RF_On_Off = ON");
 		inviaComandi(RF_ON, MSK_CMD, INOUT);
 
 	}
@@ -1833,7 +1649,7 @@ public class WorkActivity extends Activity {
 			public void run() {
 
 				INOUT = RF_OFF;
-				utility.appendLog("D", "Inviato comando: RF_On_Off = OFF");
+				utility.appendLog("I", "Inviato comando: RF_On_Off = OFF");
 				inviaComandi(RF_OFF, MSK_CMD, INOUT);
 
 				timerRfOff = new Timer("TIMER OFF");
@@ -1841,7 +1657,7 @@ public class WorkActivity extends Activity {
 					@Override
 					public void run() {
 						INOUT = RF_ON;
-						utility.appendLog("D",
+						utility.appendLog("I",
 								"Inviato comando: RF_On_Off = ON");
 						inviaComandi(RF_ON, MSK_CMD, INOUT);
 					}
@@ -1960,6 +1776,7 @@ public class WorkActivity extends Activity {
 		time_label_down = (TextView) findViewById(R.id.time_label_down);
 		disturbo_label = (TextView) findViewById(R.id.disturbo_label);
 		suggerimenti = (TextView) findViewById(R.id.suggerimenti);
+		suggerimenti.setSingleLine(false);
 
 	}
 
@@ -2452,13 +2269,13 @@ public class WorkActivity extends Activity {
 
 			if (Float.parseFloat(water_label_down.getText().toString()) > 35) {
 
-				float tot = (Float.parseFloat(water_label_down.getText()
-						.toString()) * 10 - 1) / 10;
+				WATER -= 10;
 
 				if (LONG)
-					water_label_down.setText(String.valueOf(tot));
+					water_label_down.setText(""
+							+ utility.arrotondaPerEccesso(WATER, 1));
 
-				tracciato_out.setWaterOut((int) (tot * 100));
+				tracciato_out.setWaterOut(WATER);
 				tracciato_out.setBuf();
 
 			}
@@ -2474,17 +2291,18 @@ public class WorkActivity extends Activity {
 
 			if (Float.parseFloat(deltat_label_down.getText().toString()) > -1) {
 
-				float tot = (Float.parseFloat(deltat_label_down.getText()
-						.toString()) * 10 - 1) / 10;
+				DELTAT -= 10;
 
 				if (LONG)
-					if (tot > 0) {
-						deltat_label_down.setText("+" + tot);
+					if (DELTAT > 0) {
+						deltat_label_down.setText("+"
+								+ utility.arrotondaPerEccesso(DELTAT, 1));
 					} else {
-						deltat_label_down.setText(String.valueOf(tot));
+						deltat_label_down.setText(""
+								+ utility.arrotondaPerEccesso(DELTAT, 1));
 					}
 
-				tracciato_out.setDeltaTOut((int) (tot * 100));
+				tracciato_out.setDeltaTOut(DELTAT);
 				tracciato_out.setBuf();
 
 			}
@@ -2551,13 +2369,13 @@ public class WorkActivity extends Activity {
 
 			if (Float.parseFloat(water_label_down.getText().toString()) < 42) {
 
-				float tot = (Float.parseFloat(water_label_down.getText()
-						.toString()) * 10 + 1) / 10;
+				WATER += 10;
 
 				if (LONG)
-					water_label_down.setText(String.valueOf(tot));
+					water_label_down.setText(""
+							+ utility.arrotondaPerEccesso(WATER, 1));
 
-				tracciato_out.setWaterOut((int) (tot * 100));
+				tracciato_out.setWaterOut(WATER);
 				tracciato_out.setBuf();
 
 			}
@@ -2572,17 +2390,18 @@ public class WorkActivity extends Activity {
 
 			if (Float.parseFloat(deltat_label_down.getText().toString()) < 5) {
 
-				float tot = (Float.parseFloat(deltat_label_down.getText()
-						.toString()) * 10 + 1) / 10;
+				DELTAT += 10;
 
 				if (LONG)
-					if (tot > 0) {
-						deltat_label_down.setText("+" + tot);
+					if (DELTAT > 0) {
+						deltat_label_down.setText("+"
+								+ utility.arrotondaPerEccesso(DELTAT, 1));
 					} else {
-						deltat_label_down.setText(String.valueOf(tot));
+						deltat_label_down.setText(""
+								+ utility.arrotondaPerEccesso(DELTAT, 1));
 					}
 
-				tracciato_out.setDeltaTOut((int) (tot * 100));
+				tracciato_out.setDeltaTOut(DELTAT);
 				tracciato_out.setBuf();
 
 			}
