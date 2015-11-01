@@ -9,7 +9,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="15" >
+        android:layout_weight="17" >
 
         <LinearLayout
             android:layout_width="0dp"
@@ -239,8 +239,8 @@
 
             <Button
                 android:id="@+id/button_dinamico"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
                 android:background="@drawable/button_dinamico" />
         </LinearLayout>
 
@@ -255,11 +255,17 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="17"
-        android:background="#8ed9e3" >
+        android:layout_gravity="center_vertical|right"
+        android:layout_weight="15"
+        android:background="#8ed9e3"
+        android:gravity="center_vertical|right" >
 
-        <!-- VUOTA APPOSITAMENTE -->
-
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="165dp"
+            android:layout_height="84dp"
+            android:contentDescription="@string/app_name"
+            android:paddingRight="50dp" />
     </LinearLayout>
 
 </LinearLayout>

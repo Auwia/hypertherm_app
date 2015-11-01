@@ -7,7 +7,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="20"
+        android:layout_weight="17"
         android:background="#c6ecf1"
         android:gravity="center_vertical" >
 
@@ -23,7 +23,7 @@
         android:id="@+id/row_lista_item"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="80" >
+        android:layout_weight="83" >
 
         <ListView
             android:id="@+id/listaMenuItem"

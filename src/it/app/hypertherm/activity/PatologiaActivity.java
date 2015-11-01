@@ -10,7 +10,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -25,6 +27,37 @@ public class PatologiaActivity extends Activity {
 	private TextView tessuto;
 
 	private SharedPreferences preferences;
+
+	public static void setListViewHeightBasedOnChildren(ListView listView) {
+		ListAdapter listAdapter = listView.getAdapter();
+		if (listAdapter == null) {
+			// pre-condition
+			return;
+		}
+
+		int totalHeight = 0;
+
+		if (listView.getCount() >= 11) {
+
+			for (int i = 0; i < 12; i++) {
+				View listItem = listAdapter.getView(i, null, listView);
+				listItem.measure(0, 0);
+				if (listItem.getMeasuredWidth() > 700) {
+					i++;
+					totalHeight += listItem.getMeasuredHeight() * 85 / 100;
+				}
+				totalHeight += listItem.getMeasuredHeight();
+			}
+
+			ViewGroup.LayoutParams params = listView.getLayoutParams();
+			params.height = totalHeight
+					+ (listView.getDividerHeight() * (listAdapter.getCount() - 1))
+					+ 10;
+			listView.setLayoutParams(params);
+			listView.requestLayout();
+		}
+
+	}
 
 	@Override
 	public void onPause() {
@@ -223,10 +256,12 @@ public class PatologiaActivity extends Activity {
 			}
 		});
 
-		runOnUiThread(new carica_configurazione_logo(this));
+	runOnUiThread(new carica_configurazione_logo(this));
 
 		listaMenuItem.setItemChecked(myAdapter.getItem(0).getMenuFlaggato() ? 0
 				: 1, true);
+
+		setListViewHeightBasedOnChildren(listaMenuItem);
 
 	}
 

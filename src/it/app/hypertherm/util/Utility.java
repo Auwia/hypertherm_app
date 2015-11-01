@@ -121,7 +121,7 @@ public class Utility {
 		ottanta = (LinearLayout) activity.findViewById(R.id.ottanta);
 		novanta = (LinearLayout) activity.findViewById(R.id.novanta);
 
-		grafico = (ImageView) activity.findViewById(R.id.grafico);
+		// grafico = (ImageView) activity.findViewById(R.id.grafico);
 
 	}
 
@@ -441,14 +441,6 @@ public class Utility {
 				} else {
 					d_temp = D_temp;
 				}
-
-				int h2o_temp = 0;
-				if (H2o_temp >= 60000) {
-					h2o_temp = (H2o_temp - 65536);
-				} else {
-					h2o_temp = H2o_temp;
-				}
-
 				if (d_temp > 0) {
 
 					setDeltaT("+" + arrotondaPerEccesso(d_temp, 1));
@@ -459,6 +451,12 @@ public class Utility {
 
 				}
 
+				int h2o_temp = 0;
+				if (H2o_temp >= 60000) {
+					h2o_temp = (H2o_temp - 65536);
+				} else {
+					h2o_temp = H2o_temp;
+				}
 				setWaterTemperature(String.valueOf(Float.parseFloat(""
 						+ arrotondaPerEccesso(h2o_temp, 1))));
 
@@ -470,25 +468,12 @@ public class Utility {
 					@Override
 					public void run() {
 
-						if (button_play.isPressed()) {
-							if (In_Output_temp[0] == 12
-									|| In_Output_temp[0] == 109
-									|| In_Output_temp[0] == 45
-									|| In_Output_temp[0] == 93
-									|| In_Output_temp[0] == 0) {
-								button_antenna.setPressed(false);
-							} else {
-								button_antenna.setPressed(true);
-							}
+						if (button_play.isPressed()
+								&& toBinary(In_Output_temp).substring(2, 3)
+										.equals("1")) {
+							button_antenna.setPressed(true);
 						} else {
 							button_antenna.setPressed(false);
-						}
-
-						int id_temp = 0;
-						if (iD_temp >= 60000) {
-							id_temp = (iD_temp - 65536);
-						} else {
-							id_temp = iD_temp;
 						}
 
 						water_label_down.setText(String.valueOf(Float
@@ -496,6 +481,12 @@ public class Utility {
 										+ arrotondaPerEccesso(iH2o_temp, 1))));
 						WorkActivity.WATER = iH2o_temp;
 
+						int id_temp = 0;
+						if (iD_temp >= 60000) {
+							id_temp = (iD_temp - 65536);
+						} else {
+							id_temp = iD_temp;
+						}
 						if (id_temp > 0) {
 
 							deltat_label_down.setText("+".concat(String
@@ -983,8 +974,8 @@ public class Utility {
 		}
 		cur.close();
 
-		String tmp = result.replace("\\n",
-				System.getProperty("line.separator"));
+		String tmp = result
+				.replace("\\n", System.getProperty("line.separator"));
 
 		return tmp;
 	}
@@ -1130,7 +1121,7 @@ public class Utility {
 
 		return result;
 	}
-	
+
 	public String get_menu_item_demo_training_2() {
 
 		cur = database.query(HyperthermDB.TABLE_STAGE_STRING,

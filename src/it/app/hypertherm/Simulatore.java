@@ -19,8 +19,8 @@ public class Simulatore implements Runnable {
 	private static boolean START = false;
 	public static boolean INVIA = false;
 	private static int TIME_IN, TIME_OUT, POTENZA_IN, POTENZA_OUT, POTENZA_DIR,
-			DELTAT_IN, DELTAT_OUT = 120, WATER_IN, WATER_OUT = 4200, CMD,
-			INOUT, TIME_IMPOSTATO;
+			POTENZA_REF, DELTAT_IN, DELTAT_OUT = 120, WATER_IN,
+			WATER_OUT = 4200, CMD, INOUT, TIME_IMPOSTATO;
 	private static CountDownTimer waitTimer = null;
 	private static Activity activity;
 	private static byte[] In_Output_buffer;
@@ -174,7 +174,7 @@ public class Simulatore implements Runnable {
 
 		if (utility.calcola_check_sum(buffer) == CheckSum) {
 
-			POTENZA_IN = simulatePotenza(iPower);
+			POTENZA_IN = simulatePotenzaRiflessa(iPower);
 			POTENZA_OUT = iPower;
 			POTENZA_DIR = simulatePotenza(iPower);
 			DELTAT_IN = simulateDeltaT(iD_temp);
@@ -186,14 +186,14 @@ public class Simulatore implements Runnable {
 
 			if (CMD == 3) {
 				TIME_IN = iTime;
-				POTENZA_IN = simulatePotenza(0);
-				POTENZA_DIR = simulatePotenza(0);
+				POTENZA_IN = 0;
+				POTENZA_DIR = 0;
 
 			}
 
 			if (CMD == 2) {
-				POTENZA_IN = simulatePotenza(0);
-				POTENZA_DIR = simulatePotenza(0);
+				POTENZA_IN = 0;
+				POTENZA_DIR = 0;
 			}
 
 			switch (Cmd) {
@@ -224,6 +224,10 @@ public class Simulatore implements Runnable {
 
 					}
 
+					utility.appendLog("I", "Imposto timer trattamento a: "
+							+ TimeUnit.MINUTES.toMillis(TIME_IMPOSTATO)
+							+ "ms, " + TIME_IMPOSTATO + " minuti");
+
 					activity.runOnUiThread(new Runnable() {
 						public void run() {
 							waitTimer = new CountDownTimer(TimeUnit.MINUTES
@@ -240,6 +244,15 @@ public class Simulatore implements Runnable {
 								}
 
 								public void onFinish() {
+
+									START = false;
+									INOUT = 45;
+									CMD = 3;
+									POTENZA_DIR = 0;
+									POTENZA_IN = 0;
+									TIME_IN = 0;
+
+									INVIA = true;
 
 								}
 							}.start();
@@ -271,7 +284,6 @@ public class Simulatore implements Runnable {
 				INOUT = 45;
 				CMD = 3;
 				POTENZA_DIR = 0;
-				POTENZA_OUT = 0;
 				POTENZA_IN = 0;
 				TIME_IN = 0;
 				break;
@@ -327,6 +339,22 @@ public class Simulatore implements Runnable {
 
 		int max = 100;
 		int min = 1;
+
+		int risultato = iPower - (ran.nextInt((max - min) + 1) + min);
+
+		if (risultato < 0) {
+			risultato = 0;
+		}
+
+		return risultato;
+	}
+
+	private static int simulatePotenzaRiflessa(int iPower) {
+
+		Random ran = new Random();
+
+		int max = 1000;
+		int min = 100;
 
 		int risultato = iPower - (ran.nextInt((max - min) + 1) + min);
 

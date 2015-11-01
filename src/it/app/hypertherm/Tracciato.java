@@ -221,7 +221,7 @@ public class Tracciato {
 	}
 
 	public void clearTracciato() {
-		Arrays.fill(buf, (byte) 0);
+		 Arrays.fill(buf, (byte) 0);
 	}
 
 	private void uint8_To_Buf(int val, int pos) {

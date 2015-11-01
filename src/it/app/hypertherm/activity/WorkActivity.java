@@ -85,7 +85,7 @@ public class WorkActivity extends Activity {
 	private final static int MSK_POWER = 64;
 	private final static int MSK_ALL_4 = 92;
 	private final static int MSK_NOTHING = 0;
-	private static int CMD = 0;
+	private static int CMD = 3;
 	private final static int PLAY = 1;
 	private final static int PAUSE = 2;
 	private final static int STOP = 3;
@@ -262,7 +262,7 @@ public class WorkActivity extends Activity {
 		inviaComandi(RESET, MSK_CMD, INOUT);
 
 		try {
-			Thread.sleep(1500);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -318,7 +318,7 @@ public class WorkActivity extends Activity {
 		getWindowManager().getDefaultDisplay().getMetrics(display);
 		int width = display.widthPixels;
 
-		param.width = width * 22 / 100;
+		param.width = width * 19 / 100;
 
 		def_variable_components();
 
@@ -586,49 +586,48 @@ public class WorkActivity extends Activity {
 
 					suggerimenti.setText("");
 
-					button_antenna.setPressed(true);
 					button_time.setPressed(true);
 
 					CMD = 1;
 
-					runOnUiThread(new Runnable() {
-
-						@Override
-						public void run() {
-
-							if (waitTimerGrafico == null) {
-
-								waitTimerGrafico = new CountDownTimer(
-										Integer.parseInt(time_label_down
-												.getText().subSequence(0, 2)
-												.toString()) * 60 * 1000 + 1,
-										1000) {
-
-									public void onTick(long millisUntilFinished) {
-
-										if (t == 30) {
-											t = 0;
-										}
-
-										// mSeries1.resetData(generateData(t++));
-
-									}
-
-									public void onFinish() {
-										utility.appendLog("I",
-												"CHIUDO IL GRAFICO");
-
-										// COMANDO STOP SIMULATION
-										utility.esegui(768);
-										CMD = 3;
-
-									}
-
-								}.start();
-							}
-
-						}
-					});
+					// runOnUiThread(new Runnable() {
+					//
+					// @Override
+					// public void run() {
+					//
+					// if (waitTimerGrafico == null) {
+					//
+					// waitTimerGrafico = new CountDownTimer(
+					// Integer.parseInt(time_label_down
+					// .getText().subSequence(0, 2)
+					// .toString()) * 60 * 1000 + 1,
+					// 1000) {
+					//
+					// public void onTick(long millisUntilFinished) {
+					//
+					// if (t == 30) {
+					// t = 0;
+					// }
+					//
+					// // mSeries1.resetData(generateData(t++));
+					//
+					// }
+					//
+					// public void onFinish() {
+					// utility.appendLog("I",
+					// "CHIUDO IL GRAFICO");
+					//
+					// // COMANDO STOP SIMULATION
+					// utility.esegui(768);
+					// CMD = 3;
+					//
+					// }
+					//
+					// }.start();
+					// }
+					//
+					// }
+					// });
 
 					if (button_onda_quadra.isPressed()) {
 
@@ -732,7 +731,7 @@ public class WorkActivity extends Activity {
 				button_home.setEnabled(true);
 				button_temperature_negative.setPressed(false);
 				button_temperature_positive.setPressed(false);
-				button_antenna.setPressed(false);
+
 				button_time.setPressed(false);
 
 				utility.reset_piramide();
@@ -1520,7 +1519,7 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
-					if (TIMER > 0) {
+					if (TIMER > 1) {
 
 						if (LONG)
 							if (TIMER - 1 < 10 && TIMER - 1 > 0) {
@@ -1585,7 +1584,6 @@ public class WorkActivity extends Activity {
 					inviaComandi(0, MSK_TIME, INOUT);
 
 					PING = true;
-
 					LONG = false;
 
 				}
@@ -1599,7 +1597,7 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
-					if (TIMER < 30) {
+					if (TIMER > 0 && TIMER < 30) {
 
 						if (LONG)
 							if (TIMER + 1 < 10) {
@@ -2336,7 +2334,7 @@ public class WorkActivity extends Activity {
 			int time = Integer.parseInt(time_label_down.getText().toString()
 					.substring(0, 2));
 
-			if (time > 0) {
+			if (time > 1) {
 
 				if (LONG)
 					if (time - 1 < 10 && time - 1 > 0) {
@@ -2438,10 +2436,7 @@ public class WorkActivity extends Activity {
 			if (time < 30) {
 
 				if (LONG)
-					time_label_down.setText("" + (time + 1));
-
-				if (LONG)
-					if (time + 1 < 10) {
+					if (time + 1 < 10 && time + 1 > 0) {
 						time_label_down.setText("0" + (time + 1));
 					} else {
 						time_label_down.setText("" + (time + 1));
@@ -2457,6 +2452,12 @@ public class WorkActivity extends Activity {
 
 	private void auto_increment(final Button button, final TextView textView,
 			final int max, final int step) {
+
+		try {
+			Thread.sleep(300);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 		if (waitTimer != null) {
 			waitTimer.cancel();
