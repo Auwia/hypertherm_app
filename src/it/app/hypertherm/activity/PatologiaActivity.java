@@ -202,6 +202,7 @@ public class PatologiaActivity extends Activity {
 				} else {
 					return;
 				}
+
 			}
 		});
 
@@ -256,7 +257,7 @@ public class PatologiaActivity extends Activity {
 			}
 		});
 
-	runOnUiThread(new carica_configurazione_logo(this));
+		runOnUiThread(new carica_configurazione_logo(this));
 
 		listaMenuItem.setItemChecked(myAdapter.getItem(0).getMenuFlaggato() ? 0
 				: 1, true);

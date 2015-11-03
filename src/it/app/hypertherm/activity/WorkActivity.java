@@ -657,8 +657,18 @@ public class WorkActivity extends Activity {
 
 					}
 
-					INOUT = PLAY_TMP;
+					INOUT = RF_ON;
+					utility.appendLog("I", "Inviato comando: RF_On_Off = ON");
+					inviaComandi(RF_ON, MSK_CMD, INOUT);
 
+//					try {
+//						Thread.sleep(50);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+
+					INOUT = PLAY_TMP;
 					utility.appendLog("I", "Inviato comando: PLAY");
 					inviaComandi(PLAY, MSK_CMD, INOUT);
 
