@@ -81,6 +81,7 @@ public class Splash_Screen_Activity extends Activity {
 			}
 		}.start();
 
+		WorkActivity.AVVIO = true;
 	}
 
 	private class conteggio_time_out extends AsyncTask<Void, Void, Void> {

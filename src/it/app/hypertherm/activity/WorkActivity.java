@@ -70,6 +70,7 @@ public class WorkActivity extends Activity {
 	private static boolean PING = false;
 	public static boolean COMMUNICATION_READY = true;
 	private boolean LONG = false;
+	public static boolean AVVIO;
 
 	private int funzionalita;
 
@@ -257,9 +258,12 @@ public class WorkActivity extends Activity {
 		t.setPriority(Thread.MAX_PRIORITY);
 		t.start();
 
-		INOUT = 0;
-		utility.appendLog("I", "Inviato comando: RESET");
-		inviaComandi(RESET, MSK_CMD, INOUT);
+		if (AVVIO) {
+			INOUT = 0;
+			utility.appendLog("I", "Inviato comando: RESET");
+			inviaComandi(RESET, MSK_CMD, INOUT);
+			AVVIO = false;
+		}
 
 		try {
 			Thread.sleep(500);
@@ -661,12 +665,12 @@ public class WorkActivity extends Activity {
 					utility.appendLog("I", "Inviato comando: RF_On_Off = ON");
 					inviaComandi(RF_ON, MSK_CMD, INOUT);
 
-//					try {
-//						Thread.sleep(50);
-//					} catch (InterruptedException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 
 					INOUT = PLAY_TMP;
 					utility.appendLog("I", "Inviato comando: PLAY");
