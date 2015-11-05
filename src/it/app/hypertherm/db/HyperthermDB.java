@@ -52,6 +52,7 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	public static final String COLUMN_TIMEOUT_PING = "TIMEOUT_PING";
 	public static final String COLUMN_TIMEOUT_READ = "TIMEOUT_READ";
 	public static final String COLUMN_TIMEOUT_WRITE = "TIMEOUT_WRITE";
+	public static final String COLUMN_TIMEOUT_RESET = "TIMEOUT_RESET";
 
 	private static final String CREATE_TABLE_STAGE_STRING = "create table "
 			+ TABLE_STAGE_STRING + "(" + COLUMN_MENU_ITEM + " varchar(50), "
@@ -112,7 +113,8 @@ public class HyperthermDB extends SQLiteOpenHelper {
 			+ COLUMN_LANGUAGE + " varchar(3), " + COLUMN_TIMEOUT + " integer, "
 			+ COLUMN_TIMEOUT_PING + " integer, " + COLUMN_TIMEOUT_READ
 			+ " integer, " + COLUMN_TIMEOUT_WRITE + " integer, "
-			+ COLUMN_TIMEOUT_SPLASH + " integer);";
+			+ COLUMN_TIMEOUT_RESET + " integer, " + COLUMN_TIMEOUT_SPLASH
+			+ " integer);";
 
 	public HyperthermDB(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -167,6 +169,7 @@ public class HyperthermDB extends SQLiteOpenHelper {
 		row.put(COLUMN_TIMEOUT_PING, 100);
 		row.put(COLUMN_TIMEOUT_READ, 500);
 		row.put(COLUMN_TIMEOUT_WRITE, 500);
+		row.put(COLUMN_TIMEOUT_RESET, 1500);
 		database.insert(TABLE_SETTINGS, null, row);
 		row.clear();
 

@@ -262,8 +262,8 @@
 
         <ImageView
             android:id="@+id/logo"
-            android:layout_width="165dp"
-            android:layout_height="84dp"
+            android:layout_width="190dp"
+            android:layout_height="95dp"
             android:contentDescription="@string/app_name"
             android:paddingRight="50dp" />
     </LinearLayout>

@@ -43,7 +43,7 @@
             android:id="@+id/settings"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:background="@drawable/settings"
+            android:background="@drawable/button_settings"
             android:contentDescription="@string/app_name" />
     </LinearLayout>
 

@@ -265,8 +265,10 @@ public class WorkActivity extends Activity {
 			AVVIO = false;
 		}
 
+		utility.appendLog("I",
+				"Attendo dal reset per " + utility.get_time_out_reset() + "ms");
 		try {
-			Thread.sleep(500);
+			Thread.sleep(utility.get_time_out_reset());
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

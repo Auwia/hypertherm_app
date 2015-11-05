@@ -1155,7 +1155,7 @@ public class Utility {
 							new String[] { "b.MENU_ITEM", "c.MENU_ITEM" },
 							"a.MENU_ITEM = ?", new String[] { preferences
 									.getString("TRATTAMENTO", "") },
-							"b.MENU_ITEM,c.MENU_ITEM", null, "c.MENU_ITEM desc");
+							"b.MENU_ITEM,c.MENU_ITEM", null, "b.column_id");
 		}
 
 		cur.moveToFirst();
@@ -1429,6 +1429,25 @@ public class Utility {
 		cur.moveToFirst();
 
 		int timeout = 500;
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			timeout = cur.getInt(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return timeout;
+	}
+
+	public int get_time_out_reset() {
+
+		cur = database.query(HyperthermDB.TABLE_SETTINGS,
+				new String[] { HyperthermDB.COLUMN_TIMEOUT_RESET }, null, null,
+				null, null, null);
+
+		cur.moveToFirst();
+
+		int timeout = 1500;
 
 		while (cur.getCount() > 0 && !cur.isAfterLast()) {
 			timeout = cur.getInt(0);
