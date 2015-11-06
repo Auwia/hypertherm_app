@@ -64,10 +64,11 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_gravity="center_vertical|right"
+            android:layout_gravity="center_vertical|left"
             android:layout_weight="30"
             android:background="#00aac0"
-            android:gravity="center_vertical|right" >
+            android:gravity="center_vertical|left"
+            android:paddingLeft="150dp" >
 
             <TextView
                 android:id="@+id/struttura"
@@ -174,10 +175,11 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_gravity="center_vertical|right"
+            android:layout_gravity="center_vertical|left"
             android:layout_weight="30"
             android:background="#00aac0"
-            android:gravity="center_vertical|right" >
+            android:gravity="center_vertical|left"
+            android:paddingLeft="150dp" >
 
             <TextView
                 android:id="@+id/profondita"
@@ -262,8 +264,8 @@
 
         <ImageView
             android:id="@+id/logo"
-            android:layout_width="190dp"
-            android:layout_height="95dp"
+            android:layout_width="220dp"
+            android:layout_height="110dp"
             android:contentDescription="@string/app_name"
             android:paddingRight="50dp" />
     </LinearLayout>

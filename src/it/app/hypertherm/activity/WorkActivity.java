@@ -324,7 +324,7 @@ public class WorkActivity extends Activity {
 		getWindowManager().getDefaultDisplay().getMetrics(display);
 		int width = display.widthPixels;
 
-		param.width = width * 19 / 100;
+		param.width = width * 20 / 100;
 
 		def_variable_components();
 
@@ -336,12 +336,13 @@ public class WorkActivity extends Activity {
 			disturbo_label.setTextColor(Color.parseColor("#ffa500"));
 			disturbo_label.setText("DEMO");
 			button_stop.setPressed(true);
-			button_power.setPressed(true);
 		}
 
 	}
 
 	private void def_value_defaults() {
+
+		button_power.setPressed(true);
 
 		button_water.setEnabled(false);
 		button_water.setClickable(false);
@@ -369,8 +370,6 @@ public class WorkActivity extends Activity {
 				.equals(utility.getMenuItemDefault())) {
 
 			disturbo_label.setTextColor(Color.parseColor("#ffa500"));
-
-			button_power.setPressed(true);
 
 		} else {
 
@@ -581,118 +580,109 @@ public class WorkActivity extends Activity {
 			}
 		});
 
-		button_play.setOnTouchListener(new OnTouchListener() {
+		button_play.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
 
-			private int t = 2;
+				suggerimenti.setText("");
 
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
+				button_time.setPressed(true);
 
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+				CMD = 1;
 
-					suggerimenti.setText("");
+				// runOnUiThread(new Runnable() {
+				//
+				// @Override
+				// public void run() {
+				//
+				// if (waitTimerGrafico == null) {
+				//
+				// waitTimerGrafico = new CountDownTimer(
+				// Integer.parseInt(time_label_down
+				// .getText().subSequence(0, 2)
+				// .toString()) * 60 * 1000 + 1,
+				// 1000) {
+				//
+				// public void onTick(long millisUntilFinished) {
+				//
+				// if (t == 30) {
+				// t = 0;
+				// }
+				//
+				// // mSeries1.resetData(generateData(t++));
+				//
+				// }
+				//
+				// public void onFinish() {
+				// utility.appendLog("I",
+				// "CHIUDO IL GRAFICO");
+				//
+				// // COMANDO STOP SIMULATION
+				// utility.esegui(768);
+				// CMD = 3;
+				//
+				// }
+				//
+				// }.start();
+				// }
+				//
+				// }
+				// });
 
-					button_time.setPressed(true);
+				if (button_onda_quadra.isPressed()) {
 
-					CMD = 1;
-
-					// runOnUiThread(new Runnable() {
-					//
-					// @Override
-					// public void run() {
-					//
-					// if (waitTimerGrafico == null) {
-					//
-					// waitTimerGrafico = new CountDownTimer(
-					// Integer.parseInt(time_label_down
-					// .getText().subSequence(0, 2)
-					// .toString()) * 60 * 1000 + 1,
-					// 1000) {
-					//
-					// public void onTick(long millisUntilFinished) {
-					//
-					// if (t == 30) {
-					// t = 0;
-					// }
-					//
-					// // mSeries1.resetData(generateData(t++));
-					//
-					// }
-					//
-					// public void onFinish() {
-					// utility.appendLog("I",
-					// "CHIUDO IL GRAFICO");
-					//
-					// // COMANDO STOP SIMULATION
-					// utility.esegui(768);
-					// CMD = 3;
-					//
-					// }
-					//
-					// }.start();
-					// }
-					//
-					// }
-					// });
-
-					if (button_onda_quadra.isPressed()) {
-
-						timerRfOn = new Timer("TIMER ON");
-						timerRfOn.schedule(new TimerTask() {
-							@Override
-							public void run() {
-
-								INOUT = RF_OFF;
-								utility.appendLog("I",
-										"Inviato comando: RF_On_Off = OFF");
-								inviaComandi(RF_OFF, MSK_CMD, INOUT);
-
-								timerRfOff = new Timer("TIMER OFF");
-								timerRfOff.schedule(new TimerTask() {
-									@Override
-									public void run() {
-										INOUT = RF_ON;
-										utility.appendLog("I",
-												"Inviato comando: RF_On_Off = ON");
-										inviaComandi(RF_ON, MSK_CMD, INOUT);
-									}
-								}, 60000);
-
-							}
-						}, 180000, 240000);
-
-					}
-
-					INOUT = RF_ON;
-					utility.appendLog("I", "Inviato comando: RF_On_Off = ON");
-					inviaComandi(RF_ON, MSK_CMD, INOUT);
-
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					INOUT = PLAY_TMP;
-					utility.appendLog("I", "Inviato comando: PLAY");
-					inviaComandi(PLAY, MSK_CMD, INOUT);
-
-					runOnUiThread(new Runnable() {
+					timerRfOn = new Timer("TIMER ON");
+					timerRfOn.schedule(new TimerTask() {
 						@Override
 						public void run() {
 
-							// disegna_grafico_lib();
-							// disegna_grafico(1);
+							INOUT = RF_OFF;
+							utility.appendLog("I",
+									"Inviato comando: RF_On_Off = OFF");
+							inviaComandi(RF_OFF, MSK_CMD, INOUT);
+
+							timerRfOff = new Timer("TIMER OFF");
+							timerRfOff.schedule(new TimerTask() {
+								@Override
+								public void run() {
+									INOUT = RF_ON;
+									utility.appendLog("I",
+											"Inviato comando: RF_On_Off = ON");
+									inviaComandi(RF_ON, MSK_CMD, INOUT);
+								}
+							}, 60000);
 
 						}
-					});
-
-					button_home.setEnabled(false);
+					}, 180000, 240000);
 
 				}
 
-				return true;
+				INOUT = RF_ON;
+				utility.appendLog("I", "Inviato comando: RF_On_Off = ON");
+				inviaComandi(RF_ON, MSK_CMD, INOUT);
+
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				INOUT = PLAY_TMP;
+				utility.appendLog("I", "Inviato comando: PLAY");
+				inviaComandi(PLAY, MSK_CMD, INOUT);
+
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+
+						// disegna_grafico_lib();
+						// disegna_grafico(1);
+
+					}
+				});
+
+				button_home.setEnabled(false);
+
 			}
 		});
 
@@ -941,53 +931,6 @@ public class WorkActivity extends Activity {
 
 			}
 		});
-
-		// button_ping.setOnTouchListener(new OnTouchListener() {
-		//
-		// @Override
-		// public boolean onTouch(View v, MotionEvent event) {
-		//
-		// if (event.getAction() == MotionEvent.ACTION_DOWN) {
-		//
-		// if (button_ping.isPressed()) {
-		//
-		// button_ping.setPressed(false);
-		//
-		// PING = false;
-		//
-		// return true;
-		//
-		// } else {
-		//
-		// if (!button_ping.isPressed()) {
-		//
-		// button_ping.setPressed(true);
-		//
-		// PING = true;
-		//
-		// if (mWritePing == null) {
-		// mWritePing = new WritePing();
-		// mWritePing.setName("Thread_PING");
-		// mWritePing.start();
-		// }
-		//
-		// return false;
-		//
-		// } else {
-		//
-		// button_ping.setPressed(false);
-		//
-		// PING = false;
-		//
-		// return true;
-		// }
-		// }
-		// }
-		//
-		// return true;
-		//
-		// }
-		// });
 
 		button_water_left
 				.setOnLongClickListener(new View.OnLongClickListener() {

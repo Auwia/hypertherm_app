@@ -12,7 +12,6 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:textColor="@drawable/my_row_selector_tessuto"
-        android:textSize="35sp"
-        android:textStyle="bold" />
+        android:textSize="35sp"/>
 
 </LinearLayout>

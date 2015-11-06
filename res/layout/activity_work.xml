@@ -15,7 +15,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
-            android:layout_weight="55"
+            android:layout_weight="56"
             android:gravity="center_vertical|left" >
 
             <TextView
@@ -73,8 +73,9 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
-            android:layout_weight="15"
-            android:gravity="center_vertical|center_horizontal" >
+            android:layout_weight="14"
+            android:gravity="center_vertical|center_horizontal"
+            android:paddingLeft="55dp" >
 
             <Button
                 android:id="@+id/button_home"
@@ -148,8 +149,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textColor="@android:color/black"
-                android:textSize="35sp"
-                android:textStyle="bold" />
+                android:textSize="35sp" />
 
             <!-- android:text="@string/suggerimento" -->
 
@@ -210,8 +210,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/novanta"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -226,8 +225,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/ottanta"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -242,8 +240,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/settanta"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -258,8 +255,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/sessanta"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -274,8 +270,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/cinquanta"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -290,8 +285,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/quaranta"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -306,8 +300,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/trenta"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -322,8 +315,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/venti"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -338,8 +330,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/dieci"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -354,8 +345,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/zero"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textSize="20sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -735,7 +725,8 @@
                     android:layout_height="fill_parent"
                     android:layout_gravity="center_vertical|center_horizontal"
                     android:layout_weight="35"
-                    android:gravity="center_vertical|center_horizontal" >
+                    android:gravity="center_vertical|center_horizontal"
+                    android:paddingLeft="15dp" >
 
                     <Button
                         android:id="@+id/button_water"
@@ -750,15 +741,16 @@
                     android:layout_height="fill_parent"
                     android:layout_gravity="center_vertical|center_horizontal"
                     android:layout_weight="50"
-                    android:gravity="center_vertical|center_horizontal" >
+                    android:gravity="center_vertical|center_horizontal"
+                    android:orientation="vertical" >
 
                     <TextView
                         android:id="@+id/water_label_up"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="@string/sottozero"
                         android:textColor="@android:color/black"
-                        android:textSize="65sp"
-                        android:textStyle="bold" />
+                        android:textSize="65sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -766,15 +758,29 @@
                     android:layout_height="fill_parent"
                     android:layout_gravity="center_vertical|center_horizontal"
                     android:layout_weight="15"
-                    android:gravity="center_vertical|left" >
+                    android:gravity="center_vertical|left"
+                    android:orientation="vertical" >
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/gradicentigradi"
-                        android:textColor="@android:color/black"
-                        android:textSize="30sp"
-                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="0dp"
+                        android:layout_gravity="center_horizontal|bottom"
+                        android:layout_weight="75"
+                        android:gravity="center_horizontal|bottom" >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/gradicentigradi"
+                            android:textColor="@android:color/black"
+                            android:textSize="30sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="25" >
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
@@ -797,9 +803,8 @@
                         android:layout_height="wrap_content"
                         android:paddingLeft="4dp"
                         android:text="@string/sottozero"
-                        android:textColor="@android:color/black"
-                        android:textSize="55sp"
-                        android:textStyle="bold" />
+                        android:textColor="@android:color/white"
+                        android:textSize="55sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -865,7 +870,8 @@
                     android:layout_height="fill_parent"
                     android:layout_gravity="center_vertical|center_horizontal"
                     android:layout_weight="50"
-                    android:gravity="center_vertical|center_horizontal" >
+                    android:gravity="center_vertical|center_horizontal"
+                    android:orientation="vertical" >
 
                     <TextView
                         android:id="@+id/deltat_label_up"
@@ -873,8 +879,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/sottozero"
                         android:textColor="@android:color/black"
-                        android:textSize="65sp"
-                        android:textStyle="bold" />
+                        android:textSize="65sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -882,15 +887,29 @@
                     android:layout_height="fill_parent"
                     android:layout_gravity="center_vertical|center_horizontal"
                     android:layout_weight="15"
-                    android:gravity="center_vertical|left" >
+                    android:gravity="center_vertical|left"
+                    android:orientation="vertical" >
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/gradicentigradi"
-                        android:textColor="@android:color/black"
-                        android:textSize="30sp"
-                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="0dp"
+                        android:layout_gravity="center_horizontal|bottom"
+                        android:layout_weight="75"
+                        android:gravity="center_horizontal|bottom" >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/gradicentigradi"
+                            android:textColor="@android:color/black"
+                            android:textSize="30sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="25" >
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
@@ -912,9 +931,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/sottozero"
-                        android:textColor="@android:color/black"
-                        android:textSize="55sp"
-                        android:textStyle="bold" />
+                        android:textColor="@android:color/white"
+                        android:textSize="55sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -979,7 +997,8 @@
                     android:layout_height="fill_parent"
                     android:layout_gravity="center_vertical|center_horizontal"
                     android:layout_weight="50"
-                    android:gravity="center_vertical|center_horizontal" >
+                    android:gravity="center_vertical|center_horizontal"
+                    android:orientation="vertical" >
 
                     <TextView
                         android:id="@+id/antenna_black_label_up"
@@ -987,8 +1006,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/sottozero"
                         android:textColor="@android:color/black"
-                        android:textSize="65sp"
-                        android:textStyle="bold" />
+                        android:textSize="65sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -996,15 +1014,29 @@
                     android:layout_height="fill_parent"
                     android:layout_gravity="center_vertical|center_horizontal"
                     android:layout_weight="15"
-                    android:gravity="center_vertical|left" >
+                    android:gravity="center_vertical|left"
+                    android:orientation="vertical" >
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/watt"
-                        android:textColor="@android:color/black"
-                        android:textSize="30sp"
-                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="0dp"
+                        android:layout_gravity="center_horizontal|bottom"
+                        android:layout_weight="75"
+                        android:gravity="center_horizontal|bottom" >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/watt"
+                            android:textColor="@android:color/black"
+                            android:textSize="30sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="25" >
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
@@ -1026,9 +1058,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/sottozero"
-                        android:textColor="@android:color/black"
-                        android:textSize="55sp"
-                        android:textStyle="bold" />
+                        android:textColor="@android:color/white"
+                        android:textSize="55sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -1079,7 +1110,8 @@
                     android:layout_height="fill_parent"
                     android:layout_gravity="center_vertical|center_horizontal"
                     android:layout_weight="35"
-                    android:gravity="center_vertical|center_horizontal" >
+                    android:gravity="center_vertical|center_horizontal"
+                    android:paddingLeft="20dp" >
 
                     <Button
                         android:id="@+id/button_time"
@@ -1094,7 +1126,8 @@
                     android:layout_height="fill_parent"
                     android:layout_gravity="center_vertical|center_horizontal"
                     android:layout_weight="50"
-                    android:gravity="center_vertical|center_horizontal" >
+                    android:gravity="center_vertical|center_horizontal"
+                    android:orientation="vertical" >
 
                     <TextView
                         android:id="@+id/time_label_up"
@@ -1102,8 +1135,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/zerozero"
                         android:textColor="@android:color/black"
-                        android:textSize="65sp"
-                        android:textStyle="bold" />
+                        android:textSize="65sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -1133,9 +1165,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/zerozero"
-                        android:textColor="@android:color/black"
-                        android:textSize="55sp"
-                        android:textStyle="bold" />
+                        android:textColor="@android:color/white"
+                        android:textSize="55sp" />
                 </LinearLayout>
 
                 <LinearLayout

@@ -27,11 +27,10 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
             android:text="@string/title"
             android:textColor="@android:color/white"
-            android:textSize="40sp"
-            android:paddingLeft="20dp"
-            android:textStyle="bold" />
+            android:textSize="40sp" />
     </LinearLayout>
 
     <LinearLayout
