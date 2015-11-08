@@ -249,6 +249,8 @@ public class Caricamento {
 				array_properties[2] = properties.getProperty("time_out_read");
 				array_properties[3] = properties.getProperty("time_out_write");
 				array_properties[4] = properties.getProperty("time_out_reset");
+				array_properties[5] = properties
+						.getProperty("time_out_simulatore");
 
 				caricaStage(HyperthermDB.TABLE_SETTINGS, array_properties);
 

@@ -460,63 +460,35 @@ public class WorkActivity extends Activity {
 
 						seek_bar.setProgress(seek_bar.getProgress() - 1);
 
-						waitTimer = new CountDownTimer(1000, 1000) {
+						funzionalita = button_water_left.getId();
+						decrement();
+						decrement();
+						decrement();
 
-							public void onTick(long millisUntilFinished) {
+						funzionalita = button_deltat_left.getId();
+						decrement();
 
-							}
+						if (SIMULATORE) {
 
-							public void onFinish() {
+							float potenza = utility.getPmaxRF(
+									tracciato_out.getPowerOut() / 10,
+									tracciato_out.getWaterOut() / 10);
 
-								funzionalita = button_water_left.getId();
-								decrement();
-								decrement();
-								decrement();
+							tracciato_in.setPowerOut((int) (potenza * 10));
+						}
 
-								funzionalita = button_deltat_left.getId();
-								decrement();
+						if (seek_bar.getProgress() == 5) {
+							button_power.setPressed(true);
+							button_temperature_negative.setPressed(false);
+							button_temperature_positive.setPressed(false);
+						} else {
+							button_power.setPressed(false);
+							button_temperature_negative.setPressed(true);
+							button_temperature_positive.setPressed(false);
+						}
 
-								if (!disturbo_label.getText().toString()
-										.equals(utility.getMenuItemDefault())) {
+						inviaComandi(0, MSK_ALL_4, INOUT);
 
-									float potenza = utility.getPmaxRF(
-											tracciato_out.getPowerOut() / 10,
-											tracciato_out.getWaterOut() / 10);
-
-									if (LONG)
-										antenna_black_label_down.setText(""
-												+ potenza);
-
-									tracciato_in
-											.setPowerOut((int) (potenza * 10));
-								}
-
-								if (seek_bar.getProgress() == 5) {
-									button_power.setPressed(true);
-									button_temperature_negative
-											.setPressed(false);
-									button_temperature_positive
-											.setPressed(false);
-								} else {
-									button_power.setPressed(false);
-									button_temperature_negative
-											.setPressed(true);
-									button_temperature_positive
-											.setPressed(false);
-								}
-
-								inviaComandi(0, MSK_ALL_4, INOUT);
-
-							}
-						}.start();
-
-					}
-				} else {
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
 				}
 
@@ -543,15 +515,11 @@ public class WorkActivity extends Activity {
 						funzionalita = button_deltat_right.getId();
 						increment();
 
-						if (!disturbo_label.getText().toString()
-								.equals(utility.getMenuItemDefault())) {
+						if (SIMULATORE) {
 
 							float potenza = utility.getPmaxRF(
 									tracciato_out.getPowerOut() / 10,
 									tracciato_out.getWaterOut() / 10);
-
-							if (LONG)
-								antenna_black_label_down.setText("" + potenza);
 
 							tracciato_in.setPowerIn((int) (potenza * 10));
 						}
@@ -570,7 +538,7 @@ public class WorkActivity extends Activity {
 					}
 				} else {
 					try {
-						Thread.sleep(100);
+						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -671,15 +639,15 @@ public class WorkActivity extends Activity {
 				utility.appendLog("I", "Inviato comando: PLAY");
 				inviaComandi(PLAY, MSK_CMD, INOUT);
 
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-
-						// disegna_grafico_lib();
-						// disegna_grafico(1);
-
-					}
-				});
+				// runOnUiThread(new Runnable() {
+				// @Override
+				// public void run() {
+				//
+				// // disegna_grafico_lib();
+				// // disegna_grafico(1);
+				//
+				// }
+				// });
 
 				button_home.setEnabled(false);
 

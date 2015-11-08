@@ -68,15 +68,15 @@
             android:layout_weight="30"
             android:background="#00aac0"
             android:gravity="center_vertical|left"
-            android:paddingLeft="150dp" >
+            android:paddingLeft="160dp" >
 
             <TextView
                 android:id="@+id/struttura"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingRight="40sp"
+                
                 android:textColor="@android:color/black"
-                android:textSize="40sp" />
+                android:textSize="35sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -179,15 +179,15 @@
             android:layout_weight="30"
             android:background="#00aac0"
             android:gravity="center_vertical|left"
-            android:paddingLeft="150dp" >
+            android:paddingLeft="160dp" >
 
             <TextView
                 android:id="@+id/profondita"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingRight="40sp"
+                
                 android:textColor="@android:color/black"
-                android:textSize="40sp" />
+                android:textSize="35sp" />
         </LinearLayout>
 
         <LinearLayout

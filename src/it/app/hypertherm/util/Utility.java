@@ -43,7 +43,8 @@ public class Utility {
 
 	private TextView antenna_black_label_up, antenna_black_label_down,
 			water_label_down, deltat_label_down, time_label_down,
-			water_label_up, deltat_label_up, time_label_up, suggerimenti;
+			water_label_up, deltat_label_up, time_label_up, suggerimenti,
+			disturbo_label;
 
 	private Button button_play, button_stop, button_pause, button_bolus_down,
 			button_bolus_up, button_home, button_onda_quadra, button_antenna,
@@ -96,6 +97,7 @@ public class Utility {
 		time_label_down = (TextView) activity
 				.findViewById(R.id.time_label_down);
 		suggerimenti = (TextView) activity.findViewById(R.id.suggerimenti);
+		disturbo_label = (TextView) activity.findViewById(R.id.disturbo_label);
 
 		button_play = (Button) activity.findViewById(R.id.button_play);
 		button_pause = (Button) activity.findViewById(R.id.button_pause);
@@ -275,6 +277,18 @@ public class Utility {
 					reset_piramide();
 
 					suggerimenti.setText(get_suggerimento_trattamento());
+
+					if (!disturbo_label.getText().equals(getMenuItemDefault())) {
+
+						WorkActivity.WATER = (int) preferences.getFloat(
+								"WATER", 35) * 100;
+						WorkActivity.DELTAT = (int) preferences.getFloat(
+								"DELTAT", 1) * 100;
+						WorkActivity.POWER = (int) preferences.getInt("ANTENNA",
+								0) * 100;
+						WorkActivity.TIMER = (int) preferences
+								.getInt("TIME", 0) * 60;
+					}
 
 					break;
 
@@ -1425,6 +1439,25 @@ public class Utility {
 		cur = database.query(HyperthermDB.TABLE_SETTINGS,
 				new String[] { HyperthermDB.COLUMN_TIMEOUT_WRITE }, null, null,
 				null, null, null);
+
+		cur.moveToFirst();
+
+		int timeout = 500;
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			timeout = cur.getInt(0);
+			cur.moveToNext();
+		}
+		cur.close();
+
+		return timeout;
+	}
+
+	public int get_time_out_simulatore() {
+
+		cur = database.query(HyperthermDB.TABLE_SETTINGS,
+				new String[] { HyperthermDB.COLUMN_TIMEOUT_SIMULATORE }, null,
+				null, null, null, null);
 
 		cur.moveToFirst();
 

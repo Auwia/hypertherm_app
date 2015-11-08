@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -54,9 +53,6 @@ public class StrutturaProfonditaActivity extends Activity {
 		button_intermedio = (Button) findViewById(R.id.button_intermedio);
 		button_profondo = (Button) findViewById(R.id.button_profondo);
 		button_dinamico = (Button) findViewById(R.id.button_dinamico);
-		Log.d("MAX",
-				button_dinamico.getWidth() + " - "
-						+ button_dinamico.getHeight());
 		button_ok = (Button) findViewById(R.id.button_ok);
 
 		String[] struttura_array = utility.getStrutturaItems();
@@ -279,9 +275,6 @@ public class StrutturaProfonditaActivity extends Activity {
 		button_ok.setOnClickListener(new View.OnClickListener() {
 
 			public void onClick(View v) {
-
-				Log.d("MAX", button_dinamico.getWidth() + " - "
-						+ button_dinamico.getHeight());
 
 				preferences.edit().putString("PROFONDITA", profondita).commit();
 				preferences.edit().putString("STRUTTURA", struttura).commit();

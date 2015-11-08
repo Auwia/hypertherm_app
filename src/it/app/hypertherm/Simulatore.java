@@ -18,9 +18,9 @@ public class Simulatore implements Runnable {
 	private static BlockingQueue<byte[]> queue;
 	private static boolean START = false;
 	public static boolean INVIA = false;
-	private static int TIME_IN, TIME_OUT, POTENZA_IN, POTENZA_OUT, POTENZA_DIR,
-			POTENZA_REF, DELTAT_IN, DELTAT_OUT = 120, WATER_IN,
-			WATER_OUT = 4200, CMD, INOUT, TIME_IMPOSTATO;
+	private static int TIME_IN, TIME_OUT, TIME_OUT_SIMULATORE, POTENZA_IN,
+			POTENZA_OUT, POTENZA_DIR, POTENZA_REF, DELTAT_IN, DELTAT_OUT = 120,
+			WATER_IN, WATER_OUT = 4200, CMD, INOUT, TIME_IMPOSTATO;
 	private static CountDownTimer waitTimer = null;
 	private static Activity activity;
 	private static byte[] In_Output_buffer;
@@ -43,42 +43,47 @@ public class Simulatore implements Runnable {
 
 		TIME_IN = 0;
 
+		TIME_OUT_SIMULATORE = utility.get_time_out_simulatore();
+
 	}
 
 	public void run() {
 
 		while (WorkActivity.COMMUNICATION_READY) {
 
-			if (INVIA) {
+			if (START) {
 
-				if (START) {
-
-					if (TIME_IN == 0) {
-						tracciato.setComando(3);
-						START = false;
-					}
-
+				if (TIME_IN == 0) {
+					tracciato.setComando(3);
+					START = false;
 				}
 
-				tracciato.setTimerIn(TIME_IN);
-				tracciato.setTimerOut(TIME_OUT);
-				tracciato.setPowerOut(POTENZA_OUT);
-				tracciato.setPowerIn(POTENZA_IN);
-				tracciato.setDirPower(POTENZA_DIR);
-				tracciato.setDeltaTIn(DELTAT_IN);
-				tracciato.setDeltaTOut(DELTAT_OUT);
-				tracciato.setWaterIn(WATER_IN);
-				tracciato.setWaterOut(WATER_OUT);
-				tracciato.setComando(CMD);
-				tracciato.setInOutput(INOUT);
+			}
 
-				tracciato.setCheckSum(utility.calcola_check_sum(tracciato
-						.setBuf()));
+			tracciato.setTimerIn(TIME_IN);
+			tracciato.setTimerOut(TIME_OUT);
+			tracciato.setPowerOut(POTENZA_OUT);
+			tracciato.setPowerIn(POTENZA_IN);
+			tracciato.setDirPower(POTENZA_DIR);
+			tracciato.setDeltaTIn(DELTAT_IN);
+			tracciato.setDeltaTOut(DELTAT_OUT);
+			tracciato.setWaterIn(WATER_IN);
+			tracciato.setWaterOut(WATER_OUT);
+			tracciato.setComando(CMD);
+			tracciato.setInOutput(INOUT);
 
-				queue.add(tracciato.setBuf());
+			tracciato
+					.setCheckSum(utility.calcola_check_sum(tracciato.setBuf()));
 
-				INVIA = false;
+			queue.add(tracciato.setBuf());
 
+			INVIA = false;
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 
 		}
