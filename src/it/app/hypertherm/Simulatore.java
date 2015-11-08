@@ -80,7 +80,7 @@ public class Simulatore implements Runnable {
 			INVIA = false;
 
 			try {
-				Thread.sleep(500);
+				Thread.sleep(TIME_OUT_SIMULATORE);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
