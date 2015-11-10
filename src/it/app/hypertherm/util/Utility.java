@@ -278,18 +278,6 @@ public class Utility {
 
 					suggerimenti.setText(get_suggerimento_trattamento());
 
-					if (!disturbo_label.getText().equals(getMenuItemDefault())) {
-
-						WorkActivity.WATER = (int) preferences.getFloat(
-								"WATER", 35) * 100;
-						WorkActivity.DELTAT = (int) preferences.getFloat(
-								"DELTAT", 1) * 100;
-						WorkActivity.POWER = (int) preferences.getInt("ANTENNA",
-								0) * 100;
-						WorkActivity.TIMER = (int) preferences
-								.getInt("TIME", 0) * 60;
-					}
-
 					break;
 
 				case 1024: // BOOL-UP

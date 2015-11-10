@@ -51,39 +51,41 @@ public class Simulatore implements Runnable {
 
 		while (WorkActivity.COMMUNICATION_READY) {
 
-			if (START) {
+			if (INVIA) {
 
-				if (TIME_IN == 0) {
-					tracciato.setComando(3);
-					START = false;
+				if (START) {
+
+					if (TIME_IN == 0) {
+						tracciato.setComando(3);
+						START = false;
+					}
+
 				}
 
-			}
+				tracciato.setTimerIn(TIME_IN);
+				tracciato.setTimerOut(TIME_OUT);
+				tracciato.setPowerOut(POTENZA_OUT);
+				tracciato.setPowerIn(POTENZA_IN);
+				tracciato.setDirPower(POTENZA_DIR);
+				tracciato.setDeltaTIn(DELTAT_IN);
+				tracciato.setDeltaTOut(DELTAT_OUT);
+				tracciato.setWaterIn(WATER_IN);
+				tracciato.setWaterOut(WATER_OUT);
+				tracciato.setComando(CMD);
+				tracciato.setInOutput(INOUT);
 
-			tracciato.setTimerIn(TIME_IN);
-			tracciato.setTimerOut(TIME_OUT);
-			tracciato.setPowerOut(POTENZA_OUT);
-			tracciato.setPowerIn(POTENZA_IN);
-			tracciato.setDirPower(POTENZA_DIR);
-			tracciato.setDeltaTIn(DELTAT_IN);
-			tracciato.setDeltaTOut(DELTAT_OUT);
-			tracciato.setWaterIn(WATER_IN);
-			tracciato.setWaterOut(WATER_OUT);
-			tracciato.setComando(CMD);
-			tracciato.setInOutput(INOUT);
+				tracciato.setCheckSum(utility.calcola_check_sum(tracciato
+						.setBuf()));
 
-			tracciato
-					.setCheckSum(utility.calcola_check_sum(tracciato.setBuf()));
+				queue.add(tracciato.setBuf());
 
-			queue.add(tracciato.setBuf());
+				try {
+					Thread.sleep(TIME_OUT_SIMULATORE);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 
-			INVIA = false;
-
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 
 		}
@@ -256,8 +258,6 @@ public class Simulatore implements Runnable {
 									POTENZA_DIR = 0;
 									POTENZA_IN = 0;
 									TIME_IN = 0;
-
-									INVIA = true;
 
 								}
 							}.start();

@@ -48,7 +48,7 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 public class WorkActivity extends Activity {
 
 	private SeekBar seek_bar;
-	private Button button_antenna_left, button_antenna_right,
+	private static Button button_antenna_left, button_antenna_right,
 			button_water_left, button_water_right, button_deltat_left,
 			button_deltat_right, button_time_left, button_time_right,
 			button_home, button_play, button_pause, button_stop,
@@ -57,14 +57,16 @@ public class WorkActivity extends Activity {
 			button_onda_quadra, button_antenna, button_time, button_water,
 			button_deltat;
 	private TextView antenna_black_label_down, water_label_down,
-			deltat_label_down, time_label_down, disturbo_label, suggerimenti;
+			deltat_label_down, time_label_down;
+	private static TextView disturbo_label, suggerimenti;
 
 	private static Utility utility;
 
 	private InputStream mInputStream;
 	private OutputStream mOutputStream;
 
-	private BlockingQueue<byte[]> bq_out, bq_in;
+	private static BlockingQueue<byte[]> bq_out;
+	private BlockingQueue<byte[]> bq_in;
 
 	public static boolean SIMULATORE = false;
 	private static boolean PING = false;
@@ -110,7 +112,7 @@ public class WorkActivity extends Activity {
 			mSeries405, mSeries408, mSeries411, mSeries414, mSeries418,
 			mSeries421, mSeries424, mSeries427;
 
-	private SharedPreferences preferences;
+	private static SharedPreferences preferences;
 
 	private SerialPortOpt serialPort;
 
@@ -127,9 +129,9 @@ public class WorkActivity extends Activity {
 	private static Timer timerRfOn, timerRfOff;
 
 	private Tracciato tracciato_in = new Tracciato();
-	private Tracciato tracciato_out = new Tracciato();
+	private static Tracciato tracciato_out = new Tracciato();
 
-	public void inviaComandi(final int comando, final int maschera,
+	public static void inviaComandi(final int comando, final int maschera,
 			final int inout) {
 
 		tracciato_out.setComando(comando);
@@ -340,7 +342,7 @@ public class WorkActivity extends Activity {
 
 	}
 
-	private void def_value_defaults() {
+	private static void def_value_defaults() {
 
 		button_power.setPressed(true);
 
@@ -536,14 +538,8 @@ public class WorkActivity extends Activity {
 
 						inviaComandi(0, MSK_ALL_4, INOUT);
 					}
-				} else {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
 				}
+
 				return true;
 			}
 		});
@@ -700,6 +696,13 @@ public class WorkActivity extends Activity {
 
 				CMD = 3;
 
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
 				suggerimenti.setText(utility.get_suggerimento_trattamento());
 
 				button_home.setEnabled(true);
@@ -709,6 +712,8 @@ public class WorkActivity extends Activity {
 				button_time.setPressed(false);
 
 				utility.reset_piramide();
+
+				def_value_defaults();
 
 			}
 		});
@@ -905,6 +910,7 @@ public class WorkActivity extends Activity {
 					public boolean onLongClick(View arg0) {
 
 						LONG = true;
+						Simulatore.INVIA = false;
 
 						funzionalita = button_water_left.getId();
 
@@ -943,7 +949,7 @@ public class WorkActivity extends Activity {
 					}
 
 					LONG = false;
-
+					Simulatore.INVIA = true;
 					PING = true;
 
 				}
@@ -973,8 +979,7 @@ public class WorkActivity extends Activity {
 					}
 
 					if (!SIMULATORE)
-						if (!SIMULATORE)
-							set_attention();
+						set_attention();
 
 					attiva_normal();
 
@@ -988,6 +993,7 @@ public class WorkActivity extends Activity {
 					public boolean onLongClick(View arg0) {
 
 						LONG = true;
+						Simulatore.INVIA = false;
 
 						funzionalita = button_water_right.getId();
 
@@ -1023,7 +1029,7 @@ public class WorkActivity extends Activity {
 					}
 
 					LONG = false;
-
+					Simulatore.INVIA = true;
 					PING = true;
 
 				}
@@ -1065,6 +1071,7 @@ public class WorkActivity extends Activity {
 					public boolean onLongClick(View arg0) {
 
 						LONG = true;
+						Simulatore.INVIA = false;
 
 						funzionalita = button_deltat_left.getId();
 
@@ -1102,7 +1109,7 @@ public class WorkActivity extends Activity {
 
 					LONG = false;
 					PING = true;
-
+					Simulatore.INVIA = true;
 				}
 
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -1157,6 +1164,7 @@ public class WorkActivity extends Activity {
 					public boolean onLongClick(View arg0) {
 
 						LONG = true;
+						Simulatore.INVIA = false;
 
 						funzionalita = button_deltat_right.getId();
 
@@ -1193,7 +1201,7 @@ public class WorkActivity extends Activity {
 					}
 
 					LONG = false;
-
+					Simulatore.INVIA = true;
 					PING = true;
 
 				}
@@ -1250,6 +1258,7 @@ public class WorkActivity extends Activity {
 					public boolean onLongClick(View arg0) {
 
 						LONG = true;
+						Simulatore.INVIA = false;
 
 						funzionalita = button_antenna_left.getId();
 
@@ -1286,7 +1295,7 @@ public class WorkActivity extends Activity {
 					}
 
 					PING = true;
-
+					Simulatore.INVIA = true;
 					LONG = false;
 				}
 
@@ -1326,6 +1335,7 @@ public class WorkActivity extends Activity {
 					public boolean onLongClick(View arg0) {
 
 						LONG = true;
+						Simulatore.INVIA = false;
 
 						funzionalita = button_antenna_right.getId();
 
@@ -1360,7 +1370,7 @@ public class WorkActivity extends Activity {
 					inviaComandi(0, MSK_POWER, INOUT);
 
 					PING = true;
-
+					Simulatore.INVIA = true;
 					LONG = false;
 
 				}
@@ -1398,6 +1408,7 @@ public class WorkActivity extends Activity {
 			public boolean onLongClick(View arg0) {
 
 				LONG = true;
+				Simulatore.INVIA = false;
 
 				funzionalita = button_time_left.getId();
 
@@ -1434,6 +1445,7 @@ public class WorkActivity extends Activity {
 
 					PING = true;
 					LONG = false;
+					Simulatore.INVIA = true;
 
 				}
 
@@ -1476,6 +1488,7 @@ public class WorkActivity extends Activity {
 					public boolean onLongClick(View arg0) {
 
 						LONG = true;
+						Simulatore.INVIA = false;
 
 						funzionalita = button_time_right.getId();
 
@@ -1512,6 +1525,7 @@ public class WorkActivity extends Activity {
 
 					PING = true;
 					LONG = false;
+					Simulatore.INVIA = true;
 
 				}
 
