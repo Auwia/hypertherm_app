@@ -47,7 +47,7 @@ public class Utility {
 			disturbo_label;
 
 	private Button button_play, button_stop, button_pause, button_bolus_down,
-			button_bolus_up, button_home, button_onda_quadra, button_antenna,
+			button_bolus_up, button_home, button_power, button_antenna,
 			button_time;
 
 	private LinearLayout zero, dieci, venti, trenta, quaranta, cinquanta,
@@ -106,8 +106,7 @@ public class Utility {
 				.findViewById(R.id.button_bolus_down);
 		button_bolus_up = (Button) activity.findViewById(R.id.button_bolus_up);
 		button_home = (Button) activity.findViewById(R.id.button_home);
-		button_onda_quadra = (Button) activity
-				.findViewById(R.id.button_onda_quadra);
+		button_power = (Button) activity.findViewById(R.id.button_power);
 		button_antenna = (Button) activity
 				.findViewById(R.id.button_antenna_black);
 		button_time = (Button) activity.findViewById(R.id.button_time);
@@ -511,6 +510,11 @@ public class Utility {
 						time_label_down.setText(convertSecondsToMm(iTime));
 
 						WorkActivity.TIMER = iTime;
+
+						if (button_power.isPressed()) {
+							WorkActivity.WATER_IMP = iH2o_temp;
+							WorkActivity.DELTAT_IMP = id_temp;
+						}
 
 					}
 				});

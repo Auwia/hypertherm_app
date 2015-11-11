@@ -151,27 +151,24 @@
                 android:textColor="@android:color/black"
                 android:textSize="35sp" />
 
-            <!-- android:text="@string/suggerimento" -->
+<!--             <com.jjoe64.graphview.GraphView -->
+<!--                 android:id="@+id/grafico" -->
+<!--                 android:layout_width="match_parent" -->
+<!--                 android:layout_height="match_parent" /> -->
 
+<LinearLayout
+                android:id="@+id/grafico1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal" />
 
-            <!-- <com.jjoe64.graphview.GraphView -->
+            <!-- <ImageView -->
             <!-- android:id="@+id/grafico" -->
-            <!-- android:layout_width="match_parent" -->
-            <!-- android:layout_height="match_parent" /> -->
+            <!-- android:layout_width="fill_parent" -->
+            <!-- android:layout_height="fill_parent" -->
+            <!-- android:scaleType="fitXY" -->
+            <!-- android:src="@drawable/grafico" /> -->
 
-
-            <!-- <LinearLayout -->
-            <!-- android:id="@+id/grafico1" -->
-            <!-- android:layout_width="match_parent" -->
-            <!-- android:layout_height="match_parent" -->
-            <!-- android:orientation="horizontal" /> -->
-
-            <ImageView
-                android:id="@+id/grafico"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:scaleType="fitXY"
-                android:src="@drawable/grafico" />
         </LinearLayout>
 
         <LinearLayout

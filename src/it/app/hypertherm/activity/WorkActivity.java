@@ -37,6 +37,7 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.dwin.navy.serialportapi.SerialPortOpt;
@@ -60,6 +61,8 @@ public class WorkActivity extends Activity {
 			deltat_label_down, time_label_down;
 	private static TextView disturbo_label, suggerimenti;
 
+	private LinearLayout ll;
+
 	private static Utility utility;
 
 	private InputStream mInputStream;
@@ -76,8 +79,8 @@ public class WorkActivity extends Activity {
 
 	private int funzionalita;
 
-	public static int WATER = 0;
-	public static int DELTAT = 0;
+	public static int WATER, WATER_IMP = 0;
+	public static int DELTAT, DELTAT_IMP = 0;
 	public static int POWER = 0;
 	public static int TIMER = 0;
 
@@ -319,6 +322,33 @@ public class WorkActivity extends Activity {
 		seek_bar.setMax(10);
 		seek_bar.setEnabled(false);
 		seek_bar.setProgress(5);
+		seek_bar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+
+				if (progress >= 0 && progress < 5) {
+					tracciato_out.setWaterOut(WATER_IMP - 30 * (5 - progress));
+					tracciato_out
+							.setDeltaTOut(DELTAT_IMP - 10 * (5 - progress));
+
+				} else if (progress > 5 && progress <= 10) {
+					tracciato_out.setWaterOut(WATER_IMP + 30 * (progress - 5));
+					tracciato_out
+							.setDeltaTOut(DELTAT_IMP + 10 * (progress - 5));
+				}
+
+				inviaComandi(0, MSK_ALL_4, INOUT);
+			}
+
+			public void onStartTrackingTouch(SeekBar seekBar) {
+
+			}
+
+			public void onStopTrackingTouch(SeekBar seekBar) {
+
+			}
+		});
 
 		android.view.ViewGroup.LayoutParams param = seek_bar.getLayoutParams();
 
@@ -358,10 +388,10 @@ public class WorkActivity extends Activity {
 		button_time.setEnabled(false);
 		button_time.setClickable(false);
 
-		tracciato_out
-				.setWaterOut((int) (preferences.getFloat("WATER", 35) * 100));
-		tracciato_out
-				.setDeltaTOut((int) (preferences.getFloat("DELTAT", 1) * 100));
+		tracciato_out.setWaterOut(WATER_IMP = (int) (preferences.getFloat(
+				"WATER", 35) * 100));
+		tracciato_out.setDeltaTOut(DELTAT_IMP = (int) (preferences.getFloat(
+				"DELTAT", 1) * 100));
 		tracciato_out.setPowerOut(preferences.getInt("ANTENNA", 0) * 100);
 		tracciato_out.setTimerOut(preferences.getInt("TIME", 0) * 60);
 
@@ -406,44 +436,13 @@ public class WorkActivity extends Activity {
 
 					seek_bar.setProgress(5);
 
-					if (button_power.isPressed()) {
+					button_power.setPressed(true);
 
-						return true;
+					tracciato_out.setWaterOut(WATER_IMP);
+					tracciato_out.setDeltaTOut(DELTAT_IMP);
+					inviaComandi(0, MSK_ALL_4, INOUT);
 
-					} else {
-
-						button_power.setPressed(true);
-
-						if (pos >= 0 && pos < 5) {
-							for (int i = 0; i < 5 - pos; i++) {
-
-								funzionalita = button_water_right.getId();
-								increment();
-								increment();
-								increment();
-
-								funzionalita = button_deltat_right.getId();
-								increment();
-
-							}
-						} else if (pos > 5 && pos <= 10) {
-							for (int i = 0; i < pos - 5; i++) {
-								funzionalita = button_water_left.getId();
-								decrement();
-								decrement();
-								decrement();
-
-								funzionalita = button_deltat_left.getId();
-								decrement();
-
-							}
-						}
-
-						inviaComandi(0, MSK_ALL_4, INOUT);
-
-						return false;
-
-					}
+					return false;
 
 				}
 
@@ -461,14 +460,6 @@ public class WorkActivity extends Activity {
 					if (seek_bar.getProgress() > 0) {
 
 						seek_bar.setProgress(seek_bar.getProgress() - 1);
-
-						funzionalita = button_water_left.getId();
-						decrement();
-						decrement();
-						decrement();
-
-						funzionalita = button_deltat_left.getId();
-						decrement();
 
 						if (SIMULATORE) {
 
@@ -489,8 +480,6 @@ public class WorkActivity extends Activity {
 							button_temperature_positive.setPressed(false);
 						}
 
-						inviaComandi(0, MSK_ALL_4, INOUT);
-
 					}
 				}
 
@@ -508,14 +497,6 @@ public class WorkActivity extends Activity {
 					if (seek_bar.getProgress() < 10) {
 
 						seek_bar.setProgress(seek_bar.getProgress() + 1);
-
-						funzionalita = button_water_right.getId();
-						increment();
-						increment();
-						increment();
-
-						funzionalita = button_deltat_right.getId();
-						increment();
 
 						if (SIMULATORE) {
 
@@ -536,7 +517,6 @@ public class WorkActivity extends Activity {
 							button_temperature_positive.setPressed(true);
 						}
 
-						inviaComandi(0, MSK_ALL_4, INOUT);
 					}
 				}
 
@@ -549,48 +529,7 @@ public class WorkActivity extends Activity {
 
 				suggerimenti.setText("");
 
-				button_time.setPressed(true);
-
 				CMD = 1;
-
-				// runOnUiThread(new Runnable() {
-				//
-				// @Override
-				// public void run() {
-				//
-				// if (waitTimerGrafico == null) {
-				//
-				// waitTimerGrafico = new CountDownTimer(
-				// Integer.parseInt(time_label_down
-				// .getText().subSequence(0, 2)
-				// .toString()) * 60 * 1000 + 1,
-				// 1000) {
-				//
-				// public void onTick(long millisUntilFinished) {
-				//
-				// if (t == 30) {
-				// t = 0;
-				// }
-				//
-				// // mSeries1.resetData(generateData(t++));
-				//
-				// }
-				//
-				// public void onFinish() {
-				// utility.appendLog("I",
-				// "CHIUDO IL GRAFICO");
-				//
-				// // COMANDO STOP SIMULATION
-				// utility.esegui(768);
-				// CMD = 3;
-				//
-				// }
-				//
-				// }.start();
-				// }
-				//
-				// }
-				// });
 
 				if (button_onda_quadra.isPressed()) {
 
@@ -631,21 +570,19 @@ public class WorkActivity extends Activity {
 					e.printStackTrace();
 				}
 
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+
+						// disegna_grafico_lib();
+						disegna_grafico();
+
+					}
+				});
+
 				INOUT = PLAY_TMP;
 				utility.appendLog("I", "Inviato comando: PLAY");
 				inviaComandi(PLAY, MSK_CMD, INOUT);
-
-				// runOnUiThread(new Runnable() {
-				// @Override
-				// public void run() {
-				//
-				// // disegna_grafico_lib();
-				// // disegna_grafico(1);
-				//
-				// }
-				// });
-
-				button_home.setEnabled(false);
 
 			}
 		});
@@ -1619,13 +1556,16 @@ public class WorkActivity extends Activity {
 	private float function(double x, double y) {
 
 		int B = 3;
-		float Tw = WATER;
+		// float Tw = WATER;
+		float Tw = 41;
 		double b = 0.19;
 		int Tb = 37;
-		float Dt = DELTAT;
+		// float Dt = DELTAT;
+		float Dt = 1.2f;
 		double a = 0.035;
 		double A = (B + 1) * Dt + Tw - Tb;
-		double h = 0.001522;
+		// double h = 0.001522;
+		double h = 0.001522 / 2;
 		double k = 0.011513;
 		int x0 = 0;
 
@@ -1716,6 +1656,8 @@ public class WorkActivity extends Activity {
 		disturbo_label = (TextView) findViewById(R.id.disturbo_label);
 		suggerimenti = (TextView) findViewById(R.id.suggerimenti);
 		suggerimenti.setSingleLine(false);
+
+		ll = (LinearLayout) findViewById(R.id.grafico1);
 
 	}
 
@@ -1947,14 +1889,14 @@ public class WorkActivity extends Activity {
 		return values;
 	}
 
-	protected void disegna_grafico(int z) {
+	protected void disegna_grafico() {
 
 		Paint paint_griglia = new Paint();
 		paint_griglia.setColor(Color.parseColor("#327277"));
 
 		int asse_x = 140, asse_y = 70;
 
-		float scala = 20f;
+		float scala = 13f;
 
 		Bitmap bg = Bitmap
 				.createBitmap(asse_x, asse_y, Bitmap.Config.ARGB_8888);
@@ -1965,108 +1907,81 @@ public class WorkActivity extends Activity {
 
 		canvas.drawColor(Color.BLACK);
 
-		canvas.translate(asse_x / 2, -asse_y / 2 * scala - 39);
+		canvas.translate(asse_x / 2, 0);
 
 		float f = 0;
 
 		// from -x to +x evaluate and plot the function
-		for (int x = 0; x < 70; x++) {
+		for (int x = 0; x < asse_x; x++) {
 
-			for (int y = 0; y < 70; y++) {
+			for (int y = 0; y < asse_y; y++) {
 
 				f = function(x, y);
 
 				Paint paint = new Paint();
 
 				if (f < 38) {
-					paint.setColor(Color.parseColor("#fa0000"));
-				}
-				if (f > 38 && f < 38.3) {
-					paint.setColor(Color.parseColor("#fd7b7f"));
-				}
-				if (f > 38.3 && f < 38.6) {
-					paint.setColor(Color.parseColor("#fcba7f"));
-				}
-				if (f > 38.6 && f < 38.9) {
-					paint.setColor(Color.parseColor("#ffd7bf"));
-				}
-				if (f > 38.9 && f < 39.3) {
-					paint.setColor(Color.parseColor("#fbfbbc"));
-				}
-				if (f > 39.3 && f < 39.6) {
-					paint.setColor(Color.parseColor("#fd0000"));
-				}
-				if (f > 39.6 && f < 39.9) {
-					paint.setColor(Color.parseColor("#bffafd"));
-				}
-				if (f > 39.9 && f < 40.2) {
-					paint.setColor(Color.parseColor("#fef901"));
-				}
-				if (f > 40.2 && f < 40.5) {
-					paint.setColor(Color.parseColor("#03f800"));
-				}
-				if (f > 40.5 && f < 40.8) {
-					paint.setColor(Color.parseColor("#00b801"));
-				}
-				if (f > 40.8 && f < 41.1) {
-					paint.setColor(Color.parseColor("#007c00"));
-				}
-				if (f > 41.1 && f < 41.4) {
-					paint.setColor(Color.parseColor("#007a7c"));
-				}
-				if (f > 41.4 && f < 41.8) {
-					paint.setColor(Color.parseColor("#0000f6"));
-				}
-				if (f > 41.8 && f < 42.1) {
-					paint.setColor(Color.parseColor("#0000c4"));
-				}
-				if (f > 42.1 && f < 42.4) {
-					paint.setColor(Color.parseColor("#0d0d74"));
-				}
-				if (f > 42.7) {
 					paint.setColor(Color.parseColor("#80007f"));
 				}
-
-				for (int i = (int) -scala; i < scala; i++) {
-					canvas.drawPoint((float) x + i, f * scala, paint);
-					canvas.drawPoint((float) -x + i, f * scala, paint);
+				if (f > 38 && f < 38.3) {
+					paint.setColor(Color.parseColor("#0d0d74"));
 				}
+				if (f > 38.3 && f < 38.6) {
+					paint.setColor(Color.parseColor("#0000c4"));
+				}
+				if (f > 38.6 && f < 38.9) {
+					paint.setColor(Color.parseColor("#0000f6"));
+				}
+				if (f > 38.9 && f < 39.3) {
+					paint.setColor(Color.parseColor("#007a7c"));
+				}
+				if (f > 39.3 && f < 39.6) {
+					paint.setColor(Color.parseColor("#007c00"));
+				}
+				if (f > 39.6 && f < 39.9) {
+					paint.setColor(Color.parseColor("#00b801"));
+				}
+				if (f > 39.9 && f < 40.2) {
+					paint.setColor(Color.parseColor("#03f800"));
+				}
+				if (f > 40.2 && f < 40.5) {
+					paint.setColor(Color.parseColor("#fef901"));
+				}
+				if (f > 40.5 && f < 40.8) {
+					paint.setColor(Color.parseColor("#bffafd"));
+				}
+				if (f > 40.8 && f < 41.1) {
+					paint.setColor(Color.parseColor("#fd0000"));
+				}
+				if (f > 41.1 && f < 41.4) {
+					paint.setColor(Color.parseColor("#fbfbbc"));
+				}
+				if (f > 41.4 && f < 41.8) {
+					paint.setColor(Color.parseColor("#ffd7bf"));
+				}
+				if (f > 41.8 && f < 42.1) {
+					paint.setColor(Color.parseColor("#fcba7f"));
+				}
+				if (f > 42.1 && f < 42.4) {
+					paint.setColor(Color.parseColor("#fd7b7f"));
+				}
+				if (f > 42.7) {
+					paint.setColor(Color.parseColor("#fa0000"));
+				}
+
+				// for (int i = (int) -scala; i < scala; i++) {
+				// canvas.drawPoint((float) x + i, f * scala, paint);
+				// canvas.drawPoint((float) -x + i, f * scala, paint);
+				// }
+
+				canvas.drawPoint((float) x, y, paint);
+				canvas.drawPoint((float) -x, y, paint);
 
 			}
 		}
 
 		canvas.restore();
 
-		// canvas.save();
-		// int colonna = 20, riga = 5;
-		//
-		// for (int i = 0; i < asse_x; i += colonna) {
-		// canvas.drawLine(i, 0, i, asse_y, paint_griglia);
-		// }
-		//
-		// for (int j = 0; j < asse_y; j += riga) {
-		// canvas.drawLine(0, j, asse_x, j, paint_griglia);
-		// }
-		// canvas.restore();
-
-		// canvas.save();
-		// String testo;
-		// Paint paintTesto = new Paint();
-		// paintTesto.setColor(Color.WHITE);
-		// paintTesto.setTextSize(5);
-		//
-		// for (int i = 0; i <= asse_y; i += 5) {
-		// if (i < 10) {
-		// testo = " " + i;
-		// } else {
-		// testo = String.valueOf(i);
-		// }
-		// canvas.drawText(testo, 10, i, paintTesto);
-		// }
-		// canvas.restore();
-
-		// LinearLayout ll = (LinearLayout) findViewById(R.id.grafico1);
-		LinearLayout ll = null;
 		ll.setBackgroundDrawable(new BitmapDrawable(bg));
 
 	}
