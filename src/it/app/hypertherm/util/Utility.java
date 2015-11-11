@@ -273,6 +273,29 @@ public class Utility {
 					button_home.setEnabled(true);
 					button_time.setPressed(false);
 
+					if (WorkActivity.SIMULATORE) {
+
+						disturbo_label.setText("DEMO - "
+								+ String.valueOf(preferences.getString(
+										"MENU_ITEM", "Defect")));
+					} else {
+						disturbo_label.setText(String.valueOf(preferences
+								.getString("MENU_ITEM", "Defect")));
+					}
+					
+					if (disturbo_label.getText().toString()
+							.equals(getMenuItemDefault())
+							|| disturbo_label.getText().toString()
+									.equals("DEMO - " + getMenuItemDefault())) {
+
+						disturbo_label.setTextColor(Color.parseColor("#ffa500"));
+
+					} else {
+
+						disturbo_label.setTextColor(Color.BLACK);
+
+					}
+
 					reset_piramide();
 
 					suggerimenti.setText(get_suggerimento_trattamento());

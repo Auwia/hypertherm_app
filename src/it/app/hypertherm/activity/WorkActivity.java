@@ -365,8 +365,9 @@ public class WorkActivity extends Activity {
 		def_value_defaults();
 
 		if (SIMULATORE) {
-			disturbo_label.setTextColor(Color.parseColor("#ffa500"));
-			disturbo_label.setText("DEMO");
+			// disturbo_label.setTextColor(Color.parseColor("#ffa500"));
+			disturbo_label.setText("DEMO - "
+					+ preferences.getString("MENU_ITEM", "Defect"));
 			button_stop.setPressed(true);
 		}
 
@@ -395,11 +396,20 @@ public class WorkActivity extends Activity {
 		tracciato_out.setPowerOut(preferences.getInt("ANTENNA", 0) * 100);
 		tracciato_out.setTimerOut(preferences.getInt("TIME", 0) * 60);
 
-		disturbo_label.setText(String.valueOf(preferences.getString(
-				"MENU_ITEM", "Defect")));
+		if (SIMULATORE) {
+
+			disturbo_label.setText("DEMO _ "
+					+ String.valueOf(preferences.getString("MENU_ITEM",
+							"Defect")));
+		} else {
+			disturbo_label.setText(String.valueOf(preferences.getString(
+					"MENU_ITEM", "Defect")));
+		}
 
 		if (disturbo_label.getText().toString()
-				.equals(utility.getMenuItemDefault())) {
+				.equals(utility.getMenuItemDefault())
+				|| disturbo_label.getText().toString()
+						.equals("DEMO - " + utility.getMenuItemDefault())) {
 
 			disturbo_label.setTextColor(Color.parseColor("#ffa500"));
 
@@ -915,9 +925,7 @@ public class WorkActivity extends Activity {
 
 					}
 
-					if (!SIMULATORE)
-						set_attention();
-
+					set_attention();
 					attiva_normal();
 
 				}
@@ -994,8 +1002,7 @@ public class WorkActivity extends Activity {
 
 					}
 
-					if (!SIMULATORE)
-						set_attention();
+					set_attention();
 					attiva_normal();
 
 				}
@@ -1086,8 +1093,7 @@ public class WorkActivity extends Activity {
 
 					}
 
-					if (!SIMULATORE)
-						set_attention();
+					set_attention();
 					attiva_normal();
 
 				}
@@ -1180,8 +1186,7 @@ public class WorkActivity extends Activity {
 
 					}
 
-					if (!SIMULATORE)
-						set_attention();
+					set_attention();
 					attiva_normal();
 
 				}
@@ -1257,8 +1262,7 @@ public class WorkActivity extends Activity {
 
 					}
 
-					if (!SIMULATORE)
-						set_attention();
+					set_attention();
 					attiva_normal();
 
 				}
@@ -1331,8 +1335,7 @@ public class WorkActivity extends Activity {
 
 					}
 
-					if (!SIMULATORE)
-						set_attention();
+					set_attention();
 					attiva_normal();
 
 				}
@@ -1602,7 +1605,14 @@ public class WorkActivity extends Activity {
 						disturbo_label.setText("");
 
 					} else {
-						disturbo_label.setText(utility.getMenuItemDefault());
+
+						if (SIMULATORE) {
+							disturbo_label.setText("DEMO - "
+									+ utility.getMenuItemDefault());
+						} else {
+							disturbo_label
+									.setText(utility.getMenuItemDefault());
+						}
 					}
 
 					tot += 1;
@@ -1611,7 +1621,12 @@ public class WorkActivity extends Activity {
 
 				public void onFinish() {
 
-					disturbo_label.setText(utility.getMenuItemDefault());
+					if (SIMULATORE) {
+						disturbo_label.setText("DEMO - "
+								+ utility.getMenuItemDefault());
+					} else {
+						disturbo_label.setText(utility.getMenuItemDefault());
+					}
 					disturbo_label.setTextColor(Color.parseColor("#ffa500"));
 
 					seek_bar.setProgress(5);
