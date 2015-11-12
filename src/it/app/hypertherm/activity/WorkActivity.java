@@ -1627,6 +1627,7 @@ public class WorkActivity extends Activity {
 					} else {
 						disturbo_label.setText(utility.getMenuItemDefault());
 					}
+
 					disturbo_label.setTextColor(Color.parseColor("#ffa500"));
 
 					seek_bar.setProgress(5);
@@ -2332,7 +2333,6 @@ public class WorkActivity extends Activity {
 
 		if (waitTimer != null) {
 			waitTimer.cancel();
-			inviaComandi(0, MSK_ALL_4, INOUT);
 			waitTimer = null;
 		}
 
