@@ -13,8 +13,6 @@ import it.app.hypertherm.util.Utility;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -29,6 +27,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -41,10 +41,6 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.dwin.navy.serialportapi.SerialPortOpt;
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.GridLabelRenderer;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
 
 public class WorkActivity extends Activity {
 
@@ -64,6 +60,8 @@ public class WorkActivity extends Activity {
 	private LinearLayout ll;
 
 	private static Utility utility;
+
+	private Float[][] array_colori;
 
 	private InputStream mInputStream;
 	private OutputStream mOutputStream;
@@ -110,11 +108,6 @@ public class WorkActivity extends Activity {
 
 	private static int TIME_OUT_PING, INOUT = STOP_TMP;
 
-	private LineGraphSeries<DataPoint> mSeries380, mSeries383, mSeries386,
-			mSeries389, mSeries393, mSeries396, mSeries399, mSeries402,
-			mSeries405, mSeries408, mSeries411, mSeries414, mSeries418,
-			mSeries421, mSeries424, mSeries427;
-
 	private static SharedPreferences preferences;
 
 	private SerialPortOpt serialPort;
@@ -127,7 +120,8 @@ public class WorkActivity extends Activity {
 
 	private CountDownTimer waitTimerBolusUp = null;
 	private CountDownTimer waitTimer = null;
-	private CountDownTimer waitTimerGrafico = null;
+	private CountDownTimer waitTimerFlash = null;
+	// private CountDownTimer waitTimerGrafico = null;
 
 	private static Timer timerRfOn, timerRfOff;
 
@@ -332,12 +326,23 @@ public class WorkActivity extends Activity {
 					tracciato_out
 							.setDeltaTOut(DELTAT_IMP - 10 * (5 - progress));
 
-				} else if (progress > 5 && progress <= 10) {
+					utility.appendLog("I", "Aggiornata temperatura acqua:"
+							+ (int) (WATER_IMP - 30 * (5 - progress)));
+					utility.appendLog("I", "Aggiornato DELTAT:"
+							+ (int) (DELTAT_IMP - 10 * (5 - progress)));
+
+				} else if (progress >= 5 && progress <= 10) {
 					tracciato_out.setWaterOut(WATER_IMP + 30 * (progress - 5));
 					tracciato_out
 							.setDeltaTOut(DELTAT_IMP + 10 * (progress - 5));
+
+					utility.appendLog("I", "Aggiornata temperatura acqua:"
+							+ (int) (WATER_IMP + 30 * (progress - 5)));
+					utility.appendLog("I", "Aggiornato DELTAT:"
+							+ (int) (DELTAT_IMP + 10 * (progress - 5)));
 				}
 
+				utility.appendLog("I", "Inviato comando: 4 ALL");
 				inviaComandi(0, MSK_ALL_4, INOUT);
 			}
 
@@ -364,14 +369,26 @@ public class WorkActivity extends Activity {
 
 		def_value_defaults();
 
-		if (SIMULATORE) {
-			// disturbo_label.setTextColor(Color.parseColor("#ffa500"));
-			disturbo_label.setText("DEMO - "
-					+ preferences.getString("MENU_ITEM", "Defect"));
-			button_stop.setPressed(true);
+		disturbo_label.setText(preferences.getString("MENU_ITEM", "Defect"));
+
+		if (disturbo_label.getText().toString()
+				.contains(utility.getMenuItemDefault())) {
+
+			disturbo_label.setTextColor(Color.parseColor("#ffa500"));
+
+		} else {
+			disturbo_label.setTextColor(Color.BLACK);
 		}
 
 	}
+
+	public static final Handler aggiorna_def_value_defaults = new Handler() {
+
+		public void handleMessage(Message msg) {
+
+			def_value_defaults();
+		}
+	};
 
 	private static void def_value_defaults() {
 
@@ -396,29 +413,6 @@ public class WorkActivity extends Activity {
 		tracciato_out.setPowerOut(preferences.getInt("ANTENNA", 0) * 100);
 		tracciato_out.setTimerOut(preferences.getInt("TIME", 0) * 60);
 
-		if (SIMULATORE) {
-
-			disturbo_label.setText("DEMO _ "
-					+ String.valueOf(preferences.getString("MENU_ITEM",
-							"Defect")));
-		} else {
-			disturbo_label.setText(String.valueOf(preferences.getString(
-					"MENU_ITEM", "Defect")));
-		}
-
-		if (disturbo_label.getText().toString()
-				.equals(utility.getMenuItemDefault())
-				|| disturbo_label.getText().toString()
-						.equals("DEMO - " + utility.getMenuItemDefault())) {
-
-			disturbo_label.setTextColor(Color.parseColor("#ffa500"));
-
-		} else {
-
-			disturbo_label.setTextColor(Color.BLACK);
-
-		}
-
 		suggerimenti.setText(utility.get_suggerimento_trattamento());
 
 		button_home.setEnabled(true);
@@ -442,14 +436,17 @@ public class WorkActivity extends Activity {
 					button_temperature_negative.setPressed(false);
 					button_temperature_positive.setPressed(false);
 
-					int pos = seek_bar.getProgress();
-
 					seek_bar.setProgress(5);
 
 					button_power.setPressed(true);
 
 					tracciato_out.setWaterOut(WATER_IMP);
 					tracciato_out.setDeltaTOut(DELTAT_IMP);
+
+					utility.appendLog("I", "Aggiornata temperatura acqua:"
+							+ WATER_IMP);
+					utility.appendLog("I", "Aggiornato DELTAT:" + DELTAT_IMP);
+					utility.appendLog("I", "Inviato comando: 4 ALL");
 					inviaComandi(0, MSK_ALL_4, INOUT);
 
 					return false;
@@ -584,7 +581,6 @@ public class WorkActivity extends Activity {
 					@Override
 					public void run() {
 
-						// disegna_grafico_lib();
 						disegna_grafico();
 
 					}
@@ -636,10 +632,21 @@ public class WorkActivity extends Activity {
 					timerRfOff = null;
 				}
 
+				if (waitTimerFlash != null) {
+					waitTimerFlash.cancel();
+					waitTimerFlash = null;
+				}
+
 				INOUT = STOP_TMP;
 
-				utility.appendLog("I", "Inviato comando: STOP");
-				inviaComandi(STOP, MSK_CMD, INOUT);
+				if (button_play.isPressed()) {
+					utility.appendLog("I", "Inviato comando: STOP");
+					inviaComandi(STOP, MSK_CMD, INOUT);
+				} else {
+					disturbo_label.setText(String.valueOf(preferences
+							.getString("MENU_ITEM", "Defect")));
+					disturbo_label.setTextColor(Color.BLACK);
+				}
 
 				CMD = 3;
 
@@ -891,6 +898,7 @@ public class WorkActivity extends Activity {
 
 					if (WATER >= 3500) {
 
+						utility.appendLog("I", "Inviato comando: WATER-LEFT");
 						inviaComandi(0, MSK_WATER, INOUT);
 
 					}
@@ -970,6 +978,7 @@ public class WorkActivity extends Activity {
 					}
 
 					if (WATER <= 4200) {
+						utility.appendLog("I", "Inviato comando: WATER-RIGHT");
 						inviaComandi(0, MSK_WATER, INOUT);
 					}
 
@@ -1048,6 +1057,7 @@ public class WorkActivity extends Activity {
 					}
 
 					if (DELTAT >= -100) {
+						utility.appendLog("I", "Inviato comando: DELTAT-LEFT");
 						inviaComandi(0, MSK_DELTAT, INOUT);
 					}
 
@@ -1140,6 +1150,7 @@ public class WorkActivity extends Activity {
 					}
 
 					if (DELTAT <= 500) {
+						utility.appendLog("I", "Inviato comando: DELTAT-RIGHT");
 						inviaComandi(0, MSK_DELTAT, INOUT);
 					}
 
@@ -1233,6 +1244,7 @@ public class WorkActivity extends Activity {
 					}
 
 					if (POWER >= 0) {
+						utility.appendLog("I", "Inviato comando: POWER-LEFT");
 						inviaComandi(0, MSK_POWER, INOUT);
 					}
 
@@ -1308,6 +1320,7 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
+					utility.appendLog("I", "Inviato comando: POWER-RIGHT");
 					inviaComandi(0, MSK_POWER, INOUT);
 
 					PING = true;
@@ -1381,6 +1394,7 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
+					utility.appendLog("I", "Inviato comando: TIME-LEFT");
 					inviaComandi(0, MSK_TIME, INOUT);
 
 					PING = true;
@@ -1461,6 +1475,7 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
+					utility.appendLog("I", "Inviato comando: TIME-RIGHT");
 					inviaComandi(0, MSK_TIME, INOUT);
 
 					PING = true;
@@ -1556,34 +1571,30 @@ public class WorkActivity extends Activity {
 
 	}
 
-	private float function(double x, double y) {
+	private float function_y(double y) {
 
 		int B = 3;
-		// float Tw = WATER;
 		float Tw = 41;
 		double b = 0.19;
 		int Tb = 37;
-		// float Dt = DELTAT;
 		float Dt = 1.2f;
 		double a = 0.035;
 		double A = (B + 1) * Dt + Tw - Tb;
-		// double h = 0.001522;
-		double h = 0.001522 / 2;
-		double k = 0.011513;
-		int x0 = 0;
 
-		double equation = Tb
-				+ ((B * Tw * Math.exp(-b * y) + Tb + A * Math.exp(-a * y))
-						/ (B * Math.exp(-b * y) + 1) - Tb)
-				* Math.exp(-h * Math.pow(x - x0, 2));
+		double equation = ((B * Tw * Math.exp(-b * y) + Tb + A
+				* Math.exp(-a * y))
+				/ (B * Math.exp(-b * y) + 1) - Tb);
 
 		return new Double(equation).floatValue();
 
 	}
 
-	private double equation(int x) {
+	private float function_x(double x) {
 
-		double equation = Math.exp(Math.pow(-x, 2));
+		double h = 0.001522;
+		int x0 = 0;
+
+		double equation = Math.exp(-h * Math.pow(x - x0, 2));
 
 		return new Double(equation).floatValue();
 
@@ -1591,11 +1602,12 @@ public class WorkActivity extends Activity {
 
 	protected void set_attention() {
 
-		if (!disturbo_label.getText().equals(utility.getMenuItemDefault())) {
+		if (!disturbo_label.getText().toString()
+				.contains(utility.getMenuItemDefault())) {
 
 			disturbo_label.setTextColor(Color.parseColor("#ffa500"));
 
-			waitTimer = new CountDownTimer(5600, 700) {
+			waitTimerFlash = new CountDownTimer(5600, 700) {
 
 				private int tot = 1;
 
@@ -1613,6 +1625,7 @@ public class WorkActivity extends Activity {
 							disturbo_label
 									.setText(utility.getMenuItemDefault());
 						}
+
 					}
 
 					tot += 1;
@@ -1627,7 +1640,6 @@ public class WorkActivity extends Activity {
 					} else {
 						disturbo_label.setText(utility.getMenuItemDefault());
 					}
-
 					disturbo_label.setTextColor(Color.parseColor("#ffa500"));
 
 					seek_bar.setProgress(5);
@@ -1675,234 +1687,8 @@ public class WorkActivity extends Activity {
 
 		ll = (LinearLayout) findViewById(R.id.grafico1);
 
-	}
+		array_colori = utility.getArrayColori();
 
-	private void disegna_grafico_lib() {
-
-		// GraphView graph = (GraphView) findViewById(R.id.grafico);
-		//
-		// LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(
-		// generateData());
-		//
-		// // styling grid/labels
-		// graph.getGridLabelRenderer().setGridColor(Color.GRAY);
-		// graph.getGridLabelRenderer().setHighlightZeroLines(false);
-		// graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.GREEN);
-		// graph.getGridLabelRenderer().setVerticalLabelsColor(Color.RED);
-		// graph.getGridLabelRenderer().setVerticalLabelsAlign(Paint.Align.LEFT);
-		// // graph.getGridLabelRenderer().setLabelVerticalWidth(150);
-		// // graph.getGridLabelRenderer().setTextSize(40);
-		// graph.getGridLabelRenderer().setGridStyle(
-		// GridLabelRenderer.GridStyle.BOTH);
-		// graph.getGridLabelRenderer().reloadStyles();
-		//
-		// // styling viewport
-		// graph.getViewport().setBackgroundColor(Color.BLACK);
-		//
-		// // styling series
-		// // series.setTitle("Random Curve 1");
-		// series.setColor(Color.GREEN);
-		// // series.setDrawDataPoints(true);
-		// series.setDataPointsRadius(9);
-		// series.setThickness(8);
-		//
-		// graph.addSeries(series);
-		//
-		// graph.getViewport().setScalable(true);
-		//
-		// graph.getViewport().setXAxisBoundsManual(true);
-		// graph.getViewport().setMinX(-70);
-		// graph.getViewport().setMaxX(70);
-		//
-		// graph.getViewport().setYAxisBoundsManual(true);
-		// graph.getViewport().setMinY(37);
-		// graph.getViewport().setMaxY(45);
-
-		// GRAFICO_DEF
-		// GraphView graph = (GraphView) findViewById(R.id.grafico);
-		GraphView graph = null;
-
-		// styling grid/labels
-		graph.getGridLabelRenderer().setGridColor(Color.GRAY);
-		graph.getGridLabelRenderer().setHighlightZeroLines(false);
-		graph.getGridLabelRenderer().setHorizontalLabelsColor(Color.GREEN);
-		graph.getGridLabelRenderer().setVerticalLabelsColor(Color.RED);
-		graph.getGridLabelRenderer().setVerticalLabelsAlign(Paint.Align.LEFT);
-		graph.getGridLabelRenderer().setGridStyle(
-				GridLabelRenderer.GridStyle.BOTH);
-		graph.getGridLabelRenderer().reloadStyles();
-
-		// styling viewport
-		graph.getViewport().setBackgroundColor(Color.BLACK);
-
-		Paint paint = new Paint();
-
-		ArrayList<List<DataPoint>> values = generateData(1);
-
-		mSeries380 = new LineGraphSeries<DataPoint>(values.get(0).toArray(
-				new DataPoint[values.get(0).size()]));
-		paint.setColor(Color.parseColor("#80007f"));
-		mSeries380.setDataPointsRadius(3);
-		mSeries380.setThickness(3);
-
-		mSeries383 = new LineGraphSeries<DataPoint>(values.get(1).toArray(
-				new DataPoint[values.get(1).size()]));
-		paint.setColor(Color.parseColor("#0d0d74"));
-		mSeries383.setCustomPaint(paint);
-		mSeries383.setDataPointsRadius(3);
-		mSeries383.setThickness(3);
-
-		mSeries386 = new LineGraphSeries<DataPoint>(values.get(2).toArray(
-				new DataPoint[values.get(2).size()]));
-		paint.setColor(Color.parseColor("#0000c4"));
-		mSeries386.setCustomPaint(paint);
-		mSeries386.setDataPointsRadius(3);
-		mSeries386.setThickness(3);
-
-		mSeries389 = new LineGraphSeries<DataPoint>(values.get(3).toArray(
-				new DataPoint[values.get(3).size()]));
-		paint.setColor(Color.parseColor("#0000f6"));
-		mSeries389.setCustomPaint(paint);
-		mSeries389.setDataPointsRadius(3);
-		mSeries389.setThickness(3);
-
-		mSeries393 = new LineGraphSeries<DataPoint>(values.get(4).toArray(
-				new DataPoint[values.get(4).size()]));
-		paint.setColor(Color.parseColor("#007a7c"));
-		mSeries393.setCustomPaint(paint);
-		mSeries393.setDataPointsRadius(3);
-		mSeries393.setThickness(3);
-
-		mSeries396 = new LineGraphSeries<DataPoint>(values.get(5).toArray(
-				new DataPoint[values.get(5).size()]));
-		paint.setColor(Color.parseColor("#007c00"));
-		mSeries396.setCustomPaint(paint);
-		mSeries396.setDataPointsRadius(3);
-		mSeries396.setThickness(3);
-
-		mSeries399 = new LineGraphSeries<DataPoint>(values.get(6).toArray(
-				new DataPoint[values.get(6).size()]));
-		paint.setColor(Color.parseColor("#00b801"));
-		mSeries399.setCustomPaint(paint);
-		mSeries399.setDataPointsRadius(3);
-		mSeries399.setThickness(3);
-
-		mSeries402 = new LineGraphSeries<DataPoint>(values.get(7).toArray(
-				new DataPoint[values.get(7).size()]));
-		paint.setColor(Color.parseColor("#03f800"));
-		mSeries402.setCustomPaint(paint);
-		mSeries402.setDataPointsRadius(3);
-		mSeries402.setThickness(3);
-
-		mSeries405 = new LineGraphSeries<DataPoint>(values.get(8).toArray(
-				new DataPoint[values.get(8).size()]));
-		paint.setColor(Color.parseColor("#fef901"));
-		mSeries405.setCustomPaint(paint);
-		mSeries405.setDataPointsRadius(3);
-		mSeries405.setThickness(3);
-
-		mSeries408 = new LineGraphSeries<DataPoint>(values.get(9).toArray(
-				new DataPoint[values.get(9).size()]));
-		paint.setColor(Color.parseColor("#bffafd"));
-		mSeries408.setCustomPaint(paint);
-		mSeries408.setDataPointsRadius(3);
-		mSeries408.setThickness(3);
-
-		mSeries411 = new LineGraphSeries<DataPoint>(values.get(10).toArray(
-				new DataPoint[values.get(10).size()]));
-		paint.setColor(Color.parseColor("#fd0000"));
-		mSeries411.setCustomPaint(paint);
-		mSeries411.setDataPointsRadius(3);
-		mSeries411.setThickness(3);
-
-		mSeries414 = new LineGraphSeries<DataPoint>(values.get(11).toArray(
-				new DataPoint[values.get(11).size()]));
-		paint.setColor(Color.parseColor("#fbfbbc"));
-		mSeries414.setCustomPaint(paint);
-		mSeries414.setDataPointsRadius(3);
-		mSeries414.setThickness(3);
-
-		mSeries418 = new LineGraphSeries<DataPoint>(values.get(12).toArray(
-				new DataPoint[values.get(12).size()]));
-		paint.setColor(Color.parseColor("#ffd7bf"));
-		mSeries418.setCustomPaint(paint);
-		mSeries418.setDataPointsRadius(3);
-		mSeries418.setThickness(3);
-
-		mSeries421 = new LineGraphSeries<DataPoint>(values.get(13).toArray(
-				new DataPoint[values.get(13).size()]));
-		paint.setColor(Color.parseColor("#fcba7f"));
-		mSeries421.setCustomPaint(paint);
-		mSeries421.setDataPointsRadius(3);
-		mSeries421.setThickness(3);
-
-		mSeries424 = new LineGraphSeries<DataPoint>(values.get(14).toArray(
-				new DataPoint[values.get(14).size()]));
-		paint.setColor(Color.parseColor("#fd7b7f"));
-		mSeries424.setCustomPaint(paint);
-		mSeries424.setDataPointsRadius(3);
-		mSeries424.setThickness(3);
-
-		mSeries427 = new LineGraphSeries<DataPoint>(values.get(15).toArray(
-				new DataPoint[values.get(15).size()]));
-		paint.setColor(Color.parseColor("#fa0000"));
-		mSeries427.setCustomPaint(paint);
-		mSeries427.setDataPointsRadius(3);
-		mSeries427.setThickness(3);
-
-		graph.addSeries(mSeries380);
-		graph.addSeries(mSeries383);
-		graph.addSeries(mSeries386);
-		graph.addSeries(mSeries389);
-		if (mSeries393 != null) {
-			graph.addSeries(mSeries393);
-		}
-		graph.addSeries(mSeries396);
-		graph.addSeries(mSeries399);
-		graph.addSeries(mSeries402);
-		graph.addSeries(mSeries405);
-		graph.addSeries(mSeries408);
-		graph.addSeries(mSeries411);
-		graph.addSeries(mSeries414);
-		graph.addSeries(mSeries418);
-		graph.addSeries(mSeries421);
-		graph.addSeries(mSeries424);
-		graph.addSeries(mSeries427);
-
-		graph.getViewport().setXAxisBoundsManual(true);
-		// graph.getViewport().setMinX(-70);
-		// graph.getViewport().setMaxX(70);
-		graph.getViewport().setMinX(-20);
-		graph.getViewport().setMaxX(20);
-
-		// graph.getViewport().setYAxisBoundsManual(true);
-		// graph.getViewport().setMinY(37);
-		// graph.getViewport().setMaxY(45);
-
-	}
-
-	private DataPoint[] generateData() {
-
-		int count = 70;
-		double f = 0;
-		DataPoint[] values = new DataPoint[2 * count * count];
-		int x = 0, i = 0;
-
-		for (x = 0; x < count; x++) {
-
-			for (int y = 0; y < count; y++) {
-
-				f = function(x, y);
-
-				DataPoint v = new DataPoint(x, f);
-				DataPoint vn = new DataPoint(-x, f);
-				values[i++] = v;
-				values[i++] = vn;
-
-			}
-		}
-
-		return values;
 	}
 
 	protected void disegna_grafico() {
@@ -1912,86 +1698,38 @@ public class WorkActivity extends Activity {
 
 		int asse_x = 140, asse_y = 70;
 
-		float scala = 13f;
-
 		Bitmap bg = Bitmap
 				.createBitmap(asse_x, asse_y, Bitmap.Config.ARGB_8888);
 
 		Canvas canvas = new Canvas(bg);
-
 		canvas.save();
-
 		canvas.drawColor(Color.BLACK);
-
 		canvas.translate(asse_x / 2, 0);
 
 		float f = 0;
 
 		// from -x to +x evaluate and plot the function
-		for (int x = 0; x < asse_x; x++) {
 
-			for (int y = 0; y < asse_y; y++) {
+		for (int y = 0; y < asse_y; y++) {
 
-				f = function(x, y);
+			double componente_y = function_y(y);
+
+			for (int x = 0; x < asse_x / 2; x++) {
 
 				Paint paint = new Paint();
+				int Tb = 37;
+				f = (float) (Tb + componente_y * function_x(x));
 
-				if (f < 38) {
-					paint.setColor(Color.parseColor("#80007f"));
-				}
-				if (f > 38 && f < 38.3) {
-					paint.setColor(Color.parseColor("#0d0d74"));
-				}
-				if (f > 38.3 && f < 38.6) {
-					paint.setColor(Color.parseColor("#0000c4"));
-				}
-				if (f > 38.6 && f < 38.9) {
-					paint.setColor(Color.parseColor("#0000f6"));
-				}
-				if (f > 38.9 && f < 39.3) {
-					paint.setColor(Color.parseColor("#007a7c"));
-				}
-				if (f > 39.3 && f < 39.6) {
-					paint.setColor(Color.parseColor("#007c00"));
-				}
-				if (f > 39.6 && f < 39.9) {
-					paint.setColor(Color.parseColor("#00b801"));
-				}
-				if (f > 39.9 && f < 40.2) {
-					paint.setColor(Color.parseColor("#03f800"));
-				}
-				if (f > 40.2 && f < 40.5) {
-					paint.setColor(Color.parseColor("#fef901"));
-				}
-				if (f > 40.5 && f < 40.8) {
-					paint.setColor(Color.parseColor("#bffafd"));
-				}
-				if (f > 40.8 && f < 41.1) {
-					paint.setColor(Color.parseColor("#fd0000"));
-				}
-				if (f > 41.1 && f < 41.4) {
-					paint.setColor(Color.parseColor("#fbfbbc"));
-				}
-				if (f > 41.4 && f < 41.8) {
-					paint.setColor(Color.parseColor("#ffd7bf"));
-				}
-				if (f > 41.8 && f < 42.1) {
-					paint.setColor(Color.parseColor("#fcba7f"));
-				}
-				if (f > 42.1 && f < 42.4) {
-					paint.setColor(Color.parseColor("#fd7b7f"));
-				}
-				if (f > 42.7) {
-					paint.setColor(Color.parseColor("#fa0000"));
-				}
+				int[] index = utility.find2DIndex(array_colori, f);
 
-				// for (int i = (int) -scala; i < scala; i++) {
-				// canvas.drawPoint((float) x + i, f * scala, paint);
-				// canvas.drawPoint((float) -x + i, f * scala, paint);
-				// }
+				if (index != null) {
+					paint.setColor(Color.rgb(index[0], index[1], index[2]));
 
-				canvas.drawPoint((float) x, y, paint);
-				canvas.drawPoint((float) -x, y, paint);
+					// utility.appendLog("D", "Temp " + f + "°C RED=" + index[0]
+					// + " GREEN=" + index[1] + " BLUE=" + index[2]);
+					canvas.drawPoint((float) x, y, paint);
+					canvas.drawPoint((float) -x, y, paint);
+				}
 
 			}
 		}
@@ -2000,132 +1738,6 @@ public class WorkActivity extends Activity {
 
 		ll.setBackgroundDrawable(new BitmapDrawable(bg));
 
-	}
-
-	private ArrayList<List<DataPoint>> generateData(int t) {
-
-		int count = 20, asse_x = -count;
-		double f = 0;
-
-		List<DataPoint> mArray380, mArray383, mArray386, mArray389, mArray393, mArray396, mArray399, mArray402, mArray405, mArray408, mArray411, mArray414, mArray418, mArray421, mArray424, mArray427;
-		ArrayList<List<DataPoint>> values = new ArrayList<List<DataPoint>>();
-
-		mArray380 = new ArrayList<DataPoint>();
-		mArray383 = new ArrayList<DataPoint>();
-		mArray386 = new ArrayList<DataPoint>();
-		mArray389 = new ArrayList<DataPoint>();
-		mArray393 = new ArrayList<DataPoint>();
-		mArray396 = new ArrayList<DataPoint>();
-		mArray399 = new ArrayList<DataPoint>();
-		mArray402 = new ArrayList<DataPoint>();
-		mArray405 = new ArrayList<DataPoint>();
-		mArray408 = new ArrayList<DataPoint>();
-		mArray411 = new ArrayList<DataPoint>();
-		mArray414 = new ArrayList<DataPoint>();
-		mArray418 = new ArrayList<DataPoint>();
-		mArray421 = new ArrayList<DataPoint>();
-		mArray424 = new ArrayList<DataPoint>();
-		mArray427 = new ArrayList<DataPoint>();
-
-		for (int x = 0; x < count; x++) {
-
-			asse_x++;
-
-			for (int y = 0; y < count; y++) {
-
-				// f = function(x, y, t);
-
-				f = function(x, y);
-
-				DataPoint v = new DataPoint(asse_x, -f);
-				DataPoint vn = new DataPoint(-asse_x, -f);
-
-				if (f < 38) {
-					mArray380.add(v);
-					mArray380.add(vn);
-				}
-				if (f > 38 && f < 38.3) {
-					mArray383.add(v);
-					mArray383.add(vn);
-				}
-				if (f > 38.3 && f < 38.6) {
-					mArray386.add(v);
-					mArray386.add(vn);
-				}
-				if (f > 38.6 && f < 38.9) {
-					mArray389.add(v);
-					mArray389.add(vn);
-				}
-				if (f > 38.9 && f < 39.3) {
-					mArray393.add(v);
-					mArray393.add(vn);
-				}
-				if (f > 39.3 && f < 39.6) {
-					mArray396.add(v);
-					mArray396.add(vn);
-				}
-				if (f > 39.6 && f < 39.9) {
-					mArray399.add(v);
-					mArray399.add(vn);
-				}
-				if (f > 39.9 && f < 40.2) {
-					mArray402.add(v);
-					mArray402.add(vn);
-				}
-				if (f > 40.2 && f < 40.5) {
-					mArray405.add(v);
-					mArray405.add(vn);
-				}
-				if (f > 40.5 && f < 40.8) {
-					mArray408.add(v);
-					mArray408.add(vn);
-				}
-				if (f > 40.8 && f < 41.1) {
-					mArray411.add(v);
-					mArray411.add(vn);
-				}
-				if (f > 41.1 && f < 41.4) {
-					mArray414.add(v);
-					mArray414.add(vn);
-				}
-				if (f > 41.4 && f < 41.8) {
-					mArray418.add(v);
-					mArray418.add(vn);
-				}
-				if (f > 41.8 && f < 42.1) {
-					mArray421.add(v);
-					mArray421.add(vn);
-				}
-				if (f > 42.1 && f < 42.4) {
-					mArray424.add(v);
-					mArray424.add(vn);
-				}
-				if (f > 42.7) {
-					mArray427.add(v);
-					mArray427.add(vn);
-				}
-
-			}
-		}
-
-		values.add(mArray380);
-		values.add(mArray383);
-		values.add(mArray386);
-		values.add(mArray389);
-		values.add(mArray393);
-		values.add(mArray396);
-		values.add(mArray399);
-		values.add(mArray402);
-		values.add(mArray405);
-		values.add(mArray408);
-		values.add(mArray411);
-		values.add(mArray414);
-		values.add(mArray418);
-		values.add(mArray421);
-		values.add(mArray424);
-		values.add(mArray427);
-
-		return values;
 	}
 
 	private void decrement() {

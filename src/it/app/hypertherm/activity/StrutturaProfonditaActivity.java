@@ -279,14 +279,7 @@ public class StrutturaProfonditaActivity extends Activity {
 				preferences.edit().putString("PROFONDITA", profondita).commit();
 				preferences.edit().putString("STRUTTURA", struttura).commit();
 
-				preferences
-						.edit()
-						.putString(
-								"MENU_ITEM",
-								struttura
-										+ " - "
-										+ utility.getProfonditaLabel(struttura,
-												profondita)).commit();
+			
 
 				if (profondita.equals("4")) {
 
@@ -337,9 +330,28 @@ public class StrutturaProfonditaActivity extends Activity {
 				Intent intent = new Intent(StrutturaProfonditaActivity.this,
 						WorkActivity.class);
 				if (WorkActivity.SIMULATORE) {
+					
+					preferences
+					.edit()
+					.putString(
+							"MENU_ITEM",
+							"DEMO - " + struttura
+									+ " - "
+									+ utility.getProfonditaLabel(struttura,
+											profondita)).commit();
+					
 					intent.putExtra("DEMO", true);
 				} else {
 
+					preferences
+					.edit()
+					.putString(
+							"MENU_ITEM",
+							struttura
+									+ " - "
+									+ utility.getProfonditaLabel(struttura,
+											profondita)).commit();
+					
 					intent.putExtra("DEMO", false);
 				}
 				startActivity(intent);

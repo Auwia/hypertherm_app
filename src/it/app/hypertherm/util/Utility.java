@@ -26,10 +26,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Environment;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -53,15 +53,12 @@ public class Utility {
 	private LinearLayout zero, dieci, venti, trenta, quaranta, cinquanta,
 			sessanta, settanta, ottanta, novanta;
 
-	private ImageView grafico;
-
 	private int Ref_power, Dir_power, iPower, iD_temp, iH2o_temp, iTime,
 			comando;
 
 	private byte[] In_Output_temp;
 
 	private final static int ARANCIONE = Color.parseColor("#ffa500");
-	// private final static int VERDE = Color.parseColor("#ccff00");
 	private final static int VERDE = Color.GREEN;
 
 	// VARIABILI DATA BASE
@@ -267,34 +264,34 @@ public class Utility {
 					break;
 
 				case 768: // STOP
+
+					if (button_play.isPressed()) {
+
+						disturbo_label.setText(String.valueOf(preferences
+								.getString("MENU_ITEM", "Defect")));
+
+						if (disturbo_label.getText().toString()
+								.contains(getMenuItemDefault())) {
+
+							disturbo_label.setTextColor(Color
+									.parseColor("#ffa500"));
+
+						} else {
+							disturbo_label.setTextColor(Color.BLACK);
+						}
+
+						Message aggiorna_def_value_defaults = WorkActivity.aggiorna_def_value_defaults
+								.obtainMessage();
+						WorkActivity.aggiorna_def_value_defaults
+								.sendMessage(aggiorna_def_value_defaults);
+
+					}
+
 					button_play.setPressed(false);
 					button_pause.setPressed(false);
 					button_stop.setPressed(true);
 					button_home.setEnabled(true);
 					button_time.setPressed(false);
-
-					// if (WorkActivity.SIMULATORE) {
-					//
-					// disturbo_label.setText("DEMO - "
-					// + String.valueOf(preferences.getString(
-					// "MENU_ITEM", "Defect")));
-					// } else {
-					// disturbo_label.setText(String.valueOf(preferences
-					// .getString("MENU_ITEM", "Defect")));
-					// }
-					//
-					// if (disturbo_label.getText().toString()
-					// .equals(getMenuItemDefault())
-					// || disturbo_label.getText().toString()
-					// .equals("DEMO - " + getMenuItemDefault())) {
-					//
-					// disturbo_label.setTextColor(Color.parseColor("#ffa500"));
-					//
-					// } else {
-					//
-					// disturbo_label.setTextColor(Color.BLACK);
-					//
-					// }
 
 					reset_piramide();
 
@@ -1896,5 +1893,63 @@ public class Utility {
 		novanta.setBackground(activity.getResources().getDrawable(
 				R.drawable.cell_shape_bottom_white));
 
+	}
+
+	public int[] find2DIndex(Float[][] array, float search) {
+
+		int[] risultato = new int[3];
+
+		if (search == 0 || array == null)
+			return null;
+
+		for (int rowIndex = 0; rowIndex < array.length; rowIndex++) {
+
+			Float[] row = array[rowIndex];
+
+			if (row != null) {
+
+				if (search <= row[0]) {
+					risultato[0] = Math.round(array[rowIndex][2]);
+					risultato[1] = Math.round(array[rowIndex][3]);
+					risultato[2] = Math.round(array[rowIndex][4]);
+
+					return risultato;
+				}
+
+				// for (int columnIndex = 0; columnIndex < row.length;
+				// columnIndex++) {
+				// if (search.equals(row[columnIndex])) {
+				// return new Point(rowIndex, columnIndex);
+				// }
+				// }
+			}
+		}
+		return risultato; // value not found in array
+	}
+
+	public Float[][] getArrayColori() {
+
+		cur = database.query(HyperthermDB.TABLE_COLORI, new String[] {
+				HyperthermDB.COLUMN_TEMPERATURA, HyperthermDB.COLUMN_INDEX,
+				HyperthermDB.COLUMN_RED, HyperthermDB.COLUMN_GREEN,
+				HyperthermDB.COLUMN_BLUE }, null, null, null, null, null);
+
+		cur.moveToFirst();
+
+		Float[][] risultato = new Float[256][5];
+		int riga = 0;
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			risultato[riga][0] = cur.getFloat(0);
+			risultato[riga][1] = cur.getFloat(1);
+			risultato[riga][2] = cur.getFloat(2);
+			risultato[riga][3] = cur.getFloat(3);
+			risultato[riga][4] = cur.getFloat(4);
+			cur.moveToNext();
+			riga++;
+		}
+		cur.close();
+
+		return risultato;
 	}
 }

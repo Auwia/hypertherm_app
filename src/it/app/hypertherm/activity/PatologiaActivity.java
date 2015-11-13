@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -246,19 +245,32 @@ public class PatologiaActivity extends Activity {
 										listaMenuItem.getCheckedItemPosition())
 										.getItem())).commit();
 
-				preferences
-						.edit()
-						.putString(
-								"MENU_ITEM",
-								myAdapter.getItem(
-										listaMenuItem.getCheckedItemPosition())
-										.getItem()).commit();
-
 				Intent intent = new Intent(PatologiaActivity.this,
 						WorkActivity.class);
 				if (WorkActivity.SIMULATORE) {
+
+					preferences
+							.edit()
+							.putString(
+									"MENU_ITEM",
+									"DEMO - "
+											+ myAdapter
+													.getItem(
+															listaMenuItem
+																	.getCheckedItemPosition())
+													.getItem()).commit();
+
 					intent.putExtra("DEMO", true);
 				} else {
+
+					preferences
+							.edit()
+							.putString(
+									"MENU_ITEM",
+									myAdapter.getItem(
+											listaMenuItem
+													.getCheckedItemPosition())
+											.getItem()).commit();
 
 					intent.putExtra("DEMO", false);
 				}

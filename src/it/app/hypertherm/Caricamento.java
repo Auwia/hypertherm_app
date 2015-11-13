@@ -268,6 +268,43 @@ public class Caricamento {
 			e.printStackTrace();
 		}
 
+		try { // ParaColori
+
+			File file = new File(Environment.getExternalStorageDirectory()
+					+ "/Hypertherm/conf/ParaColori.txt");
+
+			if (file.exists()) {
+
+				utility.appendLog("D", "upload dati macchina (Colori)...");
+
+				utility.cancellaStage(HyperthermDB.TABLE_COLORI);
+
+				FileInputStream fstream = new FileInputStream(file);
+
+				DataInputStream in = new DataInputStream(fstream);
+				BufferedReader br = new BufferedReader(
+						new InputStreamReader(in));
+
+				String strLine = null;
+
+				while ((strLine = br.readLine()) != null) {
+					utility.appendLog("D", strLine);
+					caricaStage(HyperthermDB.TABLE_COLORI, strLine.split("\\|"));
+				}
+
+				in.close();
+
+				utility.appendLog("D", "upload dati macchina (Colori)...OK");
+
+				utility.appendLog("D", "move file (Colori)...");
+				utility.spostaFile(file);
+				utility.appendLog("D", "move file (Colori)...OK");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public void caricaDisturbi() {
@@ -378,6 +415,16 @@ public class Caricamento {
 			row.put(HyperthermDB.COLUMN_TIMEOUT_WRITE, array_items[3]);
 
 			database.update(HyperthermDB.TABLE_SETTINGS, row, null, null);
+
+		} else if (table_name.equals(HyperthermDB.TABLE_COLORI)) {
+
+			row.put(HyperthermDB.COLUMN_TEMPERATURA, array_items[0]);
+			row.put(HyperthermDB.COLUMN_INDEX, array_items[1]);
+			row.put(HyperthermDB.COLUMN_RED, array_items[2]);
+			row.put(HyperthermDB.COLUMN_GREEN, array_items[3]);
+			row.put(HyperthermDB.COLUMN_BLUE, array_items[4]);
+
+			database.insert(HyperthermDB.TABLE_COLORI, null, row);
 
 		}
 

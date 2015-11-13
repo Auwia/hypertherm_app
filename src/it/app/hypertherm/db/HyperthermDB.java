@@ -22,6 +22,7 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	public static final String TABLE_PASSWORD = "PASSWORD";
 	public static final String TABLE_SETTINGS = "SETTINGS";
 	public static final String TABLE_MENU = "MENU";
+	public static final String TABLE_COLORI = "COLORI";
 
 	public static final String STRUTTURA_MENU = "STRUTTURA";
 	public static final String TRATTAMENTI_MENU = "TRATTAMENTI";
@@ -54,6 +55,16 @@ public class HyperthermDB extends SQLiteOpenHelper {
 	public static final String COLUMN_TIMEOUT_WRITE = "TIMEOUT_WRITE";
 	public static final String COLUMN_TIMEOUT_RESET = "TIMEOUT_RESET";
 	public static final String COLUMN_TIMEOUT_SIMULATORE = "TIMEOUT_SIMULATORE";
+	public static final String COLUMN_TEMPERATURA = "TEMPERATURA";
+	public static final String COLUMN_INDEX = "INDICE";
+	public static final String COLUMN_RED = "RED";
+	public static final String COLUMN_GREEN = "GREEN";
+	public static final String COLUMN_BLUE = "BLUE";
+
+	private static final String CREATE_TABLE_COLORI = "create table "
+			+ TABLE_COLORI + "(" + COLUMN_TEMPERATURA + " FLOAT, "
+			+ COLUMN_INDEX + " INTEGER, " + COLUMN_RED + " INTEGER, "
+			+ COLUMN_GREEN + " INTEGER, " + COLUMN_BLUE + " INTEGER);";
 
 	private static final String CREATE_TABLE_STAGE_STRING = "create table "
 			+ TABLE_STAGE_STRING + "(" + COLUMN_MENU_ITEM + " varchar(50), "
@@ -150,6 +161,8 @@ public class HyperthermDB extends SQLiteOpenHelper {
 		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_TRATTAMENTI);
 		database.execSQL(CREATE_TABLE_PATOLOGIE);
 		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_PATOLOGIE);
+		database.execSQL(CREATE_TABLE_COLORI);
+		utility.appendLog("D", "Creo tabella..." + CREATE_TABLE_COLORI);
 
 		try {
 			Thread.sleep(500);

@@ -150,14 +150,21 @@ public class MainActivity extends Activity {
 			preferences.edit().putInt("TIME", utility.getTime("DEFAULT"))
 					.commit();
 
-			preferences.edit()
-					.putString("MENU_ITEM", utility.getMenuItemDefault())
-					.commit();
-
 			intent = new Intent(MainActivity.this, WorkActivity.class);
 			if (WorkActivity.SIMULATORE) {
+
+				preferences
+						.edit()
+						.putString("MENU_ITEM",
+								"DEMO - " + utility.getMenuItemDefault())
+						.commit();
+
 				intent.putExtra("DEMO", true);
 			} else {
+
+				preferences.edit()
+						.putString("MENU_ITEM", utility.getMenuItemDefault())
+						.commit();
 
 				intent.putExtra("DEMO", false);
 			}
