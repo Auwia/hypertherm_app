@@ -9,6 +9,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
+import android.widget.Button;
 import android.widget.TextView;
 
 public class Simulatore implements Runnable {
@@ -17,6 +18,7 @@ public class Simulatore implements Runnable {
 	private static Tracciato tracciato;
 	private static BlockingQueue<byte[]> queue;
 	private static boolean START = false;
+	private static boolean FINE_TRATTAMENTO = false;
 	public static boolean INVIA = false;
 	private static int TIME_IN, TIME_OUT, TIME_OUT_SIMULATORE, POTENZA_IN,
 			POTENZA_OUT, POTENZA_DIR, POTENZA_REF, DELTAT_IN, DELTAT_OUT = 120,
@@ -25,6 +27,7 @@ public class Simulatore implements Runnable {
 	private static Activity activity;
 	private static byte[] In_Output_buffer;
 	private static TextView time_label_down, time_label_up;
+	private static Button button_play;
 
 	public Simulatore(BlockingQueue<byte[]> queue, Utility utility,
 			Activity activity) {
@@ -38,6 +41,8 @@ public class Simulatore implements Runnable {
 		time_label_down = (TextView) activity
 				.findViewById(R.id.time_label_down);
 		time_label_up = (TextView) activity.findViewById(R.id.time_label_up);
+
+		button_play = (Button) activity.findViewById(R.id.button_play);
 
 		tracciato = new Tracciato();
 
@@ -53,15 +58,6 @@ public class Simulatore implements Runnable {
 
 			if (INVIA) {
 
-				if (START) {
-
-					if (TIME_IN == 0) {
-						tracciato.setComando(3);
-						START = false;
-					}
-
-				}
-
 				tracciato.setTimerIn(TIME_IN);
 				tracciato.setTimerOut(TIME_OUT);
 				tracciato.setPowerOut(POTENZA_OUT);
@@ -73,6 +69,13 @@ public class Simulatore implements Runnable {
 				tracciato.setWaterOut(WATER_OUT);
 				tracciato.setComando(CMD);
 				tracciato.setInOutput(INOUT);
+				if (FINE_TRATTAMENTO) {
+
+					tracciato.setComando(3);
+					tracciato.setInOutput(45);
+					START = false;
+
+				}
 
 				tracciato.setCheckSum(utility.calcola_check_sum(tracciato
 						.setBuf()));
@@ -209,8 +212,9 @@ public class Simulatore implements Runnable {
 
 				INOUT = 125;
 
-				if (!START) {
+				if (!START && button_play.isPressed()) {
 
+					utility.appendLog("I", "START=" + START);
 					START = true;
 
 					int minuti = Integer.parseInt(time_label_up.getText()
@@ -235,6 +239,8 @@ public class Simulatore implements Runnable {
 							+ TimeUnit.MINUTES.toMillis(TIME_IMPOSTATO)
 							+ "ms, " + TIME_IMPOSTATO + " minuti");
 
+					FINE_TRATTAMENTO = false;
+
 					activity.runOnUiThread(new Runnable() {
 						public void run() {
 							waitTimer = new CountDownTimer(TimeUnit.MINUTES
@@ -253,11 +259,13 @@ public class Simulatore implements Runnable {
 								public void onFinish() {
 
 									START = false;
+									utility.appendLog("I", "START=" + START);
 									INOUT = 45;
 									CMD = 3;
 									POTENZA_DIR = 0;
 									POTENZA_IN = 0;
 									TIME_IN = 0;
+									FINE_TRATTAMENTO = true;
 
 								}
 							}.start();
@@ -271,20 +279,32 @@ public class Simulatore implements Runnable {
 				break;
 
 			case 512: // PAUSE
-				START = false;
-				if (waitTimer != null) {
-					waitTimer.cancel();
+
+				if (button_play.isPressed()) {
+
+					START = false;
+					utility.appendLog("I", "START=" + START);
+
+					if (waitTimer != null) {
+						waitTimer.cancel();
+					}
 				}
+
 				CMD = 2;
 				INOUT = 109;
 				break;
 
 			case 768: // STOP
-				START = false;
-				TIME_IN = iTime;
-				if (waitTimer != null) {
-					waitTimer.cancel();
+
+				if (button_play.isPressed()) {
+					START = false;
+					utility.appendLog("I", "START=" + START);
+					if (waitTimer != null) {
+						waitTimer.cancel();
+					}
+
 				}
+				TIME_IN = iTime;
 
 				INOUT = 45;
 				CMD = 3;

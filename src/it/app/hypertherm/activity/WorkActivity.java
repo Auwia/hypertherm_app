@@ -70,7 +70,7 @@ public class WorkActivity extends Activity {
 	private BlockingQueue<byte[]> bq_in;
 
 	public static boolean SIMULATORE = false;
-	private static boolean PING = false;
+	public static boolean PING = false;
 	public static boolean COMMUNICATION_READY = true;
 	private boolean LONG = false;
 	public static boolean AVVIO;
@@ -90,6 +90,7 @@ public class WorkActivity extends Activity {
 	private final static int MSK_ALL_4 = 92;
 	private final static int MSK_NOTHING = 0;
 	private static int CMD = 3;
+	private static int MSK = MSK_NOTHING;
 	private final static int PLAY = 1;
 	private final static int PAUSE = 2;
 	private final static int STOP = 3;
@@ -163,7 +164,7 @@ public class WorkActivity extends Activity {
 						// PING = false;
 
 						if (PING) {
-							inviaComandi(CMD, MSK_NOTHING, INOUT);
+							inviaComandi(CMD, MSK, INOUT);
 						}
 
 					} else {
@@ -577,6 +578,18 @@ public class WorkActivity extends Activity {
 					e.printStackTrace();
 				}
 
+				INOUT = PLAY_TMP;
+				MSK = MSK_CMD;
+				utility.appendLog("I", "Inviato comando: PLAY");
+				inviaComandi(PLAY, MSK_CMD, INOUT);
+
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
@@ -585,10 +598,6 @@ public class WorkActivity extends Activity {
 
 					}
 				});
-
-				INOUT = PLAY_TMP;
-				utility.appendLog("I", "Inviato comando: PLAY");
-				inviaComandi(PLAY, MSK_CMD, INOUT);
 
 			}
 		});
@@ -645,7 +654,16 @@ public class WorkActivity extends Activity {
 				} else {
 					disturbo_label.setText(String.valueOf(preferences
 							.getString("MENU_ITEM", "Defect")));
-					disturbo_label.setTextColor(Color.BLACK);
+
+					if (disturbo_label.getText().toString()
+							.contains(utility.getMenuItemDefault())) {
+
+						disturbo_label.setTextColor(Color.parseColor("#ffa500"));
+
+					} else {
+						disturbo_label.setTextColor(Color.BLACK);
+					}
+
 				}
 
 				CMD = 3;

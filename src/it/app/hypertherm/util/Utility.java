@@ -280,10 +280,17 @@ public class Utility {
 							disturbo_label.setTextColor(Color.BLACK);
 						}
 
-						Message aggiorna_def_value_defaults = WorkActivity.aggiorna_def_value_defaults
-								.obtainMessage();
-						WorkActivity.aggiorna_def_value_defaults
-								.sendMessage(aggiorna_def_value_defaults);
+						new Thread() {
+							@Override
+							public void run() {
+
+								Message aggiorna_def_value_defaults = WorkActivity.aggiorna_def_value_defaults
+										.obtainMessage();
+								WorkActivity.aggiorna_def_value_defaults
+										.sendMessage(aggiorna_def_value_defaults);
+
+							}
+						}.start();
 
 					}
 
@@ -1924,6 +1931,19 @@ public class Utility {
 				// }
 			}
 		}
+
+		if (search < 0) {
+			risultato[0] = 0;
+			risultato[1] = 0;
+			risultato[2] = 0;
+		}
+
+		if (search > 256) {
+			risultato[0] = Math.round(array[255][2]);
+			risultato[1] = Math.round(array[255][3]);
+			risultato[2] = Math.round(array[255][4]);
+		}
+
 		return risultato; // value not found in array
 	}
 
