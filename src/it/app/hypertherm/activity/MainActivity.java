@@ -121,6 +121,9 @@ public class MainActivity extends Activity {
 
 				intent.putExtra("DEMO", false);
 			}
+
+			preferences.edit().putInt("IMMAGINE", 1).commit();
+
 			startActivity(intent);
 
 			break;
@@ -133,6 +136,9 @@ public class MainActivity extends Activity {
 
 				intent.putExtra("DEMO", false);
 			}
+
+			preferences.edit().putInt("IMMAGINE", 2).commit();
+
 			startActivity(intent);
 			break;
 		case 2:
@@ -168,6 +174,9 @@ public class MainActivity extends Activity {
 
 				intent.putExtra("DEMO", false);
 			}
+
+			preferences.edit().putInt("IMMAGINE", 3).commit();
+
 			startActivity(intent);
 
 			break;

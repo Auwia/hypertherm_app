@@ -7,6 +7,7 @@ import it.app.hypertherm.thread.InviaComandiThread;
 import it.app.hypertherm.thread.ReadThreadConsumer;
 import it.app.hypertherm.thread.ReadThreadProducer;
 import it.app.hypertherm.thread.WriteThread;
+import it.app.hypertherm.thread.carica_immagini;
 import it.app.hypertherm.util.CountDownTimer;
 import it.app.hypertherm.util.Utility;
 
@@ -35,6 +36,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -54,10 +56,10 @@ public class WorkActivity extends Activity {
 			button_onda_quadra, button_antenna, button_time, button_water,
 			button_deltat;
 	private TextView antenna_black_label_down, water_label_down,
-			deltat_label_down, time_label_down;
-	private static TextView disturbo_label, suggerimenti;
+			deltat_label_down, time_label_down, disturbo_label;
+	private ImageView immagine_suggerimento;
 
-	private LinearLayout ll;
+	private static LinearLayout ll, scala_termica;
 
 	private static Utility utility;
 
@@ -72,7 +74,7 @@ public class WorkActivity extends Activity {
 	public static boolean SIMULATORE = false;
 	public static boolean PING = false;
 	public static boolean COMMUNICATION_READY = true;
-	private boolean LONG = false;
+	private static boolean LONG = false;
 	public static boolean AVVIO;
 
 	private int funzionalita;
@@ -81,6 +83,7 @@ public class WorkActivity extends Activity {
 	public static int DELTAT, DELTAT_IMP = 0;
 	public static int POWER = 0;
 	public static int TIMER = 0;
+	public static float WATER_GRAPH = 0, DELTAT_GRAPH = 0;
 
 	private final static int MSK_CMD = 2;
 	private final static int MSK_TIME = 4;
@@ -122,27 +125,43 @@ public class WorkActivity extends Activity {
 	private CountDownTimer waitTimerBolusUp = null;
 	private CountDownTimer waitTimer = null;
 	private CountDownTimer waitTimerFlash = null;
-	// private CountDownTimer waitTimerGrafico = null;
+	private CountDownTimer waitTimerGrafico = null;
 
 	private static Timer timerRfOn, timerRfOff;
 
 	private Tracciato tracciato_in = new Tracciato();
 	private static Tracciato tracciato_out = new Tracciato();
 
+	private static Activity activity;
+
 	public static void inviaComandi(final int comando, final int maschera,
 			final int inout) {
 
-		tracciato_out.setComando(comando);
-		tracciato_out.setMaschera(maschera);
-		tracciato_out.setInOutput(inout);
-		tracciato_out.setBuf();
-		tracciato_out.setCheckSum(utility.calcola_check_sum(tracciato_out
-				.getBuf()));
+		PING = false;
 
-		InviaComandiThread buf = new InviaComandiThread(bq_out,
-				tracciato_out.setBuf());
+		try {
 
-		new Thread(buf, "Thread Invia Comandi").start();
+			tracciato_out.setComando(comando);
+			tracciato_out.setMaschera(maschera);
+			tracciato_out.setInOutput(inout);
+			tracciato_out.setBuf();
+			tracciato_out.setCheckSum(utility.calcola_check_sum(tracciato_out
+					.getBuf()));
+
+			InviaComandiThread buf = new InviaComandiThread(bq_out,
+					tracciato_out.setBuf());
+
+			new Thread(buf, "Thread Invia Comandi").start();
+
+			Thread.sleep(100);
+
+			if (!LONG)
+				PING = true;
+
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
@@ -164,7 +183,7 @@ public class WorkActivity extends Activity {
 						// PING = false;
 
 						if (PING) {
-							inviaComandi(CMD, MSK, INOUT);
+							inviaComandi(CMD, MSK_NOTHING, INOUT);
 						}
 
 					} else {
@@ -304,6 +323,8 @@ public class WorkActivity extends Activity {
 
 		utility = new Utility(this);
 
+		this.activity = this;
+
 		bq_out = new ArrayBlockingQueue<byte[]>(64);
 		bq_in = new ArrayBlockingQueue<byte[]>(64);
 
@@ -381,6 +402,9 @@ public class WorkActivity extends Activity {
 			disturbo_label.setTextColor(Color.BLACK);
 		}
 
+		utility.appendLog("I", "Inviato comando: 4 ALL");
+		inviaComandi(0, MSK_ALL_4, INOUT);
+
 	}
 
 	public static final Handler aggiorna_def_value_defaults = new Handler() {
@@ -388,6 +412,20 @@ public class WorkActivity extends Activity {
 		public void handleMessage(Message msg) {
 
 			def_value_defaults();
+		}
+	};
+
+	public static final Handler invia_4_parameters = new Handler() {
+
+		public void handleMessage(Message msg) {
+
+			def_value_defaults();
+
+			INOUT = STOP_TMP;
+
+			utility.appendLog("I", "Inviato comando: 4 ALL");
+			inviaComandi(0, MSK_ALL_4, INOUT);
+
 		}
 	};
 
@@ -414,14 +452,14 @@ public class WorkActivity extends Activity {
 		tracciato_out.setPowerOut(preferences.getInt("ANTENNA", 0) * 100);
 		tracciato_out.setTimerOut(preferences.getInt("TIME", 0) * 60);
 
-		suggerimenti.setText(utility.get_suggerimento_trattamento());
+		ll.setVisibility(View.GONE);
+		scala_termica.setVisibility(View.GONE);
+		activity.runOnUiThread(new carica_immagini(activity, preferences
+				.getInt("IMMAGINE", 0)));
 
 		button_home.setEnabled(true);
 		button_temperature_negative.setPressed(false);
 		button_temperature_positive.setPressed(false);
-
-		utility.appendLog("I", "Inviato comando: 4 ALL");
-		inviaComandi(0, MSK_ALL_4, INOUT);
 
 	}
 
@@ -535,7 +573,11 @@ public class WorkActivity extends Activity {
 		button_play.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 
-				suggerimenti.setText("");
+				PING = false;
+
+				immagine_suggerimento.setVisibility(View.GONE);
+				ll.setVisibility(View.VISIBLE);
+				scala_termica.setVisibility(View.VISIBLE);
 
 				CMD = 1;
 
@@ -590,15 +632,30 @@ public class WorkActivity extends Activity {
 					e.printStackTrace();
 				}
 
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
+				PING = true;
 
-						disegna_grafico();
+				if (waitTimerGrafico == null) {
 
-					}
-				});
+					waitTimerGrafico = new CountDownTimer(
+							Integer.parseInt(time_label_down.getText()
+									.subSequence(0, 2).toString()) * 60 * 1000 + 1,
+							5000) {
 
+						public void onTick(long millisUntilFinished) {
+							disegna_grafico();
+
+						}
+
+						public void onFinish() {
+							utility.appendLog("I", "CHIUDO IL GRAFICO");
+							ll.setVisibility(View.GONE);
+							scala_termica.setVisibility(View.GONE);
+
+						}
+
+					}.start();
+
+				}
 			}
 		});
 
@@ -646,6 +703,12 @@ public class WorkActivity extends Activity {
 					waitTimerFlash = null;
 				}
 
+				if (waitTimerGrafico != null) {
+					utility.appendLog("I", "Chiudo il grafico");
+					waitTimerGrafico.cancel();
+					waitTimerGrafico = null;
+				}
+
 				INOUT = STOP_TMP;
 
 				if (button_play.isPressed()) {
@@ -675,7 +738,11 @@ public class WorkActivity extends Activity {
 					e.printStackTrace();
 				}
 
-				suggerimenti.setText(utility.get_suggerimento_trattamento());
+				ll.setVisibility(View.GONE);
+				scala_termica.setVisibility(View.GONE);
+
+				activity.runOnUiThread(new carica_immagini(activity,
+						preferences.getInt("IMMAGINE", 0)));
 
 				button_home.setEnabled(true);
 				button_temperature_negative.setPressed(false);
@@ -686,6 +753,9 @@ public class WorkActivity extends Activity {
 				utility.reset_piramide();
 
 				def_value_defaults();
+
+				utility.appendLog("I", "Inviato comando: 4 ALL");
+				inviaComandi(0, MSK_ALL_4, INOUT);
 
 			}
 		});
@@ -1592,16 +1662,19 @@ public class WorkActivity extends Activity {
 	private float function_y(double y) {
 
 		int B = 3;
-		float Tw = 41;
+		float Tw = WATER_GRAPH;
 		double b = 0.19;
-		int Tb = 37;
-		float Dt = 1.2f;
+		int Tb = 36;
+		float Dt = DELTAT_GRAPH;
 		double a = 0.035;
 		double A = (B + 1) * Dt + Tw - Tb;
 
 		double equation = ((B * Tw * Math.exp(-b * y) + Tb + A
 				* Math.exp(-a * y))
 				/ (B * Math.exp(-b * y) + 1) - Tb);
+
+		// utility.appendLog("I", "WATER = " + Tw + " DELTAT = " + Dt
+		// + " RESULT = " + equation);
 
 		return new Double(equation).floatValue();
 
@@ -1700,10 +1773,11 @@ public class WorkActivity extends Activity {
 		deltat_label_down = (TextView) findViewById(R.id.deltat_label_down);
 		time_label_down = (TextView) findViewById(R.id.time_label_down);
 		disturbo_label = (TextView) findViewById(R.id.disturbo_label);
-		suggerimenti = (TextView) findViewById(R.id.suggerimenti);
-		suggerimenti.setSingleLine(false);
+
+		immagine_suggerimento = (ImageView) findViewById(R.id.immagine_suggerimento);
 
 		ll = (LinearLayout) findViewById(R.id.grafico1);
+		scala_termica = (LinearLayout) findViewById(R.id.scala_termica);
 
 		array_colori = utility.getArrayColori();
 
@@ -1711,50 +1785,63 @@ public class WorkActivity extends Activity {
 
 	protected void disegna_grafico() {
 
-		Paint paint_griglia = new Paint();
-		paint_griglia.setColor(Color.parseColor("#327277"));
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
 
-		int asse_x = 140, asse_y = 70;
+				utility.appendLog("I", "Disegno il grafico");
 
-		Bitmap bg = Bitmap
-				.createBitmap(asse_x, asse_y, Bitmap.Config.ARGB_8888);
+				Paint paint_griglia = new Paint();
+				paint_griglia.setColor(Color.parseColor("#327277"));
 
-		Canvas canvas = new Canvas(bg);
-		canvas.save();
-		canvas.drawColor(Color.BLACK);
-		canvas.translate(asse_x / 2, 0);
+				int asse_x = 140, asse_y = 70;
 
-		float f = 0;
+				Bitmap bg = Bitmap.createBitmap(asse_x, asse_y,
+						Bitmap.Config.ARGB_8888);
 
-		// from -x to +x evaluate and plot the function
+				Canvas canvas = new Canvas(bg);
+				canvas.save();
+				canvas.drawColor(Color.BLACK);
+				canvas.translate(asse_x / 2, 0);
 
-		for (int y = 0; y < asse_y; y++) {
+				float f = 0;
 
-			double componente_y = function_y(y);
+				// from -x to +x evaluate and plot the function
 
-			for (int x = 0; x < asse_x / 2; x++) {
+				for (int y = 0; y < asse_y; y++) {
 
-				Paint paint = new Paint();
-				int Tb = 37;
-				f = (float) (Tb + componente_y * function_x(x));
+					double componente_y = function_y(y);
 
-				int[] index = utility.find2DIndex(array_colori, f);
+					for (int x = 0; x < asse_x / 2; x++) {
 
-				if (index != null) {
-					paint.setColor(Color.rgb(index[0], index[1], index[2]));
+						Paint paint = new Paint();
+						int Tb = 36;
+						f = (float) (Tb + componente_y * function_x(x));
 
-					// utility.appendLog("D", "Temp " + f + "°C RED=" + index[0]
-					// + " GREEN=" + index[1] + " BLUE=" + index[2]);
-					canvas.drawPoint((float) x, y, paint);
-					canvas.drawPoint((float) -x, y, paint);
+						int mioindice = (int) (((f - 36) * 34) / 10);
+						int[] index = utility.find2DIndex(array_colori,
+								mioindice);
+
+						if (index != null) {
+							paint.setColor(Color.rgb(index[0], index[1],
+									index[2]));
+
+							// utility.appendLog("D", "Temp " + f + "°C RED=" +
+							// index[0]
+							// + " GREEN=" + index[1] + " BLUE=" + index[2]);
+							canvas.drawPoint((float) x, y, paint);
+							canvas.drawPoint((float) -x, y, paint);
+						}
+
+					}
 				}
 
+				canvas.restore();
+
+				ll.setBackgroundDrawable(new BitmapDrawable(bg));
+
 			}
-		}
-
-		canvas.restore();
-
-		ll.setBackgroundDrawable(new BitmapDrawable(bg));
+		});
 
 	}
 

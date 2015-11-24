@@ -6,6 +6,7 @@ import it.app.hypertherm.Tracciato;
 import it.app.hypertherm.activity.WorkActivity;
 import it.app.hypertherm.db.HyperthermDB;
 import it.app.hypertherm.db.HyperthermDataSource;
+import it.app.hypertherm.thread.carica_immagini;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -29,7 +30,9 @@ import android.os.Environment;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -43,18 +46,16 @@ public class Utility {
 
 	private TextView antenna_black_label_up, antenna_black_label_down,
 			water_label_down, deltat_label_down, time_label_down,
-			water_label_up, deltat_label_up, time_label_up, suggerimenti,
-			disturbo_label;
-
+			water_label_up, deltat_label_up, time_label_up, disturbo_label;
 	private Button button_play, button_stop, button_pause, button_bolus_down,
 			button_bolus_up, button_home, button_power, button_antenna,
 			button_time;
-
 	private LinearLayout zero, dieci, venti, trenta, quaranta, cinquanta,
-			sessanta, settanta, ottanta, novanta;
+			sessanta, settanta, ottanta, novanta, grafico, scala_termica;
+	private ImageView immagine_suggerimento;
 
 	private int Ref_power, Dir_power, iPower, iD_temp, iH2o_temp, iTime,
-			comando;
+			comando, runningTime;
 
 	private byte[] In_Output_temp;
 
@@ -93,7 +94,6 @@ public class Utility {
 				.findViewById(R.id.antenna_black_label_down);
 		time_label_down = (TextView) activity
 				.findViewById(R.id.time_label_down);
-		suggerimenti = (TextView) activity.findViewById(R.id.suggerimenti);
 		disturbo_label = (TextView) activity.findViewById(R.id.disturbo_label);
 
 		button_play = (Button) activity.findViewById(R.id.button_play);
@@ -107,6 +107,8 @@ public class Utility {
 		button_antenna = (Button) activity
 				.findViewById(R.id.button_antenna_black);
 		button_time = (Button) activity.findViewById(R.id.button_time);
+		immagine_suggerimento = (ImageView) activity
+				.findViewById(R.id.immagine_suggerimento);
 
 		zero = (LinearLayout) activity.findViewById(R.id.zero);
 		dieci = (LinearLayout) activity.findViewById(R.id.dieci);
@@ -119,7 +121,9 @@ public class Utility {
 		ottanta = (LinearLayout) activity.findViewById(R.id.ottanta);
 		novanta = (LinearLayout) activity.findViewById(R.id.novanta);
 
-		// grafico = (ImageView) activity.findViewById(R.id.grafico);
+		grafico = (LinearLayout) activity.findViewById(R.id.grafico1);
+		scala_termica = (LinearLayout) activity
+				.findViewById(R.id.scala_termica);
 
 	}
 
@@ -250,7 +254,9 @@ public class Utility {
 						}
 					});
 
-					suggerimenti.setText("");
+					immagine_suggerimento.setVisibility(View.GONE);
+					grafico.setVisibility(View.VISIBLE);
+					scala_termica.setVisibility(View.VISIBLE);
 
 					break;
 
@@ -265,7 +271,9 @@ public class Utility {
 
 				case 768: // STOP
 
-					if (button_play.isPressed()) {
+					if (button_play.isPressed()
+							&& !time_label_up.getText().toString()
+									.equals("00:00")) {
 
 						disturbo_label.setText(String.valueOf(preferences
 								.getString("MENU_ITEM", "Defect")));
@@ -302,7 +310,10 @@ public class Utility {
 
 					reset_piramide();
 
-					suggerimenti.setText(get_suggerimento_trattamento());
+					grafico.setVisibility(View.GONE);
+					scala_termica.setVisibility(View.GONE);
+					activity.runOnUiThread(new carica_immagini(activity,
+							preferences.getInt("IMMAGINE", 0)));
 
 					break;
 
@@ -405,7 +416,7 @@ public class Utility {
 			int Boil_temp = ((int) temp[52]) & 0xFF;
 			Boil_temp |= (((int) temp[53]) & 0xFF) << 8;
 
-			int runningTime = ((int) temp[54]) & 0xFF;
+			runningTime = ((int) temp[54]) & 0xFF;
 			runningTime |= (((int) temp[55]) & 0xFF) << 8;
 
 			int pwmRes = ((int) temp[56]) & 0xFF;
@@ -458,7 +469,36 @@ public class Utility {
 				}
 
 				if (button_play.isPressed() || button_pause.isPressed()) {
+
 					SetTime(convertSecondsToMmSs(runningTime));
+
+					if (runningTime == iTime) {
+
+						// STOP
+
+						appendLog("I", "Trattamento terminato dalla scheda");
+
+						try {
+							Thread.sleep(150);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+						new Thread() {
+							@Override
+							public void run() {
+
+								Message invia_4_parameters = WorkActivity.invia_4_parameters
+										.obtainMessage();
+								WorkActivity.invia_4_parameters
+										.sendMessage(invia_4_parameters);
+
+							}
+						}.start();
+
+					}
+
 				} else {
 					SetTime(convertSecondsToMmSs(0));
 				}
@@ -469,6 +509,7 @@ public class Utility {
 				} else {
 					d_temp = D_temp;
 				}
+
 				if (d_temp > 0) {
 
 					setDeltaT("+" + arrotondaPerEccesso(d_temp, 1));
@@ -479,6 +520,9 @@ public class Utility {
 
 				}
 
+				WorkActivity.DELTAT_GRAPH = new Double(arrotondaPerEccesso(
+						d_temp, 1)).floatValue();
+
 				int h2o_temp = 0;
 				if (H2o_temp >= 60000) {
 					h2o_temp = (H2o_temp - 65536);
@@ -487,6 +531,8 @@ public class Utility {
 				}
 				setWaterTemperature(String.valueOf(Float.parseFloat(""
 						+ arrotondaPerEccesso(h2o_temp, 1))));
+				WorkActivity.WATER_GRAPH = new Double(arrotondaPerEccesso(
+						h2o_temp, 1)).floatValue();
 
 				setAntenna(""
 						+ (int) Float.parseFloat(""
@@ -1902,47 +1948,20 @@ public class Utility {
 
 	}
 
-	public int[] find2DIndex(Float[][] array, float search) {
+	public int[] find2DIndex(Float[][] array, int search) {
 
 		int[] risultato = new int[3];
 
-		if (search == 0 || array == null)
+		if (array == null)
 			return null;
 
-		for (int rowIndex = 0; rowIndex < array.length; rowIndex++) {
-
-			Float[] row = array[rowIndex];
-
-			if (row != null) {
-
-				if (search <= row[0]) {
-					risultato[0] = Math.round(array[rowIndex][2]);
-					risultato[1] = Math.round(array[rowIndex][3]);
-					risultato[2] = Math.round(array[rowIndex][4]);
-
-					return risultato;
-				}
-
-				// for (int columnIndex = 0; columnIndex < row.length;
-				// columnIndex++) {
-				// if (search.equals(row[columnIndex])) {
-				// return new Point(rowIndex, columnIndex);
-				// }
-				// }
-			}
+		if (search > 34) {
+			search = 34;
 		}
 
-		if (search < 0) {
-			risultato[0] = 0;
-			risultato[1] = 0;
-			risultato[2] = 0;
-		}
-
-		if (search > 256) {
-			risultato[0] = Math.round(array[255][2]);
-			risultato[1] = Math.round(array[255][3]);
-			risultato[2] = Math.round(array[255][4]);
-		}
+		risultato[0] = Math.round(array[search][2]);
+		risultato[1] = Math.round(array[search][3]);
+		risultato[2] = Math.round(array[search][4]);
 
 		return risultato; // value not found in array
 	}
