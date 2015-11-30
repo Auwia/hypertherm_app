@@ -1952,18 +1952,34 @@ public class Utility {
 
 		int[] risultato = new int[3];
 
-		if (array == null)
+		if (array == null || risultato == null)
 			return null;
-
-		if (search > 34) {
-			search = 34;
-		}
 
 		risultato[0] = Math.round(array[search][2]);
 		risultato[1] = Math.round(array[search][3]);
 		risultato[2] = Math.round(array[search][4]);
 
 		return risultato; // value not found in array
+	}
+
+	public int getCountColori() {
+
+		cur = database.query(HyperthermDB.TABLE_COLORI,
+				new String[] { "count(indice)" }, null, null, null, null, null);
+
+		cur.moveToFirst();
+
+		int risultato = -1;
+
+		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			risultato = cur.getInt(0);
+			cur.moveToNext();
+		}
+
+		cur.close();
+
+		return risultato;
+
 	}
 
 	public Float[][] getArrayColori() {
@@ -1975,10 +1991,15 @@ public class Utility {
 
 		cur.moveToFirst();
 
-		Float[][] risultato = new Float[256][5];
+		Float[][] risultato = new Float[WorkActivity.count_colori][5];
 		int riga = 0;
 
 		while (cur.getCount() > 0 && !cur.isAfterLast()) {
+			appendLog(
+					"I",
+					"Col0=" + cur.getFloat(0) + "Col1=" + cur.getFloat(1)
+							+ "Col2=" + cur.getFloat(2) + "Col3="
+							+ cur.getFloat(4) + "Col1=" + cur.getFloat(4));
 			risultato[riga][0] = cur.getFloat(0);
 			risultato[riga][1] = cur.getFloat(1);
 			risultato[riga][2] = cur.getFloat(2);

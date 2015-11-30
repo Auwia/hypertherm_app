@@ -78,6 +78,7 @@ public class WorkActivity extends Activity {
 	public static boolean AVVIO;
 
 	private int funzionalita;
+	public static int count_colori;
 
 	public static int WATER, WATER_IMP = 0;
 	public static int DELTAT, DELTAT_IMP = 0;
@@ -1664,7 +1665,7 @@ public class WorkActivity extends Activity {
 		int B = 3;
 		float Tw = WATER_GRAPH;
 		double b = 0.19;
-		int Tb = 36;
+		int Tb = 37;
 		float Dt = DELTAT_GRAPH;
 		double a = 0.035;
 		double A = (B + 1) * Dt + Tw - Tb;
@@ -1779,6 +1780,8 @@ public class WorkActivity extends Activity {
 		ll = (LinearLayout) findViewById(R.id.grafico1);
 		scala_termica = (LinearLayout) findViewById(R.id.scala_termica);
 
+		count_colori = utility.getCountColori();
+
 		array_colori = utility.getArrayColori();
 
 	}
@@ -1806,8 +1809,6 @@ public class WorkActivity extends Activity {
 
 				float f = 0;
 
-				// from -x to +x evaluate and plot the function
-
 				for (int y = 0; y < asse_y; y++) {
 
 					double componente_y = function_y(y);
@@ -1815,12 +1816,20 @@ public class WorkActivity extends Activity {
 					for (int x = 0; x < asse_x / 2; x++) {
 
 						Paint paint = new Paint();
-						int Tb = 36;
+						int Tb = 37;
 						f = (float) (Tb + componente_y * function_x(x));
 
-						int mioindice = (int) (((f - 36) * 34) / 10);
+						if (f < Tb) {
+							f = Tb;
+						}
+
+						if (f > (Tb + 10)) {
+							f = Tb + 10;
+						}
+
+						int indicecolore = (int) (((f - Tb) * count_colori) / 10);
 						int[] index = utility.find2DIndex(array_colori,
-								mioindice);
+								indicecolore);
 
 						if (index != null) {
 							paint.setColor(Color.rgb(index[0], index[1],
