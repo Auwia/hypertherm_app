@@ -71,6 +71,7 @@ public class Simulatore implements Runnable {
 				tracciato.setInOutput(INOUT);
 				if (FINE_TRATTAMENTO) {
 
+					tracciato.setTimerIn(0);
 					tracciato.setComando(3);
 					tracciato.setInOutput(45);
 					START = false;
@@ -259,8 +260,7 @@ public class Simulatore implements Runnable {
 								public void onFinish() {
 
 									START = false;
-									utility.appendLog("I", "START=" + START);
-									INOUT = 45;
+									INOUT = 174;
 									CMD = 3;
 									POTENZA_DIR = 0;
 									POTENZA_IN = 0;

@@ -449,6 +449,7 @@ public class Utility {
 					esegui(Cmd);
 
 				} else {
+
 					if (In_Output.substring(1, 2).equals("0")
 							&& In_Output.substring(3, 4).equals("0")) {
 						// STOP
@@ -466,23 +467,20 @@ public class Utility {
 						// PAUSE
 						esegui(512);
 					}
-				}
 
-				if (button_play.isPressed() || button_pause.isPressed()) {
-
-					SetTime(convertSecondsToMmSs(runningTime));
-
-					if (runningTime == iTime) {
-
-						// STOP
+					if (In_Output.substring(0, 1).equals("1")) {
 
 						appendLog("I", "Trattamento terminato dalla scheda");
 
-						try {
-							Thread.sleep(150);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						esegui(768);
+
+						if (WorkActivity.SIMULATORE) {
+							try {
+								Thread.sleep(150);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 						}
 
 						new Thread() {
@@ -498,6 +496,11 @@ public class Utility {
 						}.start();
 
 					}
+				}
+
+				if (button_play.isPressed() || button_pause.isPressed()) {
+
+					SetTime(convertSecondsToMmSs(runningTime));
 
 				} else {
 					SetTime(convertSecondsToMmSs(0));
@@ -1995,11 +1998,6 @@ public class Utility {
 		int riga = 0;
 
 		while (cur.getCount() > 0 && !cur.isAfterLast()) {
-			appendLog(
-					"I",
-					"Col0=" + cur.getFloat(0) + "Col1=" + cur.getFloat(1)
-							+ "Col2=" + cur.getFloat(2) + "Col3="
-							+ cur.getFloat(4) + "Col1=" + cur.getFloat(4));
 			risultato[riga][0] = cur.getFloat(0);
 			risultato[riga][1] = cur.getFloat(1);
 			risultato[riga][2] = cur.getFloat(2);

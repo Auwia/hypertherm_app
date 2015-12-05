@@ -365,7 +365,7 @@ public class WorkActivity extends Activity {
 							+ (int) (DELTAT_IMP + 10 * (progress - 5)));
 				}
 
-				utility.appendLog("I", "Inviato comando: 4 ALL");
+				utility.appendLog("I", "Inviato comando: seek_bar: 4 ALL");
 				inviaComandi(0, MSK_ALL_4, INOUT);
 			}
 
@@ -403,7 +403,7 @@ public class WorkActivity extends Activity {
 			disturbo_label.setTextColor(Color.BLACK);
 		}
 
-		utility.appendLog("I", "Inviato comando: 4 ALL");
+		utility.appendLog("I", "Inviato comando: oncreate: 4 ALL");
 		inviaComandi(0, MSK_ALL_4, INOUT);
 
 	}
@@ -424,7 +424,7 @@ public class WorkActivity extends Activity {
 
 			INOUT = STOP_TMP;
 
-			utility.appendLog("I", "Inviato comando: 4 ALL");
+			utility.appendLog("I", "Inviato comando: invia_4_parameters");
 			inviaComandi(0, MSK_ALL_4, INOUT);
 
 		}
@@ -486,7 +486,8 @@ public class WorkActivity extends Activity {
 					utility.appendLog("I", "Aggiornata temperatura acqua:"
 							+ WATER_IMP);
 					utility.appendLog("I", "Aggiornato DELTAT:" + DELTAT_IMP);
-					utility.appendLog("I", "Inviato comando: 4 ALL");
+					utility.appendLog("I",
+							"Inviato comando: button_power: 4 ALL");
 					inviaComandi(0, MSK_ALL_4, INOUT);
 
 					return false;
@@ -755,7 +756,7 @@ public class WorkActivity extends Activity {
 
 				def_value_defaults();
 
-				utility.appendLog("I", "Inviato comando: 4 ALL");
+				utility.appendLog("I", "Inviato comando: button_stop: 4 ALL");
 				inviaComandi(0, MSK_ALL_4, INOUT);
 
 			}
@@ -1828,6 +1829,11 @@ public class WorkActivity extends Activity {
 						}
 
 						int indicecolore = (int) (((f - Tb) * count_colori) / 10);
+
+						if (indicecolore == count_colori) {
+							indicecolore--;
+						}
+
 						int[] index = utility.find2DIndex(array_colori,
 								indicecolore);
 
