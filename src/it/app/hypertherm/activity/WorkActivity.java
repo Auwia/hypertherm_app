@@ -98,9 +98,7 @@ public class WorkActivity extends Activity {
 	private final static int PLAY = 1;
 	private final static int PAUSE = 2;
 	private final static int STOP = 3;
-	// private final static int PLAY_TMP = 112;
-	// private final static int PAUSE_TMP = 96;
-	// private final static int STOP_TMP = 32;
+	private final static int RESEND = 14;
 	private final static int PLAY_TMP = 125;
 	private final static int PAUSE_TMP = 109;
 	private final static int STOP_TMP = 45;
@@ -414,6 +412,18 @@ public class WorkActivity extends Activity {
 
 			def_value_defaults();
 		}
+	};
+
+	public static final Handler invia_resend = new Handler() {
+
+		public void handleMessage(Message msg) {
+
+			utility.appendLog("I", "Inviato comando: RESEND");
+			INOUT = RESEND;
+			inviaComandi(RESEND, MSK_CMD, INOUT);
+
+		}
+
 	};
 
 	public static final Handler invia_4_parameters = new Handler() {

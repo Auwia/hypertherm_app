@@ -450,6 +450,8 @@ public class Utility {
 
 				} else {
 
+					// appendLog("I", "Variabile IN_OUT: " + In_Output);
+
 					if (In_Output.substring(1, 2).equals("0")
 							&& In_Output.substring(3, 4).equals("0")) {
 						// STOP
@@ -487,6 +489,13 @@ public class Utility {
 							@Override
 							public void run() {
 
+								// Invio RESEND
+								Message message_resend = WorkActivity.invia_resend
+										.obtainMessage();
+								WorkActivity.invia_resend
+										.sendMessage(message_resend);
+
+								// Invio 4 parameters
 								Message invia_4_parameters = WorkActivity.invia_4_parameters
 										.obtainMessage();
 								WorkActivity.invia_4_parameters
