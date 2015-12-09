@@ -684,14 +684,17 @@ public class WorkActivity extends Activity {
 					timerRfOff = null;
 				}
 
-				INOUT = PAUSE_TMP;
+				if (!(SIMULATORE && button_stop.isPressed())) {
 
-				utility.appendLog("I", "Inviato comando: PAUSE");
-				inviaComandi(PAUSE, MSK_CMD, INOUT);
+					utility.appendLog("I", "Inviato comando: PAUSE");
+					INOUT = PAUSE_TMP;
+					inviaComandi(PAUSE, MSK_CMD, INOUT);
 
-				CMD = 2;
+					CMD = 2;
 
-				utility.reset_piramide();
+					utility.reset_piramide();
+
+				}
 
 			}
 
