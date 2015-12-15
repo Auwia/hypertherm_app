@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" font-family="Arial" font-size="13" width="200" height="92">
+	<desc>UML diagram hypertherm_app</desc>
+	<g id="_Ln5PoaNMEeW2DKuIR9t1aA">
+		<defs>
+			<linearGradient id="greyGradient" x1="0%" y1="0%" x2="0%" y2="100%" spreadMethod="pad">
+				<stop offset="0%" stop-color="#FFFFFF" stop-opacity="1" />
+				<stop offset="100%" stop-color="#E5E5E5" stop-opacity="1" />
+				
+			</linearGradient>
+			<linearGradient id="packageGradient" x1="0%" y1="0%" x2="0%" y2="100%" spreadMethod="pad">
+				<stop offset="0%" stop-color="#FFFFFF" stop-opacity="1" />
+				<stop offset="100%" stop-color="#EFE9DE" stop-opacity="1" />
+				
+			</linearGradient>
+			
+		</defs>
+		<g id="_Ln5PpKNMEeW2DKuIR9t1aA">
+			<polygon fill="#FFFFFF" stroke-width="1" stroke="#CCCCCC" points="50,2 50,42 155,42 155,17 140,2 " />
+			<text x="54" y="7" fill="#2D2D2D">
+				<tspan x="54" y="19" font-size="12">To view your</tspan>
+				<tspan x="54" y="31" font-size="12">model, drag</tspan>
+				<tspan x="54" y="43" font-size="12">and drop</tspan>
+				<tspan x="54" y="55" font-size="12">elements from</tspan>
+				<tspan x="54" y="67" font-size="12">the tree. Enjoy!</tspan>
+				
+			</text>
+			<polygon fill="#CCCCCC" stroke-width="1" stroke="#CCCCCC" points="140,2 140,17 155,17 " />
+			
+		</g>
+		
+	</g>
+	
+</svg>
