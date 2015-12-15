@@ -46,7 +46,7 @@ import com.dwin.navy.serialportapi.SerialPortOpt;
 
 public class WorkActivity extends Activity {
 
-	private SeekBar seek_bar;
+	private static SeekBar seek_bar;
 	private static Button button_antenna_left, button_antenna_right,
 			button_water_left, button_water_right, button_deltat_left,
 			button_deltat_right, button_time_left, button_time_right,
@@ -80,8 +80,8 @@ public class WorkActivity extends Activity {
 	private int funzionalita;
 	public static int count_colori;
 
-	public static int WATER, WATER_IMP = 0;
-	public static int DELTAT, DELTAT_IMP = 0;
+	public static int WATER, WATER_IMP, WATER_TMP = 0;
+	public static int DELTAT, DELTAT_IMP, DELTAT_TMP = 0;
 	public static int POWER = 0;
 	public static int TIMER = 0;
 	public static float WATER_GRAPH = 0, DELTAT_GRAPH = 0;
@@ -347,20 +347,32 @@ public class WorkActivity extends Activity {
 					tracciato_out
 							.setDeltaTOut(DELTAT_IMP - 10 * (5 - progress));
 
+					// _AC
+					WATER_TMP = WATER_IMP - 30 * (5 - progress);
+					DELTAT_TMP = DELTAT_IMP - 10 * (5 - progress);
+
 					utility.appendLog("I", "Aggiornata temperatura acqua:"
-							+ (int) (WATER_IMP - 30 * (5 - progress)));
+
+					+ (int) WATER_TMP);
 					utility.appendLog("I", "Aggiornato DELTAT:"
-							+ (int) (DELTAT_IMP - 10 * (5 - progress)));
+
+					+ (int) DELTAT_TMP);
 
 				} else if (progress >= 5 && progress <= 10) {
 					tracciato_out.setWaterOut(WATER_IMP + 30 * (progress - 5));
 					tracciato_out
 							.setDeltaTOut(DELTAT_IMP + 10 * (progress - 5));
 
+					// _AC
+					WATER_TMP = WATER_IMP + 30 * (progress - 5);
+					DELTAT_TMP = DELTAT_IMP + 10 * (progress - 5);
+
 					utility.appendLog("I", "Aggiornata temperatura acqua:"
-							+ (int) (WATER_IMP + 30 * (progress - 5)));
+
+					+ (int) WATER_TMP);
 					utility.appendLog("I", "Aggiornato DELTAT:"
-							+ (int) (DELTAT_IMP + 10 * (progress - 5)));
+
+					+ (int) DELTAT_TMP);
 				}
 
 				utility.appendLog("I", "Inviato comando: seek_bar: 4 ALL");
@@ -463,6 +475,10 @@ public class WorkActivity extends Activity {
 		tracciato_out.setPowerOut(preferences.getInt("ANTENNA", 0) * 100);
 		tracciato_out.setTimerOut(preferences.getInt("TIME", 0) * 60);
 
+		// _AC
+		WATER_TMP = WATER_IMP;
+		DELTAT_TMP = DELTAT_IMP;
+
 		ll.setVisibility(View.GONE);
 		scala_termica.setVisibility(View.GONE);
 		activity.runOnUiThread(new carica_immagini(activity, preferences
@@ -471,6 +487,8 @@ public class WorkActivity extends Activity {
 		button_home.setEnabled(true);
 		button_temperature_negative.setPressed(false);
 		button_temperature_positive.setPressed(false);
+
+		seek_bar.setProgress(5);
 
 	}
 
@@ -491,7 +509,12 @@ public class WorkActivity extends Activity {
 					button_power.setPressed(true);
 
 					tracciato_out.setWaterOut(WATER_IMP);
+
 					tracciato_out.setDeltaTOut(DELTAT_IMP);
+
+					// _AC
+					WATER_TMP = WATER_IMP;
+					DELTAT_TMP = DELTAT_IMP;
 
 					utility.appendLog("I", "Aggiornata temperatura acqua:"
 							+ WATER_IMP);
@@ -1021,7 +1044,22 @@ public class WorkActivity extends Activity {
 						waitTimer = null;
 					}
 
+					// _AC
+					utility.appendLog("I", "WATER= " + WATER + " WATER_TMP= "
+							+ WATER_TMP + " WATER_IMP= " + WATER_IMP);
+					utility.appendLog("I", "DELTAT= " + DELTAT
+							+ " DELTAT_TMP= " + DELTAT_TMP + " DELTAT_IMP= "
+							+ DELTAT_IMP);
+
 					WATER -= 10;
+
+					if (button_power.isPressed()) {
+						WATER_TMP = WATER_IMP;
+						DELTAT_TMP = DELTAT_IMP;
+					} else {
+						WATER_IMP = WATER;
+						DELTAT_IMP = DELTAT_TMP;
+					}
 
 					if (WATER >= 3500) {
 

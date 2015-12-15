@@ -597,8 +597,11 @@ public class Utility {
 						WorkActivity.TIMER = iTime;
 
 						if (button_power.isPressed()) {
-							WorkActivity.WATER_IMP = iH2o_temp;
-							WorkActivity.DELTAT_IMP = id_temp;
+							WorkActivity.WATER_IMP = WorkActivity.WATER_TMP = iH2o_temp;
+							WorkActivity.DELTAT_IMP = WorkActivity.DELTAT_TMP = id_temp;
+						} else {
+							WorkActivity.WATER_TMP = iH2o_temp;
+							WorkActivity.DELTAT_TMP = id_temp;
 						}
 
 					}
